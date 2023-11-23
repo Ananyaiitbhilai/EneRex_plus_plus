@@ -1,0 +1,1925 @@
+{
+    "02567fd428a675ca91a0c6786f47f3e35881bcbd.grobid": {
+        "method": [
+            [
+                "deep ConvNet models"
+            ],
+            [
+                "label distribution learning ( LDL ) approach"
+            ],
+            [
+                "Convolutional Neural Networks ( ConvNets )",
+                "Deep ConvNets"
+            ],
+            [
+                "DLDL"
+            ]
+        ],
+        "task_application": [
+            [
+                "visual recognition tasks"
+            ],
+            [
+                "age estimation"
+            ],
+            [
+                "multi-label classification",
+                "classification   # b9"
+            ],
+            [
+                "recognition problems"
+            ],
+            [
+                "semantic segmentation"
+            ],
+            [
+                "head pose estimation"
+            ],
+            [
+                "feature learning"
+            ],
+            [
+                "network training process"
+            ],
+            [
+                "regression problems   # b10"
+            ]
+        ]
+    },
+    "02b3d1d162080d9aefd3fc30a0bcc9a843073b5d.grobid": {
+        "method": [
+            [
+                "sequence-to-sequence models"
+            ],
+            [
+                "RNNs"
+            ],
+            [
+                "conditional language models"
+            ],
+            [
+                "Recurrent Neural Networks"
+            ]
+        ],
+        "task_application": [
+            [
+                "large scale Language Modeling",
+                "large scale LM"
+            ],
+            [
+                "video generation"
+            ],
+            [
+                "machine translation"
+            ]
+        ]
+    },
+    "0398552184f80db111e9c28bf533b395f233ac00.grobid": {
+        "method": [
+            [
+                "saliency detection",
+                "saliency detection techniques",
+                "saliency detection technique"
+            ],
+            [
+                "category-free models"
+            ],
+            [
+                "SPCL regime"
+            ]
+        ],
+        "task_application": [
+            [
+                "saliency detection"
+            ],
+            [
+                "WOD"
+            ]
+        ]
+    },
+    "05d2700846c0323f79c1344aca5333994c7c03a5.grobid": {
+        "method": [
+            [
+                "language models"
+            ]
+        ],
+        "task_application": [
+            [
+                "rescoring"
+            ]
+        ]
+    },
+    "0626908dd710b91aece1a81f4ca0635f23fc47f3.grobid": {
+        "method": [
+            [
+                "Inception networks"
+            ],
+            [
+                "AlexNet"
+            ]
+        ],
+        "task_application": [
+            [
+                "big-data scenarios"
+            ],
+            [
+                "computer vision tasks"
+            ]
+        ]
+    },
+    "0678a8abea82793993cd89383319da75f6dc4be3.grobid": {
+        "method": [
+            [
+                "cascaded neural network framework",
+                "multi-scale FCN",
+                "fully-convolutional network ( FCN ) architecture",
+                "cascaded neural network"
+            ],
+            [
+                "image-level representations"
+            ],
+            [
+                "ProNet"
+            ]
+        ],
+        "task_application": [
+            [
+                "simultaneous object classification and localization",
+                "classification",
+                "object classification and localization",
+                "object classification",
+                "point-based localization",
+                "classification purpose"
+            ]
+        ]
+    },
+    "081531984770a74e87dbd68907061b4b0f3631bf.grobid": {
+        "method": [
+            [
+                "slow fusion"
+            ],
+            [
+                "real-time spatio-temporal models"
+            ],
+            [
+                "early fusion"
+            ],
+            [
+                "Motion Compensation"
+            ],
+            [
+                "Spatio-Temporal Networks"
+            ],
+            [
+                "3D convolutions"
+            ],
+            [
+                "Convolutional neural networks"
+            ]
+        ],
+        "task_application": [
+            [
+                "video SR",
+                "Real-Time Video Super-Resolution",
+                "joint processing of multiple consecutive video frames"
+            ],
+            [
+                "image super-resolution"
+            ]
+        ]
+    },
+    "0834e74304b547c9354b6d7da6fa78ef47a48fa8.grobid": {
+        "method": [
+            [
+                "low-dimensional embedding"
+            ],
+            [
+                "edge-sampling method"
+            ],
+            [
+                "stochastic gradient descent"
+            ]
+        ],
+        "task_application": [
+            [
+                "recommendation   # b33"
+            ],
+            [
+                "model inference",
+                "inference"
+            ],
+            [
+                "optimization"
+            ],
+            [
+                "link prediction"
+            ],
+            [
+                "visualization   # b31"
+            ],
+            [
+                "node classification   # b13"
+            ]
+        ]
+    },
+    "0a3381f0432c5cfe491c718349d7a44e5814592c.grobid": {
+        "method": [
+            [
+                "Neural network models",
+                "Compositional Sequence Labeling Models",
+                "neural network models"
+            ],
+            [
+                "error correction systems"
+            ],
+            [
+                "bidirectional LSTMs"
+            ],
+            [
+                "neural sequence tagging model"
+            ],
+            [
+                "Automated systems"
+            ]
+        ],
+        "task_application": [
+            [
+                "error detection",
+                "Error Detection",
+                "error detection in learner writing"
+            ],
+            [
+                "NLP tasks"
+            ],
+            [
+                "context representation"
+            ],
+            [
+                "second language learning and assessment"
+            ]
+        ]
+    },
+    "0a6c36de8726b6feaab586046ddc1d1a008f44f9.grobid": {
+        "method": [],
+        "task_application": []
+    },
+    "0c47cad9729c38d9db1f75491b1ee4bd883a5d4e.grobid": {
+        "method": [
+            [
+                "Selftraining"
+            ],
+            [
+                "Cross-View Training"
+            ],
+            [
+                "Bi-LSTM sentence encoder"
+            ],
+            [
+                "unified model"
+            ],
+            [
+                "semi-supervised learning strategy"
+            ],
+            [
+                "auxiliary prediction modules",
+                "auxiliary prediction module"
+            ],
+            [
+                "CVT"
+            ]
+        ],
+        "task_application": [
+            [
+                "sequence tagging"
+            ],
+            [
+                "neural architectures",
+                "neural NLP",
+                "NLP"
+            ],
+            [
+                "machine translation"
+            ],
+            [
+                "semi-supervised learning"
+            ],
+            [
+                "graph-based dependency parsers"
+            ],
+            [
+                "sequence taggers"
+            ],
+            [
+                "language modeling"
+            ]
+        ]
+    },
+    "0dc9eb7d17f2def56ad930945f2521653f04c3fa.grobid": {
+        "method": [
+            [
+                "normalized probability model"
+            ]
+        ],
+        "task_application": [
+            [
+                "Estimating full sentence language models"
+            ]
+        ]
+    },
+    "107010b7f2abe3c0c9df62bcef35eb77f6fc76df.grobid": {
+        "method": [
+            [
+                "domain-adversarial descriptor learning",
+                "domain-adversarial learning",
+                "representation learning approach",
+                "descriptor learning"
+            ],
+            [
+                "pedestrian image descriptors"
+            ],
+            [
+                "feed-forward neural networks"
+            ],
+            [
+                "fixed feature representations"
+            ],
+            [
+                "backpropagation training"
+            ]
+        ],
+        "task_application": [
+            [
+                "person re-identification",
+                "person re-identification application   # b23"
+            ],
+            [
+                "large-scale training"
+            ],
+            [
+                "semi-supervised case"
+            ],
+            [
+                "cross-data-set re-identification"
+            ],
+            [
+                "verification"
+            ],
+            [
+                "domain adaptation"
+            ],
+            [
+                "alignment"
+            ]
+        ]
+    },
+    "1130d8fdd931225c2d7563c3808367726cfa1c3a.grobid": {
+        "method": [
+            [
+                "PixelGAN autoencoders",
+                "PixelGAN autoencoder"
+            ],
+            [
+                "GAN inference technique"
+            ],
+            [
+                "GAN-style algorithms"
+            ]
+        ],
+        "task_application": [
+            [
+                "downstream tasks"
+            ],
+            [
+                "clustering and semi-supervised scenarios",
+                "semi-supervised settings",
+                "semi-supervised learning"
+            ],
+            [
+                "maximum likelihood learning   # b2"
+            ],
+            [
+                "approximate inference"
+            ]
+        ]
+    },
+    "11356cd6bb0f2776a88cd584ff108470414c6594.grobid": {
+        "method": [
+            [
+                "Convolutional network"
+            ]
+        ],
+        "task_application": [
+            [
+                "analysing spatio-temporal data"
+            ]
+        ]
+    },
+    "11da0c54ba904a1cb31a09d10da55f73e8825c61.grobid": {
+        "method": [
+            [
+                "feature-rich models"
+            ],
+            [
+                "formal reasoning methods"
+            ],
+            [
+                "Heuristic Matching"
+            ],
+            [
+                "TBCNN-pair model"
+            ],
+            [
+                "Tree-Based Convolution"
+            ]
+        ],
+        "task_application": [
+            [
+                "Natural Language Inference",
+                "natural language inference"
+            ],
+            [
+                "NLI"
+            ]
+        ]
+    },
+    "1235dd37312cb20aced0e97d953f6379d8a0c7d4.grobid": {
+        "method": [
+            [
+                "BiMPM model   # b30"
+            ],
+            [
+                "cosine similarity computation"
+            ],
+            [
+                "visually-augmented models"
+            ],
+            [
+                "Logic-based models"
+            ],
+            [
+                "affine transformation"
+            ]
+        ],
+        "task_application": [
+            [
+                "textual entailment",
+                "entailment"
+            ],
+            [
+                "matching",
+                "multimodal matching"
+            ],
+            [
+                "reasoning task"
+            ]
+        ]
+    },
+    "14318685b5959b51d0f1e3db34643eb2855dc6d9.grobid": {
+        "method": [
+            [
+                "deep networks",
+                "deep neural network architecture"
+            ],
+            [
+                "GoogLeNet"
+            ]
+        ],
+        "task_application": [
+            [
+                "object-detection"
+            ],
+            [
+                "ILSVRC14"
+            ],
+            [
+                "computer vision"
+            ]
+        ]
+    },
+    "16051bbe3a7f7c77a952ebf76722ea655e8906ca.grobid": {
+        "method": [
+            [
+                "clustering-regression scheme",
+                "generalized LSH",
+                "unsupervised locality-sensitive hashing ( LSH ) model",
+                "generalized locality-sensitive hashing ( LSH )",
+                "Feature-augmented Random Forest",
+                "FARF method",
+                "feature-augmented random forest ( FARF )",
+                "random forest ( RF )",
+                "RF",
+                "feature-augmented random forest ( FARF ) scheme",
+                "generalized weighted ridge regression ( GWRR )"
+            ],
+            [
+                "principal component analysis ( PCA )"
+            ],
+            [
+                "PCA"
+            ],
+            [
+                "dictionary-learning-based algorithms"
+            ],
+            [
+                "divide and conquer \" strategy"
+            ],
+            [
+                "inference stages"
+            ]
+        ],
+        "task_application": [
+            [
+                "classification and regression tasks",
+                "classification or regression problems",
+                "regression problems"
+            ],
+            [
+                "clustering"
+            ],
+            [
+                "single image superresolution ( SISR ) task",
+                "Image Super-resolution",
+                "image super-resolution"
+            ],
+            [
+                "feature extraction",
+                "dimensionality reduction",
+                "feature dimensionality reduction"
+            ],
+            [
+                "SISR"
+            ]
+        ]
+    },
+    "160563abbd75265b19afc8b4169bab9e1eb33d97.grobid": {
+        "method": [
+            [
+                "single language-agnostic BiLSTM encoder"
+            ],
+            [
+                "sentence embeddings",
+                "general purpose sentence representations",
+                "Massively Multilingual Sentence Embeddings"
+            ],
+            [
+                "deep learning"
+            ]
+        ],
+        "task_application": [
+            [
+                "natural language processing ( NLP )"
+            ],
+            [
+                "downstream tasks"
+            ],
+            [
+                "multilingual similarity search"
+            ],
+            [
+                "machine translation"
+            ],
+            [
+                "typology prediction"
+            ],
+            [
+                "Zero-Shot Cross-Lingual Transfer"
+            ]
+        ]
+    },
+    "175f74a09241b6cb5101a2a09978095720db7d5f.grobid": {
+        "method": [
+            [
+                "DSRN"
+            ],
+            [
+                "convolutional neural networks ( CNNs )",
+                "deep neural networks",
+                "deep neural networks ( DNNs )"
+            ],
+            [
+                "residual learning"
+            ],
+            [
+                "Dual-State Recurrent Networks"
+            ]
+        ],
+        "task_application": [
+            [
+                "video SR",
+                "SR",
+                "Image Super-Resolution",
+                "image super-resolution ( SR )"
+            ]
+        ]
+    },
+    "1778e32c18bd611169e64c1805a51abff341ca53.grobid": {
+        "method": [
+            [
+                "Interactive Inference Network"
+            ],
+            [
+                "Attention mechanism",
+                "attention mechanism"
+            ],
+            [
+                "representation learning technique"
+            ]
+        ],
+        "task_application": [
+            [
+                "alignment between representations"
+            ],
+            [
+                "NLI or NLI alike tasks",
+                "NLI",
+                "NLU tasks"
+            ]
+        ]
+    },
+    "178275dbdcfa267e41a9d5efe386ee5874c6d23f.grobid": {
+        "method": [
+            [
+                "neural networks",
+                "Recurrent neural networks ( RNNs )"
+            ],
+            [
+                "activity regularization ( AR )"
+            ],
+            [
+                "temporal activation regularization (TAR)1"
+            ]
+        ],
+        "task_application": [
+            [
+                "regularizing LSTMs"
+            ],
+            [
+                "language modeling"
+            ],
+            [
+                "sequence modeling tasks"
+            ],
+            [
+                "sequential prediction"
+            ]
+        ]
+    },
+    "178631e0f0e624b1607c7a7a2507ed30d4e83a42.grobid": {
+        "method": [
+            [
+                "RNNs",
+                "Neural networks",
+                "deep Long Short-term Memory RNNs",
+                "deep , bidirectional Long Short-term Memory RNNs",
+                "DEEP RECURRENT NEURAL NETWORKS",
+                "RNN",
+                "deep feedforward networks"
+            ]
+        ],
+        "task_application": [
+            [
+                "phoneme recognition"
+            ],
+            [
+                "speech recognition",
+                "SPEECH RECOGNITION"
+            ],
+            [
+                "sequence labelling problems"
+            ],
+            [
+                "acoustic modelling"
+            ]
+        ]
+    },
+    "18168aea48a22f6fe2fe407c0ff70083cba225a7.grobid": {
+        "method": [
+            [
+                "deconvolutional layers"
+            ],
+            [
+                "deep network architecture",
+                "convolutional neural network (CNN)-based framework",
+                "deep neural networks ( DNNs )",
+                "DNNs",
+                "deep encoding and decoding framework",
+                "very deep fully convolutional encoding-decoding framework",
+                "Deep Convolutional Encoder-Decoder Networks"
+            ],
+            [
+                "mathematical model"
+            ]
+        ],
+        "task_application": [
+            [
+                "superresolution"
+            ],
+            [
+                "computer vision tasks"
+            ],
+            [
+                "image restoration",
+                "Image Restoration"
+            ],
+            [
+                "image abstraction"
+            ],
+            [
+                "image denoising"
+            ],
+            [
+                "image processing tasks",
+                "image processing"
+            ]
+        ]
+    },
+    "193089d56758ab88391d846edd08d359b1f9a863.grobid": {
+        "method": [
+            [
+                "Verification models"
+            ],
+            [
+                "convolutional neural networks ( CNN )"
+            ],
+            [
+                "Identification models",
+                "identification models"
+            ],
+            [
+                "robust descriptor"
+            ],
+            [
+                "Discriminatively Learned CNN Embedding"
+            ]
+        ],
+        "task_application": [
+            [
+                "multi-class recognition task"
+            ],
+            [
+                "person re-identification ( re-ID )",
+                "person re-ID",
+                "person re-identification",
+                "Person Re-identification"
+            ],
+            [
+                "feature learning"
+            ]
+        ]
+    },
+    "193b518bc3025804c6d587c74cbc154d91478417.grobid": {
+        "method": [
+            [
+                "adversarial learning method",
+                "multi-level adversarial network",
+                "adversarial learning"
+            ],
+            [
+                "domain adaptation method",
+                "generic adaptation model",
+                "feature adaptation",
+                "end-to-end CNN-based domain adaptation algorithm"
+            ],
+            [
+                "Convolutional neural network-based approaches"
+            ],
+            [
+                "convolutional neural networks ( CNNs )"
+            ]
+        ],
+        "task_application": [
+            [
+                "domain adaptation problem",
+                "output space domain adaptation",
+                "domain adaptation"
+            ],
+            [
+                "pixel-level semantic segmentation",
+                "semantic segmentation"
+            ],
+            [
+                "pixel-level prediction tasks"
+            ]
+        ]
+    },
+    "1d0dcb458aa4d30b51f7c74b159be687f39120a0.grobid": {
+        "method": [
+            [
+                "sub-network"
+            ],
+            [
+                "deep architecture",
+                "Pose-driven Deep Convolutional Model",
+                "deep models",
+                "pose-driven deep convolutional model",
+                "deep learning"
+            ],
+            [
+                "feature representations"
+            ]
+        ],
+        "task_application": [
+            [
+                "feature similarity measurement"
+            ],
+            [
+                "computer vision tasks"
+            ],
+            [
+                "adaptive similarity measurements",
+                "similarity measurements"
+            ],
+            [
+                "discriminative feature fusion"
+            ],
+            [
+                "person ReID",
+                "Person Re-identification"
+            ]
+        ]
+    },
+    "1f08598381af9146d0fd9a61b30d0e51a7331689.grobid": {
+        "method": [
+            [
+                "distributed architecture"
+            ],
+            [
+                "distributed framework"
+            ]
+        ],
+        "task_application": [
+            [
+                "prioritized replay"
+            ],
+            [
+                "deep reinforcement learning"
+            ]
+        ]
+    },
+    "2138a7127429d67746ec78de46d6820fee0e548e.grobid": {
+        "method": [
+            [
+                "Graph2Seq"
+            ],
+            [
+                "attention-based neural networks model",
+                "general attention-based neural network model",
+                "ATTENTION-BASED NEURAL NETWORKS",
+                "attention mechanism"
+            ],
+            [
+                "Sequence to Sequence learning ( Seq2Seq ) technique"
+            ],
+            [
+                "encoder"
+            ]
+        ],
+        "task_application": [
+            [
+                "graph-to-sequence learning",
+                "GRAPH TO SEQUENCE LEARNING",
+                "graph-to-sequence tasks",
+                "graph-to-sequence learning problems"
+            ],
+            [
+                "Natural Language Generation ( NLG )"
+            ],
+            [
+                "symbolic AI"
+            ],
+            [
+                "general or domain-specific applications"
+            ],
+            [
+                "Neural Machine Translation"
+            ],
+            [
+                "decoding"
+            ],
+            [
+                "Speech Recognition"
+            ]
+        ]
+    },
+    "21a1654b856cf0c64e60e58258669b374cb05539.grobid": {
+        "method": [
+            [
+                "YOLO"
+            ],
+            [
+                "post-processing"
+            ],
+            [
+                "detection systems"
+            ],
+            [
+                "classifiers"
+            ]
+        ],
+        "task_application": [
+            [
+                "classification"
+            ],
+            [
+                "detection",
+                "object detection",
+                "real-time object detection"
+            ]
+        ]
+    },
+    "232b43584b2236669c0a53702ad89ab10c3886ea.grobid": {
+        "method": [
+            [
+                "categorical distributional RL algorithms",
+                "Distributional RL"
+            ],
+            [
+                "Implicit Quantile Networks"
+            ]
+        ],
+        "task_application": [
+            [
+                "Distributional Reinforcement Learning"
+            ],
+            [
+                "samplebased convergence"
+            ],
+            [
+                "policy"
+            ]
+        ]
+    },
+    "23d2d3a6ffebfecaa8930307fdcf451c147757c8.grobid": {
+        "method": [
+            [
+                "SeqGAN",
+                "GAN"
+            ],
+            [
+                "value network   # b21"
+            ],
+            [
+                "gradient policy update"
+            ],
+            [
+                "Monte Carlo tree search"
+            ],
+            [
+                "Generative Adversarial Net ( GAN )",
+                "generative adversarial nets"
+            ],
+            [
+                "stochastic policy"
+            ]
+        ],
+        "task_application": [
+            [
+                "generator differentiation problem"
+            ],
+            [
+                "generating real-valued data"
+            ],
+            [
+                "speech language and music generation"
+            ],
+            [
+                "generating realvalued , continuous data",
+                "generating sequences",
+                "structured sequences generation"
+            ],
+            [
+                "longer-term planning"
+            ],
+            [
+                "reinforcement learning ( RL )"
+            ],
+            [
+                "action decision making"
+            ]
+        ]
+    },
+    "24730424236724d3f798dec02901e7a1f1c4710e.grobid": {
+        "method": [
+            [
+                "random-forest scheme",
+                "Joint Maximum Purity Forest",
+                "JMPF",
+                "JMPF scheme",
+                "random forest"
+            ],
+            [
+                "principal component analysis ( PCA )"
+            ],
+            [
+                "classification or regression tool"
+            ],
+            [
+                "divide-and-conquer strategy"
+            ]
+        ],
+        "task_application": [
+            [
+                "classification and regression tasks",
+                "classification , clustering , and regression tasks",
+                "clustering/classification"
+            ],
+            [
+                "single-image super-resolution",
+                "Image Super-Resolution",
+                "image super-resolution"
+            ],
+            [
+                "computer-vision applications"
+            ],
+            [
+                "dimensionality reduction"
+            ]
+        ]
+    },
+    "249b3b7421d3cdb932eecfe4b67203e0e46806b2.grobid": {
+        "method": [
+            [
+                "neural approaches"
+            ],
+            [
+                "RNNs"
+            ],
+            [
+                "CAS-LSTM architecture"
+            ]
+        ],
+        "task_application": [
+            [
+                "sentence modeling tasks",
+                "natural language processing ( NLP )",
+                "NLP tasks"
+            ],
+            [
+                "sentence representations"
+            ]
+        ]
+    },
+    "25a784f7f8c94c42821ee078587fc38dffcd00a4.grobid": {
+        "method": [
+            [
+                "anchor-level hard example mining"
+            ],
+            [
+                "face detectors",
+                "face detector"
+            ]
+        ],
+        "task_application": [
+            [
+                "human-level detection"
+            ],
+            [
+                "learning small faces"
+            ],
+            [
+                "mining hard negative anchors"
+            ]
+        ]
+    },
+    "25f5df29342a04936ba0d308b4d1b8245a7e8f5c.grobid": {
+        "method": [
+            [
+                "Convolutional Pose Machines ( CPMs )",
+                "Convolutional pose machines"
+            ],
+            [
+                "systematic framework"
+            ],
+            [
+                "end-to-end architecture"
+            ],
+            [
+                "image-dependent spatial models"
+            ],
+            [
+                "backpropagation"
+            ],
+            [
+                "CPMs"
+            ],
+            [
+                "differentiable architecture"
+            ]
+        ],
+        "task_application": [
+            [
+                "globally joint training"
+            ],
+            [
+                "articulated pose estimation",
+                "pose estimation"
+            ],
+            [
+                "structured prediction problems",
+                "structured prediction problem"
+            ],
+            [
+                "structured prediction tasks"
+            ]
+        ]
+    },
+    "269730dbbabed8b8b5ba720e44a4c31b1f51e8f1.grobid": {
+        "method": [
+            [
+                "recurrent update"
+            ],
+            [
+                "recurrent unit"
+            ],
+            [
+                "QRN"
+            ],
+            [
+                "QUERY-REDUCTION NETWORKS"
+            ]
+        ],
+        "task_application": [
+            [
+                "RNN 's vanishing gradients"
+            ],
+            [
+                "long-term dependency problem",
+                "long-term dependency problems"
+            ],
+            [
+                "QUESTION ANSWERING"
+            ]
+        ]
+    },
+    "270e65acc071b9e4e2a632720130c0e10cb6fa08.grobid": {
+        "method": [
+            [
+                "recursive neural networks"
+            ],
+            [
+                "tree structured models"
+            ],
+            [
+                "Neural Tree Indexers"
+            ],
+            [
+                "RNNs"
+            ],
+            [
+                "NTI"
+            ]
+        ],
+        "task_application": [
+            [
+                "Text Understanding"
+            ],
+            [
+                "large-scale sequence processing"
+            ],
+            [
+                "sentiment analysis"
+            ],
+            [
+                "NLP tasks"
+            ]
+        ]
+    },
+    "2777cd26b2c257843273fe41ad4c5b8cdf1b1b75.grobid": {
+        "method": [
+            [
+                "Generative Adversarial Network (GAN)-like sub-nets",
+                "Deep Nested Adversarial Learning"
+            ],
+            [
+                "deep Nested Adversarial Network ( NAN ) model",
+                "deep learning based methods"
+            ],
+            [
+                "Multihuman parsing"
+            ],
+            [
+                "NAN"
+            ]
+        ],
+        "task_application": [
+            [
+                "Understanding Humans in Crowded Scenes"
+            ],
+            [
+                "perceptual tasks"
+            ],
+            [
+                "semantic saliency prediction"
+            ],
+            [
+                "multi-human parsing problem",
+                "Multi-Human Parsing",
+                "multi-human parsing"
+            ],
+            [
+                "real-world applications"
+            ]
+        ]
+    },
+    "27a99c21a1324f087b2f144adc119f04137dfd87.grobid": {
+        "method": [
+            [
+                "Fastfood method"
+            ],
+            [
+                "sparsity inducing regularizer"
+            ]
+        ],
+        "task_application": [
+            [
+                "kernel approximation"
+            ],
+            [
+                "optimization"
+            ]
+        ]
+    },
+    "27aa0f3ec934925265f93fac7ff1cd1d70ceb618.grobid": {
+        "method": [
+            [
+                "Deep neural networks ( DNNs )"
+            ],
+            [
+                "multi-task tri-training model",
+                "tri-training"
+            ]
+        ],
+        "task_application": [
+            [
+                "POS tagging"
+            ],
+            [
+                "sentiment analysis"
+            ],
+            [
+                "supervised NLP tasks",
+                "NLP tasks"
+            ]
+        ]
+    },
+    "2a86bcdfb1d817ddb76ba202319f8267a36c0f62.grobid": {
+        "method": [
+            [
+                "instance classifiers ( object detectors )",
+                "object detectors"
+            ],
+            [
+                "CNN"
+            ],
+            [
+                "MIL network",
+                "Multiple Instance Learning ( MIL ) pipeline",
+                "learning algorithm",
+                "Proposal Cluster Learning",
+                "MIL networks",
+                "refined instance classifiers",
+                "MIL"
+            ],
+            [
+                "deep network"
+            ]
+        ],
+        "task_application": [
+            [
+                "training"
+            ],
+            [
+                "weakly supervised object detection",
+                "Weakly Supervised Object Detection",
+                "Weakly Supervised Object Detection ( WSOD )"
+            ],
+            [
+                "weakly supervised visual learning tasks"
+            ],
+            [
+                "WSOD"
+            ]
+        ]
+    },
+    "2f04ba0f74df046b0080ca78e56898bd4847898b.grobid": {
+        "method": [
+            [
+                "feature representation"
+            ],
+            [
+                "Viola-Jones detector",
+                "VJ detector"
+            ],
+            [
+                "cascade"
+            ],
+            [
+                "boosting"
+            ]
+        ],
+        "task_application": [
+            [
+                "real-time face detection",
+                "face detection domain",
+                "face detection"
+            ],
+            [
+                "feature design"
+            ]
+        ]
+    },
+    "2f56b1ac5b9faac9527b6814778925e9242cf5fd.grobid": {
+        "method": [
+            [
+                "Bootstrapping"
+            ],
+            [
+                "region-based ConvNets"
+            ],
+            [
+                "reduction"
+            ],
+            [
+                "SVMs"
+            ]
+        ],
+        "task_application": [
+            [
+                "Object detectors",
+                "object detection",
+                "object detection research"
+            ],
+            [
+                "pedestrian detection"
+            ]
+        ]
+    },
+    "2f97ee95cad6a1f13596b108072b846c6f747d4e.grobid": {
+        "method": [
+            [
+                "neural-network-based acoustic and language modeling"
+            ],
+            [
+                "recurrent models"
+            ]
+        ],
+        "task_application": [
+            [
+                "Switchboard recognition task"
+            ],
+            [
+                "language modeling"
+            ]
+        ]
+    },
+    "322a7dad274f440a92548faa8f2b2be666b2d01f.grobid": {
+        "method": [
+            [
+                "dilated FCN"
+            ],
+            [
+                "semantic segmentation"
+            ],
+            [
+                "pyramid scene parsing network"
+            ],
+            [
+                "spatial pyramid pooling"
+            ],
+            [
+                "global prior representation"
+            ],
+            [
+                "PSPNet"
+            ]
+        ],
+        "task_application": [
+            [
+                "Scene parsing",
+                "scene parsing task",
+                "complex scene understanding"
+            ],
+            [
+                "pixellevel prediction tasks",
+                "pixellevel prediction",
+                "pixel prediction"
+            ]
+        ]
+    },
+    "325af39d281d5903a269c01fab8f53d7400a4c49.grobid": {
+        "method": [
+            [
+                "spatio-temporal grouping"
+            ],
+            [
+                "graph partitioning formulation"
+            ],
+            [
+                "Convolutional networks"
+            ],
+            [
+                "articulated tracking model"
+            ],
+            [
+                "inference methods"
+            ],
+            [
+                "CNN detectors"
+            ],
+            [
+                "local search techniques"
+            ]
+        ],
+        "task_application": [
+            [
+                "articulated tracking",
+                "people tracking and pose estimation"
+            ],
+            [
+                "localizing body joints",
+                "joint estimation of body configurations"
+            ],
+            [
+                "bottom-up assembly of part detections"
+            ],
+            [
+                "graph partitioning problem"
+            ],
+            [
+                "inference"
+            ]
+        ]
+    },
+    "33261d252218007147a71e40f8367ed152fa2fe0.grobid": {
+        "method": [
+            [
+                "embedding model"
+            ],
+            [
+                "Subgraph Embeddings"
+            ]
+        ],
+        "task_application": [
+            [
+                "open QA"
+            ],
+            [
+                "Question Answering"
+            ]
+        ]
+    },
+    "3448e6a5039417dc1ae890efeca3bef5390ace7c.grobid": {
+        "method": [
+            [
+                "deep component",
+                "deep neural networks ( DNNs )"
+            ],
+            [
+                "predictive systems"
+            ],
+            [
+                "sum pooling"
+            ],
+            [
+                "xDeepFM"
+            ],
+            [
+                "pre-trained factorization machines"
+            ]
+        ],
+        "task_application": [
+            [
+                "speech recognition"
+            ],
+            [
+                "Recommender Systems"
+            ],
+            [
+                "embedding multivalent fields",
+                "field embedding"
+            ],
+            [
+                "natural language processing"
+            ],
+            [
+                "manual feature engineering"
+            ],
+            [
+                "computer vision"
+            ],
+            [
+                "generalization"
+            ],
+            [
+                "transformation of raw features"
+            ]
+        ]
+    },
+    "35734e8724559fb0d494e5cba6a28ad7a3d5dd4d.grobid": {
+        "method": [],
+        "task_application": []
+    },
+    "364c1a3df58d87cb40ab33fdf3831cf2862f3570.grobid": {
+        "method": [
+            [
+                "deep learning architectures"
+            ],
+            [
+                "neural network models",
+                "Attention-Based Neural Matching Model",
+                "attention based neural matching model"
+            ],
+            [
+                "learning to rank approach"
+            ],
+            [
+                "LSTMs"
+            ],
+            [
+                "CNNs"
+            ]
+        ],
+        "task_application": [
+            [
+                "question/answer matching",
+                "question/answer matching problem",
+                "ranking short answer text",
+                "answer ranking",
+                "Ranking Short Answer Texts"
+            ],
+            [
+                "QA systems"
+            ],
+            [
+                "computer vision ( CV )"
+            ],
+            [
+                "question answering task"
+            ]
+        ]
+    },
+    "3842ee1e0fdfeff936b5c49973ff21adfaaf3929.grobid": {
+        "method": [
+            [
+                "Prior generative approaches"
+            ],
+            [
+                "adversarial approaches"
+            ],
+            [
+                "generalized framework"
+            ]
+        ],
+        "task_application": [
+            [
+                "unsupervised domain adaptation"
+            ],
+            [
+                "discriminative tasks"
+            ],
+            [
+                "adversarial adaptation"
+            ]
+        ]
+    },
+    "38cc89399dd6f5aaab1654f27ab3c9eeade12a36.grobid": {
+        "method": [
+            [
+                "deep networks"
+            ],
+            [
+                "2D representations"
+            ],
+            [
+                "decoupled approach"
+            ]
+        ],
+        "task_application": [
+            [
+                "3D pose estimation"
+            ],
+            [
+                "estimating 3D human pose"
+            ]
+        ]
+    },
+    "38e2f851b705faa0d0a698ed9885bd6834440073.grobid": {
+        "method": [
+            [
+                "few-shot meta-learning methods",
+                "probabilistic meta-learning approach",
+                "Meta-learning"
+            ],
+            [
+                "classifiers"
+            ]
+        ],
+        "task_application": [
+            [
+                "amortized variational inference"
+            ],
+            [
+                "ambiguous few-shot learning problem",
+                "few-shot learning",
+                "ambiguous few-shot attribute classification tasks"
+            ]
+        ]
+    },
+    "3aa21de1a7c97e0458e10ed5730ce160bb436caa.grobid": {
+        "method": [
+            [
+                "deep learning techniques",
+                "deep network"
+            ],
+            [
+                "coarse-to-fine strategy"
+            ]
+        ],
+        "task_application": [
+            [
+                "predicting residual"
+            ],
+            [
+                "3d shape generation"
+            ],
+            [
+                "deformation procedure"
+            ]
+        ]
+    },
+    "3acc07f7f8951617276cf99483ed02aeb0a6eeac.grobid": {
+        "method": [
+            [
+                "posterior regularization"
+            ],
+            [
+                "curriculumstyle domain adaptation",
+                "domain adaptation",
+                "Curriculum Domain Adaptation"
+            ],
+            [
+                "curriculum-style learning approach"
+            ]
+        ],
+        "task_application": [
+            [
+                "semantic segmentation of urban scenes",
+                "semantic segmentation",
+                "Semantic Segmentation of Urban Scenes",
+                "semantic image segmentation of urban scenes"
+            ]
+        ]
+    },
+    "3ca3993b1f3536b15112f759067f62e999c5d38f.grobid": {
+        "method": [
+            [
+                "BB8"
+            ],
+            [
+                "\" holistic \" approach"
+            ],
+            [
+                "Partial Occlusion Method"
+            ],
+            [
+                "Deep Networks"
+            ]
+        ],
+        "task_application": [
+            [
+                "Predicting the 3D Poses"
+            ],
+            [
+                "3D pose estimation"
+            ],
+            [
+                "regression"
+            ]
+        ]
+    },
+    "3cf31ecb2724b5088783d7c96a5fc0d5604cbf41.grobid": {
+        "method": [
+            [
+                "feature representation",
+                "Bidirectional LSTM Feature Representations",
+                "feature extractors"
+            ],
+            [
+                "classifier"
+            ],
+            [
+                "Graph-based parsers",
+                "graph-based and transition-based parsers"
+            ]
+        ],
+        "task_application": [
+            [
+                "dependency parsing",
+                "parsing",
+                "Dependency Parsing",
+                "parsing problem",
+                "parsing process"
+            ]
+        ]
+    },
+    "3daa086acd367dc971a2dc1382caba2031294233.grobid": {
+        "method": [
+            [
+                "differentiable Conditional Random Field ( CRF )"
+            ],
+            [
+                "category-level segmentation network",
+                "category-level segmentations",
+                "holistic network",
+                "part-level instance segmentation of humans"
+            ]
+        ],
+        "task_application": [
+            [
+                "instance-level part segmentation",
+                "part-level instance segmentation",
+                "instance-level part and human segmentation",
+                "human-level instance segmentation",
+                "instance-level segmentation"
+            ]
+        ]
+    },
+    "408e8eecc14c5cc60bbdfc486ba7a7fc97031788.grobid": {
+        "method": [
+            [
+                "supervised feature learning",
+                "unsupervised feature learning"
+            ],
+            [
+                "Convolutional neural networks ( CNNs )"
+            ],
+            [
+                "CNNs"
+            ],
+            [
+                "supervised CNN training"
+            ],
+            [
+                "feature learning algorithm"
+            ]
+        ],
+        "task_application": [
+            [
+                "generic visual feature learning"
+            ],
+            [
+                "visual object recognition"
+            ],
+            [
+                "image classification tasks",
+                "image restoration",
+                "supervised image classification tasks"
+            ],
+            [
+                "descriptor matching"
+            ]
+        ]
+    },
+    "4365eb43a635bc6431dfaf3af1f7bf7bf55522cc.grobid": {
+        "method": [
+            [
+                "fully convolutional network",
+                "region-based Convolutional Neural Network ( CNN ) detectors"
+            ],
+            [
+                "global process",
+                "local process"
+            ],
+            [
+                "PSRoI pooling",
+                "pyramid pooling module"
+            ],
+            [
+                "CoupleNet"
+            ],
+            [
+                "R-FCN"
+            ]
+        ],
+        "task_application": [
+            [
+                "object detection",
+                "recognition of object categories",
+                "detection",
+                "object category prediction",
+                "sofa detection"
+            ],
+            [
+                "scene parsing"
+            ],
+            [
+                "inference"
+            ]
+        ]
+    },
+    "436b07bebaa1d1f05ef85415e10374048d25334d.grobid": {
+        "method": [
+            [
+                "MoE"
+            ]
+        ],
+        "task_application": [
+            [
+                "language modeling"
+            ],
+            [
+                "machine translation"
+            ]
+        ]
+    },
+    "44078d0daed8b13114cffb15b368acc467f96351.grobid": {
+        "method": [
+            [
+                "low-dimensional discriminative embedding step",
+                "TPE method",
+                "embedding method"
+            ],
+            [
+                "deep CNN-based approach",
+                "raw CNN model"
+            ]
+        ],
+        "task_application": [
+            [
+                "automatic pre-processing steps"
+            ],
+            [
+                "unconstrained face verification problem"
+            ],
+            [
+                "identification and verification tasks"
+            ],
+            [
+                "end-to-end system"
+            ]
+        ]
+    },
+    "45429c281e30f9e87ebcd1ae42e0656d2ead24d1.grobid": {
+        "method": [
+            [
+                "Conditional GANs"
+            ],
+            [
+                "graphics techniques"
+            ],
+            [
+                "adversarial training"
+            ],
+            [
+                "image-to-image synthesis pipeline"
+            ]
+        ],
+        "task_application": [
+            [
+                "high-resolution image generation tasks"
+            ],
+            [
+                "interactive image manipulation"
+            ],
+            [
+                "Semantic Manipulation"
+            ],
+            [
+                "Photo-realistic image rendering"
+            ],
+            [
+                "High-Resolution Image Synthesis"
+            ]
+        ]
+    },
+    "455da02e5048dffb51fb6ab5eb8aeca5926c9d9a.grobid": {
+        "method": [
+            [
+                "Deep Convolutional Networks"
+            ],
+            [
+                "SPP-net",
+                "SPP"
+            ],
+            [
+                "Spatial Pyramid Pooling"
+            ],
+            [
+                "full-image representation"
+            ]
+        ],
+        "task_application": [
+            [
+                "classification"
+            ],
+            [
+                "detection",
+                "object detection",
+                "DNN-based detection"
+            ],
+            [
+                "Visual Recognition"
+            ]
+        ]
+    }
+}
