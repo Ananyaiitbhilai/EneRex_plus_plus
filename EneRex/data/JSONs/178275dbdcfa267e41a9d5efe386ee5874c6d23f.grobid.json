@@ -1,0 +1,280 @@
+[
+    {
+        "basename": "178275dbdcfa267e41a9d5efe386ee5874c6d23f.grobid",
+        "fulltext": 20,
+        "footnote_size": 6,
+        "footnote_max": 8,
+        "reference": 30,
+        "authors": [
+            "\u017bo\u0142na",
+            "Arpit",
+            "Suhubdy",
+            "Bengio"
+        ]
+    },
+    {
+        "title": "",
+        "abstract": "Recurrent neural networks (RNNs) form an important class of architectures among neural networks useful for language modeling and sequential prediction. However, optimizing RNNs is known to be harder compared to feed-forward neural networks. A number of techniques have been proposed in literature to address this problem. In this paper we propose a simple technique called fraternal dropout that takes advantage of dropout to achieve this goal. Specifically, we propose to train two identical copies of an RNN (that share parameters) with different dropout masks while minimizing the difference between their (pre-softmax) predictions. In this way our regularization encourages the representations of RNNs to be invariant to dropout mask, thus being robust. We show that our regularization term is upper bounded by the expectation-linear dropout objective which has been shown to address the gap due to the difference between the train and inference phases of dropout. We evaluate our model and achieve state-of-the-art results in sequence modeling tasks on two benchmark datasets -Penn Treebank and Wikitext-2. We also show that our approach leads to performance improvement by a significant margin in image captioning (Microsoft COCO) and semi-supervised (CIFAR-10) tasks.",
+        "INTRODUCTION": "Recurrent neural networks (RNNs) like long short-term memory (LSTM;  #b5 ) networks and gated recurrent unit (GRU;  #b0 ) are popular architectures for sequence modeling tasks like language generation, translation, speech synthesis, and machine comprehension. However, they are harder to optimize compared to feed-forward networks due to challenges like variable length input sequences, repeated application of the same transition operator at each time step, and largely-dense embedding matrix that depends on the vocabulary size. Due to these optimization challenges in RNNs, the application of batch normalization and its variants (layer normalization, recurrent batch normalization, recurrent normalization propagation) have not been as successful as their counterparts in feed-forward networks  #b10 , although they do considerably provide performance gains. Similarly, naive application of dropout  #b24  has been shown to be ineffective in RNNs  #b28 . Therefore, regularization techniques for RNNs is an active area of research.To address these challenges,  #b28  proposed to apply dropout only to the nonrecurrent connections in multi-layer RNNs. Variational dropout  #b2 ) uses the same dropout mask throughout a sequence during training. DropConnect  #b26  applies the dropout operation on the weight matrices. Zoneout  #b8 ), in a similar spirit with dropout, randomly chooses to use the previous time step hidden state instead of using the current one. Similarly as a substitute for batch normalization, layer normalization normalizes the hidden units within each sample to have zero mean and unit standard deviation. Recurrent batch normalization applies batch normalization but with unshared mini-batch statistics for each time step  #b1 . Merity et al. (2017a) and Merity et al. (2017b) on the other hand show that activity regularization (AR) and temporal activation regularization (TAR)1 are also effective methods for regularizing LSTMs. Another more recent way of regularizing RNNs, that is similar in spirit to the approach we take, involves minimizing the difference between the hidden states of the original and the auxiliary network  #b23 .In this paper we propose a simple regularization based on dropout that we call fraternal dropout, where we minimize an equally weighted sum of prediction losses from two identical copies of the same LSTM with different dropout masks, and add as a regularization the 2 difference between the predictions (pre-softmax) of the two networks. We analytically show that our regularization objective is equivalent to minimizing the variance in predictions from different i.i.d. dropout masks; thus encouraging the predictions to be invariant to dropout masks. We also discuss how our regularization is related to expectation linear dropout  #b11 , \u03a0-model  #b9  and activity regularization Merity et al. (2017b), and empirically show that our method provides non-trivial gains over these related methods which we explain furthermore in our ablation study (Section 5).",
+        "FRATERNAL DROPOUT": "Dropout is a powerful regularization for neural networks. It is usually more effective on densely connected layers because they suffer more from overfitting compared with convolution layers where the parameters are shared. For this reason dropout is an important regularization for RNNs. However, dropout has a gap between its training and inference phase since the latter phase assumes linear activations to correct for the factor by which the expected value of each activation would be different  #b11 . In addition, the prediction of models with dropout generally vary with different dropout mask. However, the desirable property in such cases would be to have final predictions be invariant to dropout masks.As such, the idea behind fraternal dropout is to train a neural network model in a way that encourages the variance in predictions under different dropout masks to be as small as possible. Specifically, consider we have an RNN model denoted by M(\u03b8) that takes as input X, where \u03b8 denotes the model parameters. Let p t (z t , s t i ; \u03b8) \u2208 R m be the prediction of the model for input sample X at time t, for dropout mask s t i and current input z t , where z t is a function of X and the hidden states corresponding to the previous time steps. Similarly, let t (p t (z t , s t i ; \u03b8), Y) be the corresponding t th time step loss value for the overall input-target sample pair (X, Y).Then in fraternal dropout, we simultaneously feed-forward the input sample X through two identical copies of the RNN that share the same parameters \u03b8 but with different dropout masks s t i and s t j at each time step t. This yields two loss values at each time step t given by t (p t (z t , s t i ; \u03b8), Y), and t (p t (z t , s t j ; \u03b8), Y). Then the overall loss function of fraternal dropout is given by,F D (X, Y) = T t=1 1 2 t (p t (z t , s t i ; \u03b8), Y) + t (p t (z t , s t j ; \u03b8), Y) + \u03ba mT T t=1 R F D (z t ; \u03b8) (1)where \u03ba is the regularization coefficient, m is the dimensions of p t (z t , s t i ; \u03b8) and R F D (z t ; \u03b8) is the fraternal dropout regularization given by,R F D (z t ; \u03b8) := E s t i ,s t j p t (z t , s t i ; \u03b8) -p t (z t , s t j ; \u03b8) 2 2 .(2)We use Monte Carlo sampling to approximate R F D (z t ; \u03b8) where p t (z t , s t i ; \u03b8) and p t (z t , s t j ; \u03b8) are the same as the one used to calculate t values. Hence, the additional computation is negligible.We note that the regularization term of our objective is equivalent to minimizing the variance in the prediction function with different dropout masks as shown below (proof in the appendix).Remark 1. Let s t i and s t j be i.i.d. dropout masks and p t (z t , s t i ; \u03b8) \u2208 R m be the prediction function as described above. Then,R F D (z t ; \u03b8) = E s t i ,s t j p t (z t , s t i ; \u03b8) -p t (z t , s t j ; \u03b8) 2 2 = 2 m q=1 var s t i (p t q (z t , s t i ; \u03b8)). (3)Note that a generalization of our approach would be to minimize the difference between the predictions of the two networks with different data/model augmentations. However, in this paper we focus on using different dropout masks and experiment mainly with RNNs2 .",
+        "RELATED WORK": "3.1 RELATION TO EXPECTATION LINEAR DROPOUT (ELD)  #b11  analytically showed that the expected error (over samples) between a model's expected prediction over all dropout masks, and the prediction using the average mask, is upper bounded. Based on this result, they propose to explicitly minimize the difference (we have adapted their regularization to our notations),R ELD (z t ; \u03b8) = E s p t (z t , s; \u03b8) -p t (z t , E s [s]; \u03b8) 2 (4)where s is the dropout mask. However, due to feasibility consideration, they instead propose to use the following regularization in practice,RELD (z t ; \u03b8) = E si p t (z t , s i ; \u03b8) -p t (z t , E s [s]; \u03b8) 2 2 .(5)Specifically, this is achieved by feed-forwarding the input twice through the network, with and without dropout mask, and minimizing the main network loss (with dropout) along with the regularization term specified above (but without back-propagating the gradients through the network without dropout). The goal of  #b11  is to minimize the network loss along with the expected difference between the prediction from individual dropout mask and the prediction from the expected dropout mask. We note that our regularization objective is upper bounded by the expectation-linear dropout regularization as shown below (proof in the appendix).Proposition 1. R F D (z t ; \u03b8) \u2264 4 RELD (z t ; \u03b8).This result shows that minimizing the ELD objective indirectly minimizes our regularization term. Finally as indicated above, they apply the target loss only on the network with dropout. In fact, in our own ablation studies (see Section 5) we find that back-propagating target loss through the network (without dropout) makes optimizing the model harder. However, in our setting, simultaneously backpropagating target loss through both networks yields both performance gain as well as convergence gain. We believe convergence is faster for our regularization because network weights are more likely to get target based updates from back-propagation in our case. This is especially true for weight dropout  #b26  since in this case dropped weights do not get updated in the training iteration.",
+        "RELATION TO \u03a0-MODEL": "Laine & Aila ( 2016) propose \u03a0-model with the goal of improving performance on classification tasks in the semi-supervised setting. They propose a model similar to ours (considering the equivalent deep feed-forward version of our model) except they apply target loss only on one of the networks and use time-dependent weighting function \u03c9(t) (while we use constant \u03ba mT ). The intuition in their case is to leverage unlabeled data by using them to minimize the difference in prediction between the two copies of the network with different dropout masks. Further, they also test their model in the supervised setting but fail to explain the improvements they obtain by using this regularization.We note that in our case we analytically show that minimizing our regularizer (also used in \u03a0-model) is equivalent to minimizing the variance in the model predictions (Remark 1). Furthermore, we also show the relation of our regularizer to expectation linear dropout (Proposition 1). In Section 5, we study the effects of target based loss on both networks, which is not used in the \u03a0-model. We find that applying target loss on both the networks leads to significantly faster convergence. Finally, we bring to attention that temporal embedding (another model proposed by  #b9 , claimed to be a better version of \u03a0-model for semi-supervised, learning) is intractable in natural language processing applications because storing averaged predictions over all of the time steps would be memory exhaustive (since predictions are usually huge -tens of thousands values). On a final note, we argue that in the supervised case, using a time-dependent weighting function \u03c9(t) instead of a constant value \u03ba mT is not needed. Since the ground truth labels are known, we have not observed the problem mentioned by  #b9 , that the network gets stuck in a degenerate solution when \u03c9(t) is too large in earlier epochs of training. We note that it is much easier to search for an optimal constant value, which is true in our case, as opposed to tuning the time-dependent function.Similarity to \u03a0-model makes our method related to other semi-supervised works, mainly  #b21  and  #b22 . Since semi-supervised learning is not a primary focus of this paper, we refer to  #b9  for more details.Another way to address the gap between the train and evaluation mode of dropout is to perform Monte Carlo sampling of masks and average the predictions during evaluation, and this has been used for feed-forward networks. We find that this technique does not work well for RNNs. The details of these experiments can be found in the appendix.",
+        "EXPERIMENTS": "",
+        "LANGUAGE MODELS": "In the case of language modeling we test our model3 on two benchmark datasets -Penn Tree-bank (PTB) dataset  #b13  and WikiText-2 (WT2) dataset  #b15 . We use preprocessing as specified by  #b18  (for PTB corpus) and Moses tokenizer  #b7  (for the WT2 dataset).For both datasets we use the AWD-LSTM 3-layer architecture described in Merity et al. (2017a) 4which we call the baseline model. The number of parameters in the model used for PTB is 24 million as compared to 34 million in the case of WT2 because WT2 has a larger vocabulary size for which we use a larger embedding matrix. Apart from those differences, the architectures are identical. When we use fraternal dropout, we simply add our regularization on top of this baseline model.",
+        "Word level Penn Treebank (PTB)": "Influenced by  #b14 , our goal here is to make sure that fraternal dropout outperforms existing methods not simply because of extensive hyper-parameter grid search but rather due to its regularization effects. Hence, in our experiments we leave a vast majority of hyper-parameters used in the baseline model  #b14  unchanged i.e. embedding and hidden states sizes, gradient clipping value, weight decay and the values used for all dropout layers (dropout on the word vectors, the output between LSTM layers, the output of the final LSTM, and embedding dropout). However, a few changes are necessary:\u2022 the coefficients for AR and TAR needed to be altered because fraternal dropout also affects RNNs activation (as explained in Subsection 5.3) -we did not run grid search to obtain the best values but simply deactivated AR and TAR regularizers; \u2022 since fraternal dropout needs twice as much memory, batch size is halved so the model needs approximately the same amount of memory and hence fits on the same GPU. similar results for the largest values (40, 50 and 60) in the candidate set. Hence, our model is trained longer using ordinary SGD optimizer as compared to the baseline model  #b14 .We evaluate our model using the perplexity metric and compare the results that we obtain against the existing state-of-the-art results. The results are reported in Table 1. Our approach achieves the state-of-the-art performance compared with existing benchmarks.To confirm that the gains are robust to initialization, we run ten experiments for the baseline model with different seeds (without fine-tuning) for PTB dataset to compute confidence intervals. The average best validation perplexity is 60.64 \u00b1 0.15 with the minimum value equals 60.33. The same for test perplexity is 58.32 \u00b1 0.14 and 58.05, respectively. Our score (59.8 validation and 58.0 test perplexity) beats ordinal dropout minimum values.We also perform experiments using fraternal dropout with a grid search on all the hyper-parameters and find that it leads to further improvements in performance. The details of this experiment can be found in section 5.5.",
+        "Word level WikiText-2 (WT2)": "In the case of WikiText-2 language modeling task, we outperform the current state-of-the-art using the perplexity metric by a significant margin. Due to the lack of computational power, we run a single training procedure for fraternal dropout on WT2 dataset because it is larger than PTB. In this experiment, we use the best hyper-parameters found for PTB dataset (\u03ba = 0.1, non-monotone interval n = 60 and halved batch size; the rest of the hyper-parameters are the same as described in  #b14  for WT2). The final results are presented in Table 2.",
+        "IMAGE CAPTIONING": "We also apply fraternal dropout on an image captioning task. We use the well-known show and tell model as a baseline5  #b25 . We emphasize that in the image captioning task, the image encoder and sentence decoder architectures are usually learned together. Since we want to focus on the benefits of using fraternal dropout in RNNs we use frozen pretrained ResNet-101 (He  3.We argue that in this task smaller \u03ba values are optimal because the image captioning encoder is given all information in the beginning and hence the variance of consecutive predictions is smaller that in unconditioned natural language processing tasks. Fraternal dropout may benefits here mainly due to averaging gradients for different mask and hence updating weights more frequently.",
+        "ABLATION STUDIES": "In this section, the goal is to study existing methods closely related to ours -expectation linear dropout Ma et al. ( 2016 ",
+        "EXPECTATION-LINEAR DROPOUT (ELD)": "The relation with expectation-linear dropout  #b11  has been discussed in Section 2. Here we perform experiments to study the difference in performance when using the ELD regularization versus our regularization (FD). In addition to ELD, we also study a modification (ELDM) of ELD which applies target loss to both copies of LSTMs in ELD similar to FD (notice in their case they only have dropout on one LSTM). Finally we also evaluate a baseline model without any of these regularizations. The learning dynamics curves are shown in Figure 1. Our regularization performs better in terms of convergence compared with other methods. In terms of generalization, we find that FD is similar to ELD, but baseline and ELDM are much worse. Interestingly, looking at the train and validation curves together, ELDM seems to be suffering from optimization problems.",
+        "\u03a0-MODEL": "Since \u03a0-model Laine & Aila ( 2016) is similar to our algorithm (even though it is designed for semi-supervised learning in feed-forward networks), we study the difference in performance with \u03a0-model 7 both qualitatively and quantitatively to establish the advantage of our approach. First, we run both single layer LSTM and 3-layer AWD-LSTM on PTB task to check how their model compares with ours in the case of language modeling. The results are shown in Figure 1 and2. We find that our model converges significantly faster than \u03a0-model. We believe this happens because we back-propagate the target loss through both networks (in contrast to \u03a0-model) that leads to weights getting updated using target-based gradients more often. 6 We use a batch size of 64, truncated back-propagation with 35 time steps, a constant zero state is provided as the initial state with probability 0.01 (similar to  #b14 ), SGD with learning rate 30 (no momentum) which is multiplied by 0.1 whenever validation performance does not improve ever during 20 epochs, weight dropout on the hidden to hidden matrix 0.5, dropout every word in a mini-batch with probability 0.1, embedding dropout 0.65, output dropout 0.4 (final value of LSTM), gradient clipping of 0.25, weight decay 1.2 \u00d7 10 -6 , input embedding size of 655, the input/output size of LSTM is the same as embedding size (655) and the embedding weights are tied  #b6 Press & Wolf, 2016). 7 We use a constant function \u03c9(t) = \u03ba mT as a coefficient for \u03a0-model (similar to our regularization term). Hence, the focus of our experiment is to evaluate the difference in performance when target loss is backpropagated through one of the networks (\u03a0-model) vs. both (ours). Additionally, we find that tuning a function instead of using a constant coefficient is infeasible.   Even though we designed our algorithm specifically to address problems in RNNs, to have a fair comparison, we compare with \u03a0-model on a semi-supervised task which is their goal. Specifically, we use the CIFAR-10 dataset that consists of 32 \u00d7 32 images from 10 classes. Following the usual splits used in semi-supervised learning literature, we use 4 thousand labeled and 41 thousand unlabeled samples for training, 5 thousand labeled samples for validation and 10 thousand labeled samples for test set. We use the original ResNet-56 (He et al., 2015) architecture. We run grid search on \u03ba \u2208 {0.05, 0.1, 0.15, 0.2}, dropout rates in {0.05, 0.1, 0.15, 0.2} and leave the rest of the hyperparameters unchanged. We additionally check importance of using unlabeled data. The results are reported in Table 4. We find that our algorithm performs at par with \u03a0-model. When unlabeled data is not used, fraternal dropout provides slightly better results as compared to traditional dropout.",
+        "ACTIVITY REGULARIZATION AND TEMPORAL ACTIVITY REGULARIZATION ANALYSIS": "The authors of Merity et al. (2017b) study the importance of activity regularization (AR)8 and temporal activity regularization (TAR) in LSTMs given as,R AR (z t ; \u03b8) = \u03b1 d h t 2 2 (6) R T AR (z t ; \u03b8) = \u03b2 d h t -h t-1 2 2 (7)where h t \u2208 R d is the LSTM's output activation at time step t (hence depends on both current input z t and the model parameters \u03b8). Notice that AR and TAR regularizations are applied on the output of Table 4: Ablation study: Accuracy on altered (semi-supervised) CIFAR-10 dataset for ResNet-56 based models. We find that our algorithm performs at par with \u03a0-model. When unlabeled data is not used traditional dropout hurts performance while fraternal dropout provides slightly better results. It means that our methods may be beneficial when we lack data and have to use additional regularizing methods.Figure 4: Ablation study: Train (left) and validation (right) perplexity on PTB word level modeling with single layer LSTM (10M parameters). These curves study the learning dynamics of the baseline model, temporal activity regularization (TAR), prediction regularization (PR), activity regularization (AR) and fraternal dropout (FD, our algorithm). We find that FD both converges faster and generalizes better than the regularizers in comparison.the LSTM, while our regularization is applied on the pre-softmax output p t (z t , s t i ; \u03b8) of the LSTM. However, since our regularization can be decomposed asR F D (z t ; \u03b8) = E si,sj p t (z t , s t i ; \u03b8) -p t (h t , s t j ; \u03b8) 2 2 (8) = E si,sj p t (z t , s t i ; \u03b8) 2 2 + p t (z t , s t j ; \u03b8) 2 2 -2p t (z t , s t i ; \u03b8) T p t (z t , s t j ; \u03b8)(9)and encapsulates an 2 term along with the dot product term, we perform experiments to confirm that the gains in our approach is not due to the 2 regularization alone. A similar argument goes for the TAR objective. We run a grid search on \u03b1 \u2208 {1, 2, . . . , 12}, \u03b2 \u2208 {1, 2, . . . , 12}, which include the hyper-parameters mentioned in Merity et al. (2017a). For our regularization, we use \u03ba \u2208 {0.05, 0.1, . . . , 0.4}. Furthermore, we also compare with a regularization (PR) that regularizes p t (z t , s t i ; \u03b8) 2 2 to further rule-out any gains only from 2 regularization. Based on this grid search, we pick the best model on the validation set for all the regularizations, and additionally report a baseline model without any of these four mentioned regularizations. The learning dynamics is shown in Figure 4. Our regularization performs better both in terms of convergence and generalization compared with other methods. Average hidden state activation is reduced when any of the regularizer described is applied (see Figure 3).",
+        "IMPROVEMENTS USING FINE-TUNING": "We confirm that models trained with fraternal dropout benefit from the NT-ASGD fine-tuning step (as also used in Merity et al. (2017a)). However, this is a very time-consuming practice and since different hyper-parameters may be used in this additional part of the learning procedure, the probability of obtaining better results due to the extensive grid search is higher. Hence, in our experiments we use the same fine-tuning procedure as implemented in the official repository (even fraternal dropout was not used). We present the importance of fine-tuning in Fraternal dropout is more robust to different hyperparameters choice as twice as much runs finished performing better than the baseline model (60.7).",
+        "FRATERNAL DROPOUT AND EXPECTATION LINEAR DROPOUT COMPARISON": "We perform extensive grid search for the baseline model from Subsection 4.1 (an AWD-LSTM 3-layer architecture) trained with either fraternal dropout or expectation linear dropout regularizations, to further contrast the performance of these two methods. The experiments are run without fine-tuning on the PTB dataset.In each run, all five dropout rates are randomly altered (they are set to their original value, as in Merity et al. (2017a), multiplied by a value drawn from the uniform distribution on the interval [0.5, 1.5]) and the rest of the hyper-parameters are drawn as shown in Table 6. As in Subsection 4.1, AR and TAR regularizers are deactivated.Together we run more than 400 experiments. The results are presented in Table 7. Both FD and ELD perform better than the baseline model that instead uses AR and TAR regularizers. Hence, we confirm our previous finding (see Subsection 5.3) that both FD and ELD are better. However, as found previously for smaller model in Subsection 5.1, the convergence of FD is faster than that of ELD. Additionally, fraternal dropout is more robust to different hyper-parameters choice (more runs performing better than the baseline and better average for top performing runs).",
+        "CONCLUSION": "In this paper we propose a simple regularization method for RNNs called fraternal dropout that acts as a regularization by reducing the variance in model predictions across different dropout masks. We show that our model achieves state-of-the-art results on benchmark language modeling tasks along with faster convergence. We also analytically study the relationship between our regularization and expectation linear dropout  #b11 . We perform a number of ablation studies to evaluate our model from different aspects and carefully compare it with related methods both qualitatively and quantitatively.",
+        "REASONS FOR FOCUSING ON RNNS": "The fraternal dropout method is general and may be applied in feed-forward architectures (as shown in Subsection 5.2 for CIFAR-10 semisupervised example). However, we believe that it is more powerful in the case of RNNs because:1. Variance in prediction accumulates among time steps in RNNs and since we share parameters for all time steps, one may use the same \u03ba value at each step. In feed-forward networks the layers usually do not share parameters and hence one may want to use different \u03ba values for different layers (which may be hard to tune). The simple way to alleviate this problem is to apply the regularization term on the pre-softmax predictions only (as shown in the paper) or use the same \u03ba value for all layers. However, we believe that it may limit possible gains.2. The best performing RNN architectures (state-of-the-art) usually use some kind of dropout (embedding dropout, word dropout, weight dropout etc.), very often with high dropout rates (even larger than 50% for input word embedding in NLP tasks). However, this is not true for feed-forward networks. For instance, ResNet architectures very often do not use dropout at all (probably because batch normalization is often better to use). It can be seen in the paper (Subsection 5.2, semisupervised CIFAR-10 task) that when unlabeled data is not used the regular dropout hurts performance and using fraternal dropout seems to improve just a little.3. On a final note, the Monte Carlo sampling (a well known method that adresses the gap betweem the train and evaluation mode of dropout) can not be easily applied for RNNs and fraternal dropout may be seen as an alternative.To conclude, we believe that when the use of dropout benefits in a given architecture, applying fraternal dropout should improve performance even more.As mentioned before, in image recognition tasks, one may experiment with something what we would temporarily dub fraternal augmentation (even though dropout is not used, one can use random data augmentation such as random crop or random flip). Hence, one may force a given neural network to have the same predictions for different augmentations. ",
+        "PROOFS": ""
+    },
+    {
+        "1": "TAR and Zoneout are similar in their motivations because both leads to adjacent time step hidden states to be close on average.",
+        "2": "The reasons of our focus on RNNs are described in the appendix.",
+        "3": "Our code is available at github.com/kondiz/fraternal-dropout .",
+        "4": "We used the official GitHub repository code for this paper github.com/salesforce/ awd-lstm-lm .",
+        "5": "We used PyTorch implementation with default hyper-parameters from github.com/ruotianluo/ neuraltalk2.pytorch .",
+        "8": "We used m \u2022 h t 2 2 , where m is the dropout mask, in our actual experiments with AR because it was implemented as such in the original paper's Github repositoryMerity et al. (2017a)."
+    },
+    {
+        "b0": [
+            "",
+            "",
+            "Empirical evaluation of gated recurrent neural networks on sequence modeling",
+            ""
+        ],
+        "b1": [
+            "",
+            "",
+            "Recurrent batch normalization",
+            "http://arxiv.org/abs/1603.09025"
+        ],
+        "b2": [
+            "A theoretically grounded application of dropout in recurrent neural networks",
+            "",
+            "",
+            "",
+            "Gal",
+            "Ghahramani"
+        ],
+        "b3": [
+            "",
+            "",
+            "Deep residual learning for image recognition",
+            ""
+        ],
+        "b4": [
+            "",
+            "",
+            "",
+            "http://arxiv.org/abs/1512.03385"
+        ],
+        "b5": [
+            "Long short-term memory",
+            "",
+            "",
+            "",
+            "Hochreiter",
+            "Schmidhuber"
+        ],
+        "b6": [
+            "",
+            "",
+            "Tying word vectors and word classifiers: A loss framework for language modeling",
+            ""
+        ],
+        "b7": [
+            "Open source toolkit for statistical machine translation",
+            "",
+            "",
+            "",
+            "Koehn",
+            "Hoang",
+            "Birch",
+            "Callison-Burch",
+            "Federico",
+            "Bertoldi",
+            "Cowan",
+            "Shen",
+            "Moran",
+            "Zens"
+        ],
+        "b8": [
+            "",
+            "",
+            "Regularizing rnns by randomly preserving hidden activations",
+            ""
+        ],
+        "b9": [
+            "",
+            "",
+            "Temporal ensembling for semi-supervised learning",
+            ""
+        ],
+        "b10": [
+            "Batch normalized recurrent neural networks",
+            "",
+            "",
+            "",
+            "Laurent",
+            "Pereyra",
+            "Brakel",
+            "Zhang",
+            "Bengio"
+        ],
+        "b11": [
+            "",
+            "",
+            "Dropout with expectation-linear regularization",
+            ""
+        ],
+        "b12": [
+            "",
+            "",
+            "Stochastic gradient descent as approximate bayesian inference",
+            ""
+        ],
+        "b13": [
+            "Building a large annotated corpus of english: The penn treebank",
+            "",
+            "",
+            "",
+            "Mitchell P Marcus",
+            "Marcinkiewicz",
+            "Santorini"
+        ],
+        "b14": [
+            "",
+            "",
+            "On the state of the art of evaluation in neural language models",
+            ""
+        ],
+        "b15": [
+            "",
+            "",
+            "Pointer sentinel mixture models",
+            "http://arxiv.org/abs/1609.07843"
+        ],
+        "b16": [
+            "",
+            "",
+            "Regularizing and optimizing lstm language models",
+            ""
+        ],
+        "b17": [
+            "",
+            "",
+            "Revisiting activation regularization for language rnns",
+            ""
+        ],
+        "b18": [
+            "Recurrent neural network based language model",
+            "",
+            "",
+            "",
+            "Mikolov",
+            "Karafi\u00e1t",
+            "Burget",
+            "Cernock\u1ef3",
+            "Khudanpur"
+        ],
+        "b19": [
+            "Acceleration of stochastic approximation by averaging",
+            "",
+            "",
+            "",
+            "Boris",
+            "Polyak",
+            "Juditsky"
+        ],
+        "b20": [
+            "",
+            "",
+            "Using the output embedding to improve language models",
+            ""
+        ],
+        "b21": [
+            "",
+            "",
+            "Semisupervised learning with ladder network",
+            "http://arxiv.org/abs/1507.02672"
+        ],
+        "b22": [
+            "Regularization with stochastic transformations and perturbations for deep semi-supervised learning",
+            "",
+            "",
+            "",
+            "Sajjadi",
+            "Javanmardi",
+            "Tasdizen"
+        ],
+        "b23": [
+            "",
+            "",
+            "Chris Pal, and Yoshua Bengio. Twin networks: Matching the future for sequence generation",
+            ""
+        ],
+        "b24": [
+            "Dropout: a simple way to prevent neural networks from overfitting",
+            "",
+            "",
+            "",
+            "Srivastava",
+            "Hinton",
+            "Krizhevsky",
+            "Sutskever",
+            "Salakhutdinov"
+        ],
+        "b25": [
+            "",
+            "",
+            "Show and tell: A neural image caption generator",
+            "http://arxiv.org/abs/1411"
+        ],
+        "b26": [
+            "Regularization of neural networks using dropconnect",
+            "",
+            "",
+            "",
+            "Wan",
+            "Zeiler",
+            "Zhang",
+            "Yann L Cun",
+            "Fergus"
+        ],
+        "b27": [
+            "",
+            "",
+            "Show, attend and tell: Neural image caption generation with visual attention",
+            "http://arxiv.org/abs/1502.03044"
+        ],
+        "b28": [
+            "",
+            "",
+            "Recurrent neural network regularization",
+            ""
+        ],
+        "b29": [
+            "",
+            "",
+            "",
+            ""
+        ]
+    },
+    {
+        "tab_0": "Table 1 :1Perplexity on Penn Treebank word level language modeling task.ModelParameters Validation TestZaremba et al. (2014) -LSTM (medium)10M86.282.7Zaremba et al. (2014) -LSTM (large)24M82.278.4Gal & Ghahramani (2016) -Variational LSTM (medium)20M81.979.7Gal & Ghahramani (2016) -Variational LSTM (large)66M77.975.2Inan et al. (2016) -Variational LSTM51M71.168.5Inan et al. (2016) -Variational RHN24M68.166.0Zilly et al. (2016) -Variational RHN23M67.965.4Melis et al. (2017) -5-layer RHN24M64.862.2Melis et al. (2017) -4-layer skip connection LSTM24M60.958.3Merity et al. (2017a) -AWD-LSTM 3-layer (baseline)24M60.057.3Fraternal dropout + AWD-LSTM 3-layer24M58.956.8ModelParameters Validation TestMerity et al. (2016) -Variational LSTM + Zoneout20M108.7100.9Merity et al. (2016) -Variational LSTM20M101.796.3Inan et al. (2016) -Variational LSTM28M91.587.0Melis et al. (2017) -5-layer RHN24M78.175.6Melis et al. (2017) -1-layer LSTM24M69.365.9Melis et al. (2017) -2-layer skip connection LSTM24M69.165.9Merity et al. (2017a) -AWD-LSTM 3-layer (baseline)34M68.665.8Fraternal dropout + AWD-LSTM 3-layer34M66.864.1The final change in hyper-parameters is to alter the non-monotone interval n used in nonmonotonically triggered averaged SGD (NT-ASGD) optimizer Polyak & Juditsky (1992);Mandt et al. (2017);Melis et al. (2017). We run a grid search on n \u2208 {5, 25, 40, 50, 60} and obtain very",
+        "tab_1": "Table 2 :2Perplexity on WikiText-2 word level language modeling task.",
+        "tab_2": "Table 3 :3BLEU scores for the Microsoft COCO image captioning task. Using fraternal dropout is the only difference between models. The rest of hyper-parameters are the same. et al., 2015) model as our image encoder. It means that our results are not directly comparable with other state-of-the-art methods, however we report results for the original methods so readers can see that our baseline performs well. The final results are presented in TableModelBLEU-1 BLEU-2 BLEU-3 BLEU-4Show and Tell Xu et al. (2015)66.646.132.924.6Baseline68.850.836.125.6Fraternal dropout, \u03ba = 0.01569.351.436.626.1Fraternal dropout, \u03ba = 0.00569.351.536.926.3",
+        "tab_3": "Table 5 .5PTBWT2DropoutFine-tuning Validation Test Validation TestTraditionalNone60.758.869.166.0TraditionalOne60.057.368.665.8FraternalNone59.858.068.365.3FraternalOne58.956.866.864.1FraternalTwo58.556.2--",
+        "tab_4": "Table 5 :5Ablation study: Importance of fine-tuning for AWD-LSTM 3-layer model. Perplexity for the Penn Treebank and WikiText-2 language modeling tasks.Hyper-parameterPossible valuesbatch size[10, 20, 30, 40]non-monotone interval[5, 10, 20, 40, 60, 100]\u03ba -FD or ELD strengthU (0, 0.3)weight decayU (0.6 \u00d7 10 -6 , 2.4 \u00d7 10 -6 )",
+        "tab_5": "Table 6 :6Ablation study: Candidate hyper-parameters possible used in the grid search for comparing fraternal dropout and expectation linear dropout. U (a, b) is the uniform distribution on the interval [a, b]. For finite sets, each value is drawn with equal probability.ModelBest Top5 avg Top10 avg Beating baseline runs (out of)Expectation linear dropout 59.460.160.56 (208)Fraternal dropout59.459.659.914 (203)",
+        "tab_6": "Table 7 :7Ablation study: Fraternal dropout and expectation linear dropout comparison. Perplexity on the Penn Treebank validation dateset.",
+        "tab_7": "Remark 1. Let s t i and s t j be i.i.d. dropout masks and p t (z t , s t i ; \u03b8) \u2208 R m be the prediction function as described above. Then,R F D (z t ; \u03b8) = E s tProof. For simplicity of notation, we omit the time index t.R F D (z; \u03b8) = E si,sj p(z, s i ; \u03b8) -p(z, s j ; \u03b8) 2 = E si p(z, s i ; \u03b8) 2 2 + E sj p(z, s j ; \u03b8) 2 -2E si,sj p(z, s i ; \u03b8) T p(z, s j ; \u03b8) si p q (z, s i ; \u03b8) 2 -E si,sj [p q (z, s i ; \u03b8)p q (z, s j ; \u03b8)] si p q (z, s i ; \u03b8) 2 -E si [p q (z, s i ; \u03b8)] E sj [p q (z, s i ; \u03b8)] si p q (z, s i ; \u03b8) 2 -E si [p q (z, s i ; \u03b8)] (z t ,s t i ; \u03b8) -p t (z t , s; \u03b8) 2 2 = 4 RELD (z t ; \u03b8). (21)mi ,s t jp t (z t , s t i ; \u03b8) -p t (z t , s t j ; \u03b8) 2 2 = 2var s t i (p t q (z t , s t i ; \u03b8)). (10)q=12(11)2(12)m= 2E (13)q=1m= 2E (14)q=1m= 2E 2(15)q=1= 2t j ; \u03b8) 2 2(17)= E s t i ,s tt j ; \u03b8) 2 2(18)= 4E s t i ,s t2 2 . (19)Then using Jensen's inequality,R t (z t ) \u2264 4E s t i ,s t j1 2p t (z t , s t i ; \u03b8) -p t (z t , s; \u03b8) 2 2 +1 2p t (z t , s; \u03b8) -p t (z t , s t j ; \u03b8) 2 2(20)= 4E s t ip tm q=1 var si (p q (z, s i ; \u03b8)).(16) Proposition 1. R F D (z t ; \u03b8) \u2264 4 RELD (z t ; \u03b8). Proof. Let s := E s [s], then R t (z t ) := E s t i ,s t j p t (z t , s t i ; \u03b8) -p t (z t , s j p t (z t , s t i ; \u03b8) -p t (z t , s; \u03b8) + p t (z t , s; \u03b8) -p t (z t , s j p t (z t , s t i ; \u03b8) -p t (z t , s; \u03b8) 2 + p t (z t , s; \u03b8) -p t (z t , s t j ; \u03b8) 2"
+    }
+]

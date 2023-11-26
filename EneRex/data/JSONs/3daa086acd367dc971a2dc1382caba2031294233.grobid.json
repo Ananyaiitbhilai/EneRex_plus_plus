@@ -1,0 +1,541 @@
+[
+    {
+        "basename": "3daa086acd367dc971a2dc1382caba2031294233.grobid",
+        "fulltext": 19,
+        "footnote_size": 1,
+        "footnote_max": 1,
+        "reference": 51,
+        "authors": [
+            "Li",
+            "Arnab",
+            "Torr"
+        ]
+    },
+    {
+        "title": "Holistic, Instance-level Human Parsing",
+        "abstract": "Object parsing -the task of decomposing an object into its semantic parts -has traditionally been formulated as a category-level segmentation problem. Consequently, when there are multiple objects in an image, current methods cannot count the number of objects in the scene, nor can they determine which part belongs to which object. We address this problem by segmenting the parts of objects at an instance-level, such that each pixel in the image is assigned a part label, as well as the identity of the object it belongs to. Moreover, we show how this approach benefits us in obtaining segmentations at coarser granularities as well. Our proposed network is trained end-to-end given detections, and begins with a category-level segmentation module. Thereafter, a differentiable Conditional Random Field, defined over a variable number of instances for every input image, reasons about the identity of each part by associating it with a human detection. In contrast to other approaches, our method can handle the varying number of people in each image and our holistic network produces state-of-the-art results in instance-level part and human segmentation, together with competitive results in category-level part segmentation, all achieved by a single forward-pass through our neural network. * indicates equal contribution by the authors.",
+        "Introduction": "Object parsing, the segmentation of an object into semantic parts, is naturally performed by humans to obtain a more detailed understanding of the scene. When performed automatically by computers, it has many practical applications, such as in human-robot interaction, human behaviour analysis and image descriptions for the visually impaired. Furthermore, detailed part information has been shown to be beneficial in other visual recognition tasks such as fine-grained recognition  #b46 , human pose estimation  #b12  and object detection  #b36 . In this paper, we focus on the application of parsing humans as it is more commonly studied, although our method makes no assumptions on the type of object it is segmenting.In contrast to existing human parsing approaches  #b17  #b28  #b44 , we operate at an instance level (to our knowledge, we are the first work to do so). As shown in Fig. 1, not only do we segment the various body parts of humans (Fig. 1b), but we associate each of these parts to one of the humans in the scene (Fig. 1c), which is particularly important for understanding scenes with multiple people. In contrast to existing instance segmentation work [10, 31,  Part Segmentation Human Segmentation Figure 1: Our proposed approach segments human parts at an instance level (c) (which to our knowledge is the first work to do so) from category-level part segmentations produced earlier in the network (b). Moreover, we can easily obtain human instance segmentations (d) by taking the union of all pixels associated to a particular person. Therefore, our proposed end-to-end trained neural network parses humans into semantic parts at both category and instance level in a single forward-pass. Best viewed in colour.  #b33 , we operate at a more detailed part level, enabling us to extract more comprehensive information of the scene. Furthermore, with our part-level instance segmentation of humans, we can easily recover human-level instance segmentation (by taking the union of all parts assigned to a particular instance as shown in Fig. 1d), and we show significant improvement over previous state-of-the-art in human instance-segmentation when doing so.Our approach is based on a deep Convolutional Neural Network (CNN), which consists of an initial category-level part segmentation module. Using the output of a human detector, we are then able to associate segmented parts with detected humans in the image using a differentiable Conditional Random Field (CRF), producing a part-level instance segmentation of the image. Our formulation is robust to false-positive detections as well as imperfect bounding boxes which do not cover the entire human, in contrast to other instance segmentation methods based on object detectors  #b9  #b19  #b20  #b25  #b33 . Given object detections, our network is trained end-to-end, given detections, with a novel loss function which allows us to handle a variable number of human instances on every image.We evaluate our approach on the Pascal Person-Parts  #b7  dataset, which contains humans in a diverse set of poses and occlusions. We achieve state-of-the-art results on instancelevel segmentation of both body parts and humans. Moreover, our results on semantic part segmentation (which is not-instance aware) is also competitive with current state-of-theart. All of these results are achieved with a holistic, end-to-end trained model which parses humans at both an instance and category level, and outputs a dynamic number of instances per image, all in a single forward-pass through the network.",
+        "Related Work": "The problem of object parsing, which aims to decompose objects into their semantic parts, has been addressed by numerous works  #b26  #b28  #b37  #b42  #b44 , most of which have concentrated on parsing humans. However, none of the aforementioned works have parsed objects at an instance level as shown in Fig. 1, but rather category level. In fact, a lot of work on human parsing has focussed on datasets such as Fashionista  #b45 , ATR  #b26  and Deep Fashion  #b34  where images typically contain only one, centred person. The notion of instance-level segmentation only matters when more than one person is present in an image, motivating us to evaluate our method on the Pascal Person-Parts dataset  #b7  where multiple people can appear in unconstrained environments. Recent human parsing approaches have typically been similar to semantic segmentation works using fully convolutional networks (FCNs)  #b35 , but trained to label parts  #b4  #b5  #b6  instead of object classes. However, methods using only FCNs do not explicitly model the structure of a human body, and typically do not perform as well as methods which do  #b28 . Structural priors of the human body have been encoded using pictorial structures  #b14  #b16 , Conditional Random Fields (CRFs)  #b3  #b22  #b24  #b42  and more recently, with LSTMs  #b28  #b29 . The HAZN approach of  #b44  addressed the problem that some parts are often very small compared to other parts and difficult to segment with scale-variant CNNs. This scale variation was handled by a cascade of three separatelytrained FCNs, each parsing different regions of the image at different scales.An early instance segmentation work by Winn et al.  #b43  predicted the parts of an object, and then encouraged these parts to maintain a spatial ordering, characteristic of an instance, using asymmetric pairwise potentials in a CRF. However, subsequent work has not operated at a part level. Zhang et al.  #b47  #b48  performed instance segmentation of vehicles using an MRF. However, this graphical model was not trained end-to-end as done by  #b2  #b31  #b50  and our approach. Furthermore, they assumed a maximum of 9 cars per image. Approaches using recurrent neural networks  #b38  #b39  can handle a variable number of instances per image by segmenting an instance per time-step, but are currently restricted to only one object category. Our method, on the other hand, is able to handle both an arbitrary number of objects, and multiple object categories in the image with a single forward-pass through the network.Various methods of instance segmentation have also involved modifying object detection systems to output segments instead of bounding boxes  #b9  #b19  #b20  #b25 . However, these methods cannot produce a segmentation map of the image, as shown in Fig. 1, without postprocessing as they consider each detection independently. Although our method also uses an object detector, it considers all detections in the image jointly with an initial category-level segmentation, and produces segmentation maps naturally where one pixel cannot belong to multiple instances in contrast to the aforementioned approaches. The idea of combining the outputs of a category-level segmentation network and an object detector to reason about different instances was also presented by  #b0 . However, that system was not trained end-toend, could not segment instances outside the detector's bounding box, and did not operate at a part level.",
+        "Proposed Approach": "Our network (Fig. 2) consists of two components: a category-level part segmentation module, and an instance segmentation module. As both of these modules are differentiable, they can be integrated into a single network and trained jointly. The instance segmentation module (Sec. 3.2) uses the output of the first category-level segmentation module (Sec. 3.1) as well as the outputs of an object detector as its input. It associates each pixel in the categorylevel segmentation with an object detection, resulting in an instance-level segmentation of the image. Given a H \u00d7W \u00d7 3 input image, I, the category-level part segmentation module produces a H \u00d7W \u00d7 (P + 1) dimensional output Q where P is the number of part classes in the dataset and one background class. There can be a variable number, D, of human detections per image, and the output of the instance segmentation module is an H \u00d7W \u00d7 (PD + 1) tensor denoting the probabilities, at each pixel in the image, of each of the P part classes belonging to one of the D detections.Two challenges of instance segmentation are the variable number of instances in every image, and the fact that permutations of instance labels lead to identical results (in Fig. 1, how we order the different people does not matter). Zhang et al.  #b47  #b48  resolve these issues by assuming a maximum number of instances and using the ground-truth depth ordering  of instances respectively. Others have bypassed both of these issues by predicting each instance independently  #b9  #b19  #b20  #b25 , but this also allows a pixel to belong to multiple instances. Instead, we use a loss function (Sec 3.3) that is based on \"matching\" the prediction to the ground-truth, allowing us to handle permutations of the ground truth. Furthermore, weight-sharing in our instance segmentation module allows us to segment a variable number of instances per image. As a result, we do not assume a maximum number of instances, consider all instances jointly, and train our network end-to-end, given object detections.",
+        "Category-level part segmentation module": "The part segmentation module is a fully convolutional network  #b35  based on ResNet-101  #b21 . A common technique, presented in  #b5  #b6 , is to predict the image at three different scales (with network weights shared among all the scales), and combine predictions together with learned, image-dependent weights. We take a different approach of fusing information at multiple scales -we pool the features after res5c  #b21  at five different resolutions (by varying the pooling stride), upsample the features to the resolution before pooling, and then concatenate these features before passing them to the final convolutional classifier, as proposed in  #b49 . As we show in Sec 4.4, this approach achieves better semantic segmentation results than  #b5  #b6 . We denote the output of this module by the tensor, Q, where Q i (l) is the probability of pixel i being assigned label l \u2208 {0, 1, 2, ..., P}. Further details of this module are included in the appendix.",
+        "Instance-level segmentation module": "This module creates an instance-level segmentation of the image by associating each pixel in the input category-level segmentation, Q, with one of the D input human-detections or the background label. Let there be D input human-detections for the image, where the i-th detection is represented by B i , the set of pixels lying within the four corners of its bounding box, and s i \u2208 [0, 1], the detection score. We assume that the 0-th detection refers to the background label. Furthermore, we define a multinomial random variable, V i , at each of the N pixels in the image, and letV = [V 1 ,V 2 , ...,V N ]. This variable can take on a label from the set {1, 2, ..., D} \u00d7 {1, 2, ..., P} \u222a {(0, 0)} since each of the P part labels can be associated with one of the D human detections, or that pixel could belong to the background label, (0, 0).We formulate a Conditional Random Field over these V variables, where the energy of the assignment v to all of the instance variables V consists of two unary terms, and one pairwise term (whose weighting co-efficients are all learned via backpropagation):E(V = v) = - N \u2211 i ln [w 1 \u03c8 Box (v i ) + w 2 \u03c8 Global (v i ) + \u03b5] + N \u2211 i< j \u03c8 Pairwise (v i , v j ).(1)The unary and pairwise potentials are computed within our neural network, differentiable with respect to their input and parameters, and described in Sec. 3.2.1 through 3.2.3. The Maximum-a-Posteriori (MAP) estimate of our CRF (since the energy in Eq. 1 characterises a Gibbs distribution) is computed as the final labelling produced by our network. We perform the iterative mean-field inference algorithm to approximately compute the MAP solution by minimising Eq. 1. As shown by Zheng et al.  #b50 , this can be formulated as a Recurrent Neural Network (RNN), allowing it to be trained end-to-end as part of a larger network. However, as our network is input a variable number of detections per image, D, the label space of the CRF is dynamic. Therefore, unlike  #b50 , the parameters of our CRF are not class-specific to allow for this variable number of \"channels\".",
+        "Box Consistency Term": "We observe that in most cases, a body part belonging to a person is located inside the bounding box of the person. Based on this observation, the box consistency term is employed to encourage pixel locations inside a human bounding box B i to be associated with the i-th human detection. The box term potential at spatial location k for body part j of a human i is assigned either 0 for k / \u2208 B i , or the product of the detection score, s i , and the category-level part segmentation confidence, Q k ( j), for k \u2208 B i . For (i, j) \u2208 {1, 2, ... , D} \u00d7 {1, 2, ... , P},\u03c8 Box (V k = (i, j)) = s i Q k ( j) if k \u2208 B i 0 otherwise.(2)Note that this potential may be robust to false-positive detections when the category-level segmentation and human detection do not agree with each other, since Q k (l), the probability of a pixel k taking on body-part label l, is low. Furthermore, note that we use one humandetection to reason about the identity of all parts which constitute that human.",
+        "Global Term": "A possible shortcoming for the box consistency potential is that if some pixels belonging to a human instance fall outside the bounding box and are consequently assigned 0 for the box consistency term potential, they would be lost in the final instance segmentation prediction. Visually, the generated instance masks would appear truncated along the bounding box boundaries -a problem suffered by  #b0  #b9  #b20  #b25 . To overcome this undesirable effect, we introduce the global potential: it complements the box consistency term by assuming that a pixel is equally likely to belong to any one of the detected humans. It is expressed as\u03c8 Global (V k = (i, j)) = Q k ( j),(3)for (i, j) \u2208 {1, 2, ..., D} \u00d7 {1, 2, ..., P} \u222a {(0, 0)}.Prediction, P Original ground-truth, Y \"Matched\" ground-truth, Y * Figure 3: As different permutations of the ground-truth are equivalent in the case of instance segmentation, we \"match\" the original ground-truth, Y, to our network's prediction, P, to obtain the \"matched\" ground-truth which we use to compute our loss during training.",
+        "Pairwise Term": "Our pairwise term is composed of densely-connected Gaussian kernels  #b23  which are commonly used in segmentation literature  #b4  #b50 . This pairwise potential encourages both spatial and appearance consistency, and we find these priors to be suitable in the case of instancelevel segmentation as well. As in  #b50 , the weighting parameters of these potentials are learned via backpropagation, though in our case, the weights are shared among all classes.",
+        "Loss function and network training": "We first pre-train the category-level segmentation part of our network, as described in the appendix. Thereafter, we add the instance segmentation module, and train with a permutationinvariant loss function which is backpropagated through both our instance-and categorylevel segmentation networks. Since all permutations of an instance segmentation have the same qualitative result, we \"match\" the original ground-truth to our prediction before computing the loss, as shown in Fig. 3. This matching is based on the Intersection over Union (IoU)  #b13  of a predicted and ground-truth instance, similar to  #b39 . Let Y = {y 1 , y 2 , ..., y m }, a set of m segments, denote the ground-truth labelling of an image, where each segment is an instance and has a part label assigned to it. Similarly, let P = {p 1 , p 2 , ..., p n } denote our n predicted instances, each with an associated part label. Note that m and n need not be the same as we may predict greater or fewer instances than there actually are in the image. The \"matched\" ground truth, Y * is the permutation of the original ground-truth labelling which maximises the IoU between our prediction, P and ground-truthY * = arg max Z\u2208\u03c0(Y) IoU(Z, P),(4)where \u03c0(Y) denotes the set of all permutations of Y. Note that we define the IoU between all segments of different labels to be 0. Eq. 4 can be solved efficiently using the Hungarian algorithm as it can be formulated as a bipartite graph matching problem, and once we have the \"matched\" ground-truth, Y * , we can apply any loss function to it and train our network for segmentation.In our case, we use the standard cross-entropy loss function on the \"matched\" ground truth. In addition, we employ Online Hard Example Mining (OHEM), and only compute our loss over the top K pixels with the highest loss in the training mini-batch. We found that during training, many pixels already had a high probability of being assigned to the correct class. By only selecting the top K pixels with the highest loss, we are able to encourage our network to improve on the pixels it is currently misclassifying, as opposed to increasing the probability of a pixel it is already classifying correctly. This approach was inspired by \"bootstrapping\"  #b11  #b41  or \"hard-negative mining\"  #b15  commonly used in training object detectors. However, these methods mined hard examples from the entire dataset. Our approach is most similar to  #b40 , who mined hard examples online from each mini-batch in the context of detection. Similar to the aforementioned works, we found OHEM to improve our overall results, as shown in Sec. 4.2.",
+        "Obtaining segmentations at other granularities": "Given the part instance prediction produced by our proposed network, we are able to easily obtain human instance segmentation and semantic part segmentation. In order to achieve human instance segmentation, we map the predicted part instance labels (i, j), i.e. part j of person i, to i. Whereas to obtain semantic part segmentation, we map predicted part instance labels (i, j) to j instead.",
+        "Experiments": "We describe our dataset and experimental set-up in Sec. 4.1, before presenting results on instance-level part segmentation (Fig. 1c), instance-level human segmentation (Fig. 1d) and semantic part segmentation (Fig. 1b). Additional quantitative and qualitative results, failure cases and experimental details are included in the appendix.",
+        "Experimental Set-up": "We evaluate our proposed method on the Pascal Person-Part dataset  #b12  which contains 1716 training images, and 1817 test images. This dataset contains multiple people per image in unconstrained poses and environments, and contains six human body part classes (Fig. 1b), as well as the background label. As described in Sec. 3.3, we initially pre-train our categorylevel segmentation module before training for instance-level segmentation. This module is first trained on the 21 classes of the Pascal VOC dataset  #b13 , and then finetuned on the seven classes of the Pascal Part training set using category-level annotations. Finally, we train for instance segmentation with instance-level ground truth. Full details of our training process, including all hyperparameters such as learning rate, are in the appendix. To clarify these details, we will also release our code.We use the standard AP r metric  #b19  for evaluating instance-level segmentation: the mean Average Precision of our predictions is computed where a prediction is considered correct if its IoU with a ground-truth instance is above a certain threshold. This is similar to the AP metric used in object detection. However, in detection, the IoU between groundtruth and predicted bounding boxes is computed, whereas here, the IoU between regions is computed. Furthermore, in detection, an overlap threshold of 0.5 is used, whereas we vary this threshold. Finally, we define the AP r vol which is the mean of the AP r score for overlap thresholds varying from 0.1 to 0.9 in increments of 0.1.We use the publicly available R-FCN detection framework  #b10 , and train a new model with data from VOC 2012  #b13  that do not overlap with any of our test sets. We train with all object classes of VOC, and only use the output for the human class. Non-maximal suppression is performed on all detections before being fed into our network. ",
+        "Results on Instance-level Part Segmentation": "Table 1 shows our results on part-level instance segmentation on the Pascal Person-Part dataset. To our knowledge, we are the first work to do this, and hence we study the effects of various design choices on overall performance. We also use the publicly available code for MNC  #b9 , which won the MS-COCO 2016 instance segmentation challenge, and finetune their public model trained on VOC 2011  #b18  on Person-Part instances as a baseline.We first train our model in a piecewise manner, by first optimising the parameters of the category-level segmentation module, and then \"freezing\" the weights of this module and only training the instance network. Initially, we only use the box consistency term (Sec. 3.2.1) in the Instance CRF, resulting in an AP r at 0.5 of 38.0%. Note that this model is equivalent to our reimplementation of  #b0 . Adding in the global potential (Sec. 3.2.2) helps us cope with bounding boxes which do not cover the whole human, and we see an improvement at all IoU thresholds. Training our entire network end-to-end gives further benefits. We then train all variants of our model with OHEM, and observe consistent improvements across all IoU thresholds with respect to the corresponding baseline. Here, we set K = 2 15 , meaning that we computed our loss over 2 15 or approximately 12% of the hardest pixels in each training image (since we train at full resolution). We also employ OHEM when pre-training the category-level segmentation module of our network, and observe minimal difference in the final result if we use OHEM when training the category-level segmentation module but not the instance segmentation module. Training end-to-end with OHEM achieves 2.6% higher in AP r at 0.5, and 1.8% higher AP r vol over a piecewise-trained baseline model without OHEM and only the box term (second row), which is equivalent to the model of  #b0 . Furthermore, our AP r vol is 1.7% greater than the strong MNC  #b9  baseline. Note that although  #b20  also performed instance-level segmentation on the same dataset, their evaluation was only done using human instance labels, which is similar to our following experiment on human instance segmentation.",
+        "Results on Human Instance Segmentation": "We can trivially obtain instance-level segmentations of humans (Fig 1d), as mentioned in Sec. 3.4. Table 2 shows our state-of-the-art instance segmentation results for humans on the VOC 2012 validation set  #b13 . We use the best model from the previous section as there is  DeepLab*  #b4  53.0 Attention  #b6  56.4 HAZN  #b44  57.5 LG-LSTM  #b29  58.0 Graph LSTM  #b28  60.2 DeepLab v2  #b5  64.9 RefineNet  #b32  68.6Ours, pre-trained 65.9 Ours, final network 66.3 *Result reported in  #b44  no overlap between the Pascal Person-Part training set, and the VOC 2012 validation set.As Tab. 2 shows, our proposed approach outperforms previous state-of-the-art by a significant margin, particularly at high IoU thresholds. Our model receives extra supervision in its part labels, but the fact that our network can implicitly infer relationships between different parts whilst training may help it handle occluding instances better than other approaches, leading to better instance segmentation performance. The fact that our network is trained with part-level annotations may also help it identify small features of humans better, leading to more precise segmentations and thus improvements at high AP r thresholds. Our AP r at each IoU threshold for human instance segmentation is higher than that for part instance segmentation (Tab. 1). This is because parts are smaller than entire humans, and thus more difficult to localise accurately. An alternate method of performing instance-level part segmentation may be to first obtain an instance-level human segmentation using another method from Tab. 2, and then partition it into the various body parts of a human. However, our approach, which groups parts into instances, is validated by the fact that it achieves state-of-the-art instance-level human segmentation performance.",
+        "Results on Category-level Part Segmentation": "Finally, our model is also able to produce category-level segmentations (as shown in Fig. 1b). This can be obtained from the output of the category-level segmentation module, or from our instance module as described in Sec. 3.4. As shown in Tab. 3, our semantic segmentation results are competitive with current state-of-the-art. By training our entire network consisting of the category-level and instance-level segmentation modules jointly, and then obtaining the semantic segmentation from the final instance segmentation output by our network, we are able to obtain a small improvement of 0.4% in mean IoU over the output of the initial semantic segmentation module.",
+        "Conclusion": "Our proposed, end-to-end trained network outputs instance-level body part and human segmentations, as well as category-level part segmentations in a single forward-pass. Moreover, we have shown how segmenting objects into their constituent parts helps us segment the object as a whole with our state-of-the-art results on instance-level segmentation of both body parts and entire humans. Furthermore, our category-level segmentations improve after training for instance-level segmentation. Our future work is to train the object detector end-to-end as well. Moreover, the improvement that we obtained in instance segmentation of humans as a result of first segmenting parts motivates us to explore weakly-supervised methods which do not require explicit object part annotations.Input Semantic Segmentation Instance Segmentation Ground TruthInput Semantic Segmentation Instance Segmentation Ground TruthFigure 6: Success cases of our method. The first column shows the input image and the input detections we obtained from training the R-FCN detector  #b10 . The second column shows our final semantic segmentation (as described in Sec. 3.4 of the main paper). Our proposed method is able to leverage an initial category-level segmentation network and human detections to produce accurate instance-level part segmentation as shown in the third column. ). Third row: By analysing an image globally and employing a differentiable CRF, our method can produce more precise boundaries. As MNC does not perform category-level segmentation over the entire image, it has no incentive to produce a coherent and continuous prediction. Visually, this is reflected in the gaps of \"background\" between body parts of the same person. Fourth row: MNC predicts two instances of lower leg for the second person from the right, and fails to segment any lower arms for all four people due to the aforementioned problems.Input Semantic Segmentation Instance Segmentation Ground TruthInput   #b18  using the default parameters and extract only its human instance predictions. In contrast with proposal-driven methods such as MNC, our approach assigns each pixel to only one instance, is robust against non-ideal bounding boxes, and often produces better boundaries due to the Instance CRF which is trained endto-end. First and second row: since MNC predicts instances independently, it is prone to predicting multiple instances for a single person. Third row: due to the global potential term, we can segment regions outside of a detection bounding box which fails to cover the entire person, whereas MNC is unable to recover from such imperfect bounding boxes, leading to its frequent occurrences of truncated instance predictions. Fourth row: a case where MNC and our method show different failure modes. MNC predicts three people where there are only two, and our method can only predict one instance due to a missing detection.  MNC [10] Ours Ground Truth",
+        "B.2.2 Training the instance-level segmentation module": "In our model, the pairwise term of the fully-connected CRF takes the following form:\u03c8 Pairwise (v i , v j ) = \u00b5(v i , v j )k(f i , f j )(5)where \u00b5(\u2022, \u2022) is a compatibility function, k(\u2022, \u2022) is a kernel function, and f i is a feature vector at spatial location i containing the 3-dimensional colour vector I i and the 2-dimensional position vector p i  #b23 ."
+    },
+    {
+        "1": "https://github.com/daijifeng001/MNC"
+    },
+    {
+        "b0": [
+            "Bottom-up instance segmentation with deep higher order crfs",
+            "",
+            "",
+            "",
+            "Arnab",
+            "Philip",
+            "Torr"
+        ],
+        "b1": [
+            "Pixelwise instance segmentation with a dynamically instantiated network",
+            "",
+            "",
+            "",
+            "Arnab",
+            "Philip"
+        ],
+        "b2": [
+            "Higher order conditional random fields in deep neural networks",
+            "",
+            "",
+            "",
+            "Arnab",
+            "Jayasumana",
+            "Zheng",
+            "Torr"
+        ],
+        "b3": [
+            "Posecut: Simultaneous segmentation and 3d pose estimation of humans using dynamic graph-cuts",
+            "",
+            "",
+            "",
+            "Bray",
+            "Kohli",
+            "Torr"
+        ],
+        "b4": [
+            "Semantic image segmentation with deep convolutional nets and fully connected crfs",
+            "",
+            "",
+            "",
+            "Chen",
+            "Papandreou",
+            "Kokkinos",
+            "Murphy",
+            "Yuille"
+        ],
+        "b5": [
+            "",
+            "",
+            "Deeplab: Semantic image segmentation with deep convolutional nets, atrous convolution, and fully connected crfs",
+            ""
+        ],
+        "b6": [
+            "Attention to scale: Scaleaware semantic image segmentation",
+            "",
+            "",
+            "",
+            "Chen",
+            "Yang",
+            "Wang",
+            "Xu",
+            "Yuille"
+        ],
+        "b7": [
+            "Detect what you can: Detecting and representing objects using holistic models and body parts",
+            "",
+            "",
+            "",
+            "Chen",
+            "Mottaghi",
+            "Liu",
+            "Fidler",
+            "Urtasun",
+            "Yuille"
+        ],
+        "b8": [
+            "Multi-instance object segmentation with occlusion handling",
+            "",
+            "",
+            "",
+            "Chen",
+            "Liu",
+            "Yang"
+        ],
+        "b9": [
+            "Instance-aware semantic segmentation via multi-task network cascades",
+            "",
+            "",
+            "",
+            "Dai",
+            "He",
+            "Sun"
+        ],
+        "b10": [
+            "R-fcn: Object detection via region-based fully convolutional networks",
+            "",
+            "",
+            "",
+            "Dai",
+            "Li",
+            "He",
+            "Sun"
+        ],
+        "b11": [
+            "Histograms of oriented gradients for human detection",
+            "",
+            "",
+            "",
+            "Dalal",
+            "Triggs"
+        ],
+        "b12": [
+            "Towards unified object detection and semantic segmentation",
+            "",
+            "",
+            "",
+            "Dong",
+            "Chen",
+            "Yan",
+            "Yuille"
+        ],
+        "b13": [
+            "The pascal visual object classes (voc) challenge",
+            "",
+            "",
+            "",
+            "Everingham",
+            "Van Gool",
+            "Christopher",
+            "Williams",
+            "Winn",
+            "Zisserman"
+        ],
+        "b14": [
+            "Pictorial structures for object recognition",
+            "",
+            "",
+            "",
+            "Pedro",
+            "Felzenszwalb",
+            "Huttenlocher"
+        ],
+        "b15": [
+            "Object detection with discriminatively trained part-based models",
+            "",
+            "",
+            "",
+            "Felzenszwalb",
+            "Girshick",
+            "Mcallester",
+            "Ramanan"
+        ],
+        "b16": [
+            "The representation and matching of pictorial structures",
+            "",
+            "",
+            "",
+            "Martin",
+            "Fischler",
+            "Elschlager"
+        ],
+        "b17": [
+            "Look into person: Self-supervised structure-sensitive learning and a new benchmark for human parsing",
+            "",
+            "",
+            "",
+            "Gong",
+            "Liang",
+            "Shen",
+            "Lin"
+        ],
+        "b18": [
+            "Semantic contours from inverse detectors",
+            "",
+            "",
+            "",
+            "Hariharan",
+            "Arbel\u00e1ez",
+            "Bourdev",
+            "Maji",
+            "Malik"
+        ],
+        "b19": [
+            "Simultaneous detection and segmentation",
+            "",
+            "",
+            "",
+            "Hariharan",
+            "Arbel\u00e1ez",
+            "Girshick",
+            "Malik"
+        ],
+        "b20": [
+            "Hypercolumns for object segmentation and fine-grained localization",
+            "",
+            "",
+            "",
+            "Hariharan",
+            "Arbel\u00e1ez",
+            "Girshick",
+            "Malik"
+        ],
+        "b21": [
+            "Deep residual learning for image recognition",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b22": [
+            "Human pose estimation with fields of parts",
+            "",
+            "",
+            "",
+            "Kiefel",
+            "Vincent"
+        ],
+        "b23": [
+            "Efficient inference in fully connected CRFs with Gaussian edge potentials",
+            "",
+            "",
+            "",
+            "Kr\u00e4henb\u00fchl",
+            "Koltun"
+        ],
+        "b24": [
+            "Human pose estimation using a joint pixel-wise and part-wise formulation",
+            "",
+            "",
+            "",
+            "Ladicky",
+            "Philip Hs Torr",
+            "Zisserman"
+        ],
+        "b25": [
+            "Iterative Instance Segmentation",
+            "",
+            "",
+            "",
+            "Li",
+            "Hariharan",
+            "Malik"
+        ],
+        "b26": [
+            "Deep human parsing with active template regression",
+            "",
+            "",
+            "",
+            "Liang",
+            "Liu",
+            "Shen",
+            "Yang",
+            "Liu",
+            "Dong",
+            "Lin",
+            "Yan"
+        ],
+        "b27": [
+            "",
+            "",
+            "Proposal-free network for instance-level object segmentation",
+            ""
+        ],
+        "b28": [
+            "Semantic object parsing with graph lstm",
+            "",
+            "",
+            "",
+            "Liang",
+            "Shen",
+            "Feng",
+            "Lin",
+            "Yan"
+        ],
+        "b29": [
+            "Semantic object parsing with local-global long short-term memory",
+            "",
+            "",
+            "",
+            "Liang",
+            "Shen",
+            "Xiang",
+            "Feng",
+            "Lin",
+            "Yan"
+        ],
+        "b30": [
+            "Reversible recursive instance-level object segmentation",
+            "",
+            "",
+            "",
+            "Liang",
+            "Wei",
+            "Shen",
+            "Jie",
+            "Feng",
+            "Lin",
+            "Yan"
+        ],
+        "b31": [
+            "Efficient piecewise training of deep structured models for semantic segmentation",
+            "",
+            "",
+            "",
+            "Lin",
+            "Shen",
+            "Reid"
+        ],
+        "b32": [
+            "Refinenet: Multi-path refinement networks with identity mappings for high-resolution semantic segmentation",
+            "",
+            "",
+            "",
+            "Lin",
+            "Milan",
+            "Shen",
+            "Reid"
+        ],
+        "b33": [
+            "Multi-scale patch aggregation (mpa) for simultaneous detection and segmentation",
+            "",
+            "",
+            "",
+            "Liu",
+            "Qi",
+            "Shi",
+            "Zhang",
+            "Jia"
+        ],
+        "b34": [
+            "Deepfashion: Powering robust clothes recognition and retrieval with rich annotations",
+            "",
+            "",
+            "",
+            "Liu",
+            "Luo",
+            "Qiu",
+            "Wang",
+            "Tang"
+        ],
+        "b35": [
+            "Fully convolutional networks for semantic segmentation",
+            "",
+            "",
+            "",
+            "Long",
+            "Shelhamer",
+            "Darrell"
+        ],
+        "b36": [
+            "",
+            "",
+            "Learning semantic part-based models from google images",
+            ""
+        ],
+        "b37": [
+            "Recovering human body configurations: Combining segmentation and recognition",
+            "",
+            "",
+            "",
+            "Mori",
+            "Ren",
+            "Efros",
+            "Malik"
+        ],
+        "b38": [
+            "End-to-end instance segmentation and counting with recurrent attention",
+            "",
+            "",
+            "",
+            "Ren",
+            "Zemel"
+        ],
+        "b39": [
+            "Recurrent instance segmentation",
+            "",
+            "",
+            "",
+            "Romera",
+            "Paredes",
+            "Hs"
+        ],
+        "b40": [
+            "Training region-based object detectors with online hard example mining",
+            "",
+            "",
+            "",
+            "Shrivastava",
+            "Gupta",
+            "Girshick"
+        ],
+        "b41": [
+            "Learning and example selection for object and pattern detection",
+            "",
+            "",
+            "",
+            "Sung"
+        ],
+        "b42": [
+            "Joint object and part segmentation using deep learned potentials",
+            "",
+            "",
+            "",
+            "Wang",
+            "Shen",
+            "Lin",
+            "Cohen",
+            "Price",
+            "Yuille"
+        ],
+        "b43": [
+            "The layout consistent random field for recognizing and segmenting partially occluded objects",
+            "",
+            "",
+            "",
+            "Winn",
+            "Shotton"
+        ],
+        "b44": [
+            "Zoom better to see clearer: Human and object parsing with hierarchical auto-zoom net",
+            "",
+            "",
+            "",
+            "Xia",
+            "Wang",
+            "Chen",
+            "Yuille"
+        ],
+        "b45": [
+            "Parsing clothing in fashion photographs",
+            "",
+            "",
+            "",
+            "Yamaguchi",
+            "Hadi Kiapour",
+            "Ortiz",
+            "Berg"
+        ],
+        "b46": [
+            "Part-based r-cnns for fine-grained category detection",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Donahue",
+            "Girshick",
+            "Darrell"
+        ],
+        "b47": [
+            "Monocular object instance segmentation and depth ordering with cnns",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Schwing",
+            "Fidler",
+            "Urtasun"
+        ],
+        "b48": [
+            "Instance-level segmentation for autonomous driving with deep densely connected mrfs",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Fidler",
+            "Urtasun"
+        ],
+        "b49": [
+            "Pyramid scene parsing network",
+            "",
+            "",
+            "",
+            "Zhao",
+            "Shi",
+            "Qi",
+            "Wang",
+            "Jia"
+        ],
+        "b50": [
+            "Conditional random fields as recurrent neural networks",
+            "",
+            "",
+            "",
+            "Zheng",
+            "Jayasumana",
+            "Romera-Paredes",
+            "Vineet",
+            "Su",
+            "Du",
+            "Huang",
+            "Torr"
+        ]
+    },
+    {
+        "tab_0": "Table 1 :1Comparison of AP r at various IoU thresholds for instance-level part segmentation on the Pascal Person-Parts datasetMethod*Model is equivalent to our reimplementation of[1] ",
+        "tab_1": "Table 2 :2Comparison of AP r at various IoU thresholds for instance-level human segmentation on the VOC 2012 validation setMethodIoU threshold 0.5 0.6 0.7 0.8 0.9AP r volSDS [20] Chen et al. [9] PFN [28] Arnab et al. [1]* 58.6 52.6 41.1 30.4 10.7 51.8 47.9 31.8 15.7 3.3 0.1 -48.3 35.6 22.6 6.5 0.6 -48.4 38.0 26.5 16.5 5.9 41.3 R2-IOS [31] 60.4 51.2 33.2 ---Arnab et al. [2]* 65.6 58.0 46.7 33.0 14.6 57.4Ours, piecewise 64.0 59.8 51.0 38.3 20.1 57.2 Ours, end-to-end 70.2 63.1 54.1 41.0 19.6 61.0*Results obtained from supplementary material.",
+        "tab_2": "Table 3 :3Comparison of semantic part segmentation results on the Pascal Person-Parts test setMethodIoU [%]"
+    }
+]

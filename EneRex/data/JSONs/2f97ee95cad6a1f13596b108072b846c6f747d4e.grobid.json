@@ -1,0 +1,377 @@
+[
+    {
+        "basename": "2f97ee95cad6a1f13596b108072b846c6f747d4e.grobid",
+        "fulltext": 17,
+        "footnote_size": 0,
+        "reference": 44,
+        "authors": [
+            "Xiong",
+            "Droppo",
+            "Huang",
+            "Seide",
+            "Seltzer",
+            "Stolcke",
+            "Yu",
+            "Zweig"
+        ]
+    },
+    {
+        "title": "THE MICROSOFT 2016 CONVERSATIONAL SPEECH RECOGNITION SYSTEM",
+        "abstract": "We describe Microsoft's conversational speech recognition system, in which we combine recent developments in neural-network-based acoustic and language modeling to advance the state of the art on the Switchboard recognition task. Inspired by machine learning ensemble techniques, the system uses a range of convolutional and recurrent neural networks. I-vector modeling and lattice-free MMI training provide significant gains for all acoustic model architectures. Language model rescoring with multiple forward and backward running RNNLMs, and word posterior-based system combination provide a 20% boost. The best single system uses a ResNet architecture acoustic model with RNNLM rescoring, and achieves a word error rate of 6.9% on the NIST 2000 Switchboard task. The combined system has an error rate of 6.2%, representing an improvement over previously reported results on this benchmark task.",
+        "INTRODUCTION": "Recent years have seen a rapid reduction in speech recognition error rates as a result of careful engineering and optimization of convolutional and recurrent neural networks. While the basic structures have been well known for a long period  #b1  #b2  #b3  #b4  #b5  #b6  #b7 , it is only recently that they have dominated the field as the best models for speech recognition. Surprisingly, this is the case for both acoustic modeling  #b8 9, #b10  #b11  #b12  #b13  and language modeling  #b14  #b15 . In comparison to standard feed-forward MLPs or DNNs, these acoustic models have the ability to model a large amount of acoustic context with temporal invariance, and in the case of convolutional models, with frequency invariance as well. In language modeling, recurrent models appear to improve over classical N-gram models through the generalization ability of continuous word representations  #b16 . In the meantime, ensemble learning has become commonly used in several neural models  #b17  #b18  #b15 , to improve robustness by reducing bias and variance.In this paper, we use ensembles of models extensively, as well as improvements to individual component models, to to advance the state-of-the-art in conversational telephone speech recognition (CTS), which has been a benchmark speech recognition task since the 1990s. The main features of this system are:1. An ensemble of two fundamental acoustic model architectures, convolutional neural nets (CNNs) and long-short-term memory nets (LSTMs), with multiple variants of each2. An attention mechanism in the LACE CNN which differentially weights distant context  #b19  3. Lattice-free MMI training  #b20  #b21  4. The use of i-vector based adaptation  #b22  in all models 5. Language model (LM) rescoring with multiple, recurrent neural net LMs  #b14  running in both forward and reverse direction 6. Confusion network system combination  #b23  coupled with search for best system subset, as necessitated by the large number of candidate systems.The remainder of this paper describes our system in detail. Section 2 describes the CNN and LSTM models. Section 3 describes our implementation of i-vector adaptation. Section 4 presents out lattice-free MMI training process. Language model rescoring is a significant part of our system, and described in Section 5. Experimental results are presented in Section 6, followed by a discussion of related work and conclusions.",
+        "CONVOLUTIONAL AND LSTM NEURAL NETWORKS": "We use three CNN variants. The first is the VGG architecture of  #b24 . Compared to the networks used previously in image recognition, this network uses small (3x3) filters, is deeper, and applies up to five convolutional layers before pooling. The second network is modeled on the ResNet architecture  #b25 , which adds highway connections  #b26 , i.e. a linear transform of each layer's input to the layer's output  #b26  #b27 . The only difference is that we move the Batch Normalization node to the place right before each ReLU activation.The last CNN variant is the LACE (layer-wise context expansion with attention) model  #b19 . LACE is a TDNN  #b3  variant in which each higher layer is a weighted sum of nonlinear transformations of a window of lower layer frames. In other words, each higher layer exploits broader context than lower layers. Lower layers focus on extracting simple local patterns while higher layers extract complex patterns that cover broader contexts. Since not all frames in a window carry the same importance, an attention mask is applied. The LACE model differs from the earlier TDNN models e.g.  #b3  #b28  in the use of a learned attention mask and ResNet like linear pass-through. As illustrated in detail in Figure 1, the model is composed of 4 blocks, each with the same architecture. Each block starts with a convolution layer with stride 2 which sub-samples the input and increases the number of channels. This layer is followed by 4 RELU-convolution layers with jump links similar to those used in ResNet. Table 1 compares the layer structure and parameters of the three CNN architectures.While our best performing models are convolutional, the use of long short-term memory networks is a close second. We use a bidirectional architecture  #b29  without frame-skipping [9]. The core model structure is the LSTM defined in  #b8 . We found that using networks with more than six layers did not improve the word error rate on the development set, and chose 512 hidden units, per direction, per layer, as that provided a reasonable trade-off between training time and final model accuracy. Network parameters for different configurations of the LSTM architecture are summarized in Table 2. ",
+        "SPEAKER ADAPTIVE MODELING": "Speaker adaptive modeling in our system is based on conditioning the network on an i-vector  #b30  characterization of each speaker  #b22  #b31 . A 100-dimensional i-vector is generated for each conversation side. For the LSTM system, the conversation-side i-vector vs is appended to each frame of input. For convolutional networks, this approach is inappropriate because we do not expect to see spatially contiguous patterns in the input. Instead, for the CNNs, we add a learnable weight matrix W l to each layer, and add W l vs to the activation of the layer before the nonlinearity. Thus, in the CNN, the i-vector essentially serves as an additional bias to each layer. Note that the i-vectors are estimated using MFCC features; by using them subsequently in systems based on log-filterbank features, we may benefit from a form of feature combination.",
+        "LATTICE-FREE SEQUENCE TRAINING": "After standard cross-entropy training, we optimize the model parameters using the maximum mutual information (MMI) objective function. Denoting a word sequence by w and its corresponding acoustic realization by a, the training criterion is w,a\u2208data log P (w)P (a|w)w P (w )P (a|w ).As noted in  #b32  #b33 , the necessary gradient for use in backpropagation is a simple function of the posterior probability of a particular acoustic model state at a given time, as computed by summing over all possible word sequences in an unconstrained manner. As first done in  #b20 , and more recently in  #b21 , this can be accomplished with a straightforward alpha-beta computation over the finite state acceptor representing the decoding search space. In  #b20 , the search space is taken to be an acceptor representing the composition HCLG for a unigram language model L on words. In  #b21 , a language model on phonemes is used instead.In our implementation, we use a mixed-history acoustic unit language model. In this model, the probability of transitioning into a new context-dependent phonetic state (senone) is conditioned both the senone and phone history. We found this model to perform better than either purely word-based or phone-based models. Based on a set of initial experiments, we developed the following procedure:1. Perform a forced alignment of the training data to select lexical variants and determine frame-aligned senone sequences.2. Compress consecutive framewise occurrences of a single senone into a single occurrence. We construct the denominator graph from this language model, and HMM transition probabilities as determined by transitioncounting in the senone sequences found in the training data. Our approach not only largely reduces the complexity of building up the language model but also provides very reliable training performance.We have found it convenient to do the full computation, without pruning, in a series of matrix-vector operations on the GPU. The underlying acceptor is represented with a sparse matrix, and we maintain a dense likelihood vector for each time frame. The alpha and beta recursions are implemented with CUSPARSE level-2 routines: sparse-matrix, dense vector multiplies. Run time is about 100 times faster than real time. As in  #b21 , we use cross-entropy regularization. In all the lattice-free MMI (LFMMI) experiments mentioned below we use a trigram language model. Most of the gain is usually obtained after processing 24 to 48 hours of data.",
+        "LM RESCORING AND SYSTEM COMBINATION": "An initial decoding is done with a WFST decoder, using the architecture described in  #b34 . We use an N-gram language model trained and pruned with the SRILM toolkit  #b35 .The first-pass LM has approximately 15.9 million bigrams, trigrams, and 4grams, and a vocabulary of 30,500 words. It gives a perplexity of 69 on the 1997 CTS evaluation transcripts. The initial decoding produces a lattice with the pronunciation variants marked, from which 500-best lists are generated for rescoring purposes.Subsequent N-best rescoring uses an unpruned LM comprising 145 million N-grams. All N-gram LMs were estimated by a maximum entropy criterion as described in  #b36 .",
+        "RNNLM setup": "The N-best hypotheses are then rescored using a combination of the large N-gram LM and several RNNLMs, trained and evaluated using the CUED-RNNLM toolkit  #b37 . Our RNNLM configuration has several distinctive features, as described below.1) We trained both standard, forward-predicting RNNLMs and backward RNNLMs that predict words in reverse temporal order. The log probabilities from both models are added.2) As is customary, the RNNLM probability estimates are interpolated at the word-level with corresponding N-gram LM probabilities (separately for the forward and backward models). In addition, we trained a second RNNLM for each direction, obtained by starting with different random initial weights. The two RNNLMs and the Ngram LM for each direction are interpolated with weights of (0.375, 0.375, 0.25).3) In order to make use of LM training data that is not fully matched to the target conversational speech domain, we start RNNLM training with the union of in-domain (here, CTS) and out-of-domain (e.g., Web) data. Upon convergence, the network undergoes a second training phase using the in-domain data only. Both training phases use in-domain validation data to regulate the learning rate schedule and termination. Because the size of the out-of-domain data is a multiple of the in-domain data, a standard training on a simple union of the data would not yield a well-matched model, and have poor perplexity in the target domain.4) We found best results with an RNNLM configuration that had a second, non-recurrent hidden layer. This produced lower perplexity and word error than the standard, single-hidden-layer RNNLM architecture  #b14 . 1 The overall network architecture thus had two hidden layers with 1000 units each, using ReLU nonlinearities. Training used noise-contrastive estimation (NCE)  #b38 . 1 However, adding more hidden layers produced no further gains. 5) The RNNLM output vocabulary consists of all words occurring more than once in the in-domain training set. While the RNNLM estimates a probability for unknown words, we take a different approach in rescoring: The number of out-of-set words is recorded for each hypothesis and a penalty for them is estimated for them when optimizing the relative weights for all model scores (acoustic, LM, pronunciation), using the SRILM nbest-optimize tool.",
+        "Training data": "The 4-gram language model for decoding was trained on the available CTS transcripts from the DARPA EARS program: Switchboard (3M words), BBN Switchboard-2 transcripts (850k), Fisher (21M), English CallHome (200k), and the University of Washington conversational Web corpus (191M). A separate model was trained from each source and interpolated with weights optimized on RT-03 transcripts. For the unpruned large rescoring 4-gram, an additional LM component was added, trained on 133M word of LDC Broadcast News texts. The N-gram LM configuration is modeled after that described in  #b31 , except that maxent smoothing was used.The RNNLMs were trained on Switchboard and Fisher transcripts as in-domain data (20M words for gradient computation, 3M for validation). To this we added 62M words of UW Web data as out-of-domain data, for use in the two-phase training procedure described above.",
+        "RNNLM performance": "Table 3 gives perplexity and word error performance for various RNNLM setups, from simple to more complex. The acoustic model used was the ResNet CNN.As can be seen, each of the measures described earlier adds incremental gains, which, while small individually, add up to a 9% relative error reduction over a plain RNNLM.",
+        "System Combination": "The LM rescoring is carried out separately for each acoustic model. The rescored N-best lists from each subsystem are then aligned into a single confusion network  #b23  using the SRILM nbest-rover tool. However, the number of potential candidate systems is too large to allow an all-out combination, both for practical reasons and due to overfitting issues. Instead, we perform a greedy search, starting with the single best system, and successively adding additional systems, to find a small set of systems that are maximally complementary. The RT-02 Switchboard set was used for this search procedure. The relative weighting (for confusion-network mediated voting) of the different systems is optimized using an EM algorithm, using the same data, and smoothed hierarchically by interpolating each set of system weights with the preceding one in the search.",
+        "EXPERIMENTAL SETUP AND RESULTS": "",
+        "Speech corpora": "We train with the commonly used English CTS (Switchboard and Fisher) corpora. Evaluation is carried out on the NIST 2000 CTS test set, which comprises both Switchboard (SWB) and CallHome (CH) subsets. The Switchboard-1 portion of the NIST 2002 CTS test set was used for tuning and development. The acoustic training data is comprised by LDC corpora 97S62, 2004S13, 2005S13, 2004S11 and 2004S09; see  #b20  for a full description.",
+        "1-bit SGD Training": "All presented models are costly to train. To make training feasible, we parallelize training with our previously proposed 1-bit SGD parallelization technique  #b39 . This data-parallel method distributes minibatches over multiple worker nodes, and then aggregates the sub-gradients. While the necessary communication time would otherwise be prohibitive, the 1-bit SGD method eliminates the bottleneck by two techniques: 1-bit quantization of gradients and automatic minibatch-size scaling.In  #b39 , we showed that gradient values can be quantized to just a single bit, if one carries over the quantization error from one minibatch to the next. Each time a sub-gradient is quantized, the quantization error is computed and remembered, and then added to the next minibatch's sub-gradient. This reduces the required bandwidth 32fold with minimal loss in accuracy. Secondly, automatic minibatchsize scaling progressively decreases the frequency of model updates. At regular intervals (e.g. every 72h of training data), the trainer tries larger minibatch sizes on a small subset of data and picks the largest that maintains training loss.",
+        "Acoustic Model Details": "Forty-dimensional log-filterbank features were extracted every 10 milliseconds, using a 25-millisecond analysis window. The CNN models used window sizes as indicated in Table 1, and the LSTMs processed one frame of input at a time. The bulk of our models use three state left-to-right triphone models with 9000 tied states. Additionally, we have trained several models with 27k tied states. The phonetic inventory includes special models for noise, vocalizednoise, laughter and silence. We use a 30k-vocabulary derived from the most common words in the Switchboard and Fisher corpora. The decoder uses a statically compiled unigram graph, and dynamically applies the language model score. The unigram graph has about 300k states and 500k arcs. All acoustic models were trained using the open-source Computational Network Toolkit (CNTK)  #b40 .Table 4 shows the result of i-vector adaptation and LFMMI training on several of our systems. We achieve a 5-8% relative improvement from i-vectors, including on CNN systems. The last row of Table 4 shows the effect of LFMMI training on the different models. We see a consistent 7-10% further relative reduction in error rate for all models. Considering the great increase in procedural simplicity of LFMMI over the previous practice of writing lattices and postprocessing them, we consider LFMMI to be a significant advance in technology.",
+        "Comparative System Performance": "Model performance for our individual models as well as relevant comparisons from the literature are shown in Table 5. Out of the 15 models built, only models given non-zero weight in the final system combination are shown. Compared to earlier applications of CNNs to speech recognition  #b41  #b42 , our networks are much deeper, and use linear bypass connections across convolutional layers. They are similar in spirit to those studied more recently by  #b11  #b10  #b31  #b12  #b13 . We improve on these architectures with the LACE model  #b19 , which iteratively expands the effective window size, layer-by-layer, and adds an attention mask to differentially weight distant context. Our use of lattice-free MMI is distinctive, and extends previous work  #b20  #b21  by proposing the use of a mixed triphone/phoneme history in the language model. On the language modeling side, we achieve a performance boost by combining multiple RNNLMs in both forward and backward directions, and by using a two-phase training regimen to get best results from out-of-domain data. For our best CNN system, RNNLM rescoring yields a relative word error reduction of 20%, and a 16% relative gain for the combined recognition system. (Elsewhere we report further improvements, using LSTM-based LMs  #b43 .)",
+        "CONCLUSIONS": "We have described Microsoft's conversational speech recognition system for 2016. The use of CNNs in the acoustic model has proved singularly effective, as has the use of RNN language models. Our best single system achieves an error rate of 6.9% on the NIST 2000 Switchboard set. We believe this is the best performance reported to date for a recognition system not based on system combination. An ensemble of acoustic models advances the state of the art to 6.2% on the Switchboard test data."
+    },
+    {},
+    {
+        "b0": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "b1": [
+            "Generalization of back-propagation to recurrent neural networks",
+            "",
+            "",
+            "",
+            "Pineda"
+        ],
+        "b2": [
+            "A learning algorithm for continually running fully recurrent neural networks",
+            "",
+            "",
+            "",
+            "Williams",
+            "Zipser"
+        ],
+        "b3": [
+            "Phoneme recognition using time-delay neural networks",
+            "",
+            "",
+            "",
+            "Waibel",
+            "Hanazawa",
+            "Hinton",
+            "Shikano",
+            "Lang"
+        ],
+        "b4": [
+            "Convolutional networks for images, speech, and time series",
+            "",
+            "",
+            "",
+            "Lecun",
+            "Bengio"
+        ],
+        "b5": [
+            "Backpropagation applied to handwritten zip code recognition",
+            "",
+            "",
+            "",
+            "Lecun",
+            "Boser",
+            "Denker",
+            "Henderson",
+            "Howard",
+            "Hubbard",
+            "Jackel"
+        ],
+        "b6": [
+            "A recurrent error propagation network speech recognition system",
+            "",
+            "",
+            "",
+            "Robinson",
+            "Fallside"
+        ],
+        "b7": [
+            "Long short-term memory",
+            "",
+            "",
+            "",
+            "Hochreiter",
+            "Schmidhuber"
+        ],
+        "b8": [
+            "",
+            "",
+            "Long short-term memory recurrent neural network architectures for large scale acoustic modeling",
+            ""
+        ],
+        "b9": [
+            "",
+            "",
+            "Fast and accurate recurrent neural network acoustic models for speech recognition",
+            ""
+        ],
+        "b10": [
+            "The IBM 2015 English conversational telephone speech recognition system",
+            "",
+            "",
+            "",
+            "Saon",
+            "Kuo",
+            "Rennie",
+            "Picheny"
+        ],
+        "b11": [
+            "Very deep multilingual convolutional neural networks for LVCSR",
+            "",
+            "",
+            "",
+            "Sercu",
+            "Puhrsch",
+            "Kingsbury",
+            "Lecun"
+        ],
+        "b12": [
+            "",
+            "",
+            "Very deep convolutional neural networks for LVCSR",
+            ""
+        ],
+        "b13": [
+            "Very deep convolutional neural networks for noise robust speech recognition",
+            "",
+            "",
+            "",
+            "Qian",
+            "Bi",
+            "Tan",
+            "Yu"
+        ],
+        "b14": [
+            "",
+            "",
+            "Recurrent neural network based language model",
+            ""
+        ],
+        "b15": [
+            "",
+            "",
+            "Context dependent recurrent neural network language model",
+            ""
+        ],
+        "b16": [
+            "Linguistic regularities in continuous space word representations",
+            "",
+            "",
+            "",
+            "Mikolov",
+            "-T. Yih",
+            "Zweig"
+        ],
+        "b17": [
+            "Sequence to sequence learning with neural networks",
+            "",
+            "",
+            "",
+            "Sutskever",
+            "Vinyals",
+            "Le"
+        ],
+        "b18": [
+            "",
+            "",
+            "Deep speech: Scaling up end-to-end speech recognition",
+            ""
+        ],
+        "b19": [
+            "",
+            "",
+            "Deep convolutional neural networks with layer-wise context expansion and attention",
+            ""
+        ],
+        "b20": [
+            "Advances in speech transcription at IBM under the DARPA EARS program",
+            "",
+            "",
+            "",
+            "Chen",
+            "Kingsbury",
+            "Mangu",
+            "Povey",
+            "Saon",
+            "Soltau",
+            "Zweig"
+        ],
+        "b21": [
+            "",
+            "",
+            "Purely sequence-trained neural networks for ASR based on lattice-free MMI",
+            ""
+        ],
+        "b22": [
+            "",
+            "",
+            "Speaker adaptation of neural network acoustic models using i-vectors",
+            ""
+        ],
+        "b23": [
+            "The SRI March 2000 Hub-5 conversational speech transcription system",
+            "",
+            "",
+            "",
+            "Stolcke"
+        ],
+        "b24": [
+            "",
+            "",
+            "Very deep convolutional networks for large-scale image recognition",
+            ""
+        ],
+        "b25": [
+            "",
+            "",
+            "Deep residual learning for image recognition",
+            ""
+        ],
+        "b26": [
+            "Highway networks",
+            "",
+            "",
+            "",
+            "Srivastava",
+            "Greff",
+            "Schmidhuber"
+        ],
+        "b27": [
+            "Linearly augmented deep neural network",
+            "",
+            "",
+            "",
+            "Ghahremani",
+            "Droppo",
+            "Seltzer"
+        ],
+        "b28": [
+            "",
+            "",
+            "Consonant recognition by modular construction of large phonemic time-delay neural networks",
+            ""
+        ],
+        "b29": [
+            "Framewise phoneme classification with bidirectional LSTM and other neural network architectures",
+            "",
+            "",
+            "",
+            "Graves",
+            "Schmidhuber"
+        ],
+        "b30": [
+            "Frontend factor analysis for speaker verification",
+            "",
+            "",
+            "",
+            "Dehak",
+            "Kenny",
+            "Dehak",
+            "Dumouchel",
+            "Ouellet"
+        ],
+        "b31": [
+            "",
+            "",
+            "The IBM 2016 English conversational telephone speech recognition system",
+            ""
+        ],
+        "b32": [
+            "",
+            "",
+            "Sequential classification criteria for NNs in automatic speech recognition",
+            ""
+        ],
+        "b33": [
+            "",
+            "",
+            "Sequencediscriminative training of deep neural networks",
+            ""
+        ],
+        "b34": [
+            "",
+            "",
+            "Parallelizing WFST speech decoders",
+            ""
+        ],
+        "b35": [
+            "",
+            "",
+            "SRILM-an extensible language modeling toolkit",
+            ""
+        ],
+        "b36": [
+            "",
+            "",
+            "Efficient estimation of maximum entropy language models with N-gram features: An SRILM extension",
+            ""
+        ],
+        "b37": [
+            "",
+            "",
+            "CUED-RNNLM: An open-source toolkit for efficient training and evaluation of recurrent neural network language models",
+            ""
+        ],
+        "b38": [
+            "Noise-contrastive estimation: A new estimation principle for unnormalized statistical models",
+            "",
+            "",
+            "",
+            "Gutmann",
+            "Hyv\u00e4rinen"
+        ],
+        "b39": [
+            "",
+            "",
+            "1-bit stochastic gradient descent and its application to data-parallel distributed training of speech DNNs",
+            ""
+        ],
+        "b40": [
+            "",
+            "",
+            "An introduction to computational networks and the Computational Network Toolkit",
+            "https://github.com/Microsoft/CNTK"
+        ],
+        "b41": [
+            "Deep convolutional neural networks for LVCSR",
+            "",
+            "",
+            "",
+            "Sainath",
+            "-R. Mohamed",
+            "Kingsbury",
+            "Ramabhadran"
+        ],
+        "b42": [
+            "",
+            "",
+            "Applying convolutional neural networks concepts to hybrid NN-HMM model for speech recognition",
+            ""
+        ],
+        "b43": [
+            "",
+            "",
+            "Achieving human parity in conversational speech recognition",
+            "https://arxiv.org/abs/1610.05256"
+        ]
+    },
+    {
+        "tab_0": "Table 1 .1Comparison of CNN architectures",
+        "tab_1": "Table 2 .2Bidirectional LSTM configurations Hidden-size Output-size i-vectors Depth Parameters5129000N643.0M5129000Y643.4M51227000N661.4M51227000Y661.8M",
+        "tab_3": "Table 3 .3Performance of various versions of RNNLM rescoring. Perplexities (PPL) are computed on 1997 CTS eval transcripts; word error rates (WER) on the NIST 2000 Switchboard test set.Language modelPPL WER4-gram LM (baseline)69.48.6+ RNNLM, CTS data only62.67.6+ Web data training60.97.4+ 2nd hidden layer59.07.4+ 2-RNNLM interpolation 57.27.3+ backward RNNLMs-6.9",
+        "tab_4": "Table 4 .4Performance improvements from i-vector and LFMMI training on the NIST 2000 CTS setWER (%)ConfigurationReLU-DNNBLSTMLACECHSWBCHSWBCHSWBBaseline21.913.417.310.316.910.4i-vector20.111.517.69.916.49.3i-vector+LFMMI 17.910.216.38.915.28.5",
+        "tab_5": "Table 5 .5Word error rates (%) on the NIST 2000 CTS test set with different acoustic models (unless otherwise noted, models are trained on the full 2000 hours of data and have 9k senones)ModelN-gram LM CH SWB CH Neural LM SWBSaon et al. [31] LSTM15.1 9.0--Povey et al. [21] LSTM15.3 8.5--Saon et al. [31] Combination 13.7 7.612.2 6.6300h ResNet19.2 10.017.7 8.2ResNet GMM alignment15.3 8.813.7 7.3ResNet14.8 8.613.2 6.9VGG15.7 9.114.1 7.6LACE14.8 8.313.5 7.1BLSTM16.7 9.015.3 7.827k Senone BLSTM16.2 8.714.6 7.5Combination13.3 7.412.0 6.27. RELATION TO PRIOR WORK"
+    }
+]

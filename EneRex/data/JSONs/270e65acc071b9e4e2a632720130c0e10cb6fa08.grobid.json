@@ -1,0 +1,369 @@
+[
+    {
+        "basename": "270e65acc071b9e4e2a632720130c0e10cb6fa08.grobid",
+        "fulltext": 16,
+        "footnote_size": 6,
+        "footnote_max": 6,
+        "reference": 36,
+        "authors": [
+            "Munkhdalai",
+            "Yu"
+        ]
+    },
+    {
+        "title": "Neural Tree Indexers for Text Understanding",
+        "abstract": "Recurrent neural networks (RNNs) process input text sequentially and model the conditional transition between word tokens. In contrast, the advantages of recursive networks include that they explicitly model the compositionality and the recursive structure of natural language. However, the current recursive architecture is limited by its dependence on syntactic tree. In this paper, we introduce a robust syntactic parsing-independent tree structured model, Neural Tree Indexers (NTI) that provides a middle ground between the sequential RNNs and the syntactic treebased recursive models. NTI constructs a full n-ary tree by processing the input text with its node function in a bottom-up fashion. Attention mechanism can then be applied to both structure and node function. We implemented and evaluated a binarytree model of NTI, showing the model achieved the state-of-the-art performance on three different NLP tasks: natural language inference, answer sentence selection, and sentence classification, outperforming state-of-the-art recurrent and recursive neural networks 1 .",
+        "Introduction": "Recurrent neural networks (RNNs) have been successful for modeling sequence data  #b6 . RNNs equipped with gated hidden units and internal short-term memories, such as long shortterm memories (LSTM)  #b9  have achieved a notable success in several NLP tasks including named entity recognition  #b17 , constituency parsing  #b30 , textual entailment recognition  #b24 ), question answering  #b8 , and machine translation  #b0 . However, most LSTM models explored so far are sequential. It encodes text sequentially from left to right or vice versa and do not naturally support compositionality of language. Sequential LSTM models seem to learn syntactic structure from the natural language however their generalization on unseen text is relatively poor comparing with models that exploit syntactic tree structure (Bowman et al., 2015b).Unlike sequential models, recursive neural networks compose word phrases over syntactic tree structure and have shown improved performance in sentiment analysis  #b27 . However its dependence on a syntactic tree architecture limits practical NLP applications. In this study, we introduce Neural Tree Indexers (NTI), a class of tree structured models for NLP tasks. NTI takes a sequence of tokens and produces its representation by constructing a full n-ary tree in a bottom-up fashion. Each node in NTI is associated with one of the node transformation functions: leaf node mapping and non-leaf node composition functions. Unlike previous recursive models, the tree structure for NTI is relaxed, i.e., NTI does not require the input sequences to be parsed syntactically; and therefore it is flexible and can be directly applied to a wide range of NLP tasks beyond sentence modeling.Furthermore, we propose different variants of node composition function and attention over tree for our NTI models. When a sequential leaf node transformer such as LSTM is chosen, the NTI network forms a sequence-tree hybrid model taking advantage of both conditional and compositional powers of sequential and recursive models.  1 shows a binary-tree model of NTI. Although the model does not follow the syntactic tree structure, we empirically show that it achieved the state-ofthe-art performance on three different NLP applications: natural language inference, answer sentence selection, and sentence classification.2 Related Work",
+        "Recurrent Neural Networks and Attention Mechanism": "RNNs model input text sequentially by taking a single token at each time step and producing a corresponding hidden state. The hidden state is then passed along through the next time step to provide historical sequence information. Although a great success in a variety of tasks, RNNs have limitations  #b1  #b10 . Among them, it is not efficient at memorizing long or distant sequence  #b28 . This is frequently called as information flow bottleneck. Approaches have therefore been developed to overcome the limitations. For example, to mitigate the information flow bottleneck,  #b0  extended RNNs with a soft attention mechanism in the context of neural machine translation, leading to improved the results in translating longer sentences. RNNs are linear chain-structured; this limits its potential for natural language which can be represented by complex structures including syntactic structure. In this study, we propose models to mitigate this limitation.",
+        "Recursive Neural Networks": "Unlike RNNs, recursive neural networks explicitly model the compositionality and the recursive structure of natural language over tree. The tree structure can be predefined by a syntactic parser  #b27 . Each non-leaf tree node is associated with a node composition function which combines its children nodes and produces its own representation. The model is then trained by back-propagating error through structures  #b7 .The node composition function can be varied. A single layer network with tanh non-linearity was adopted in recursive auto-associate memories  #b23 ) and recursive autoencoders  #b25 .  #b26  extended this network with an additional matrix representation for each node to augment the expressive power of the model. Tensor networks have also been used as composition function for sentencelevel sentiment analysis task  #b27 . Recently,  #b35  introduced S-LSTM which extends LSTM units to compose tree nodes in a recursive fashion.In this paper, we introduce a novel attentive node composition function that is based on S-LSTM. Our NTI model does not rely on either a parser output or a fine-grained supervision of nonleaf nodes, both required in previous work. In NTI, the supervision from the target labels is provided at the root node. As such, our NTI model is robust and applicable to a wide range of NLP tasks. We introduce attention over tree in NTI to overcome the vanishing/explode gradients challenges as shown in RNNs.",
+        "Methods": "Our training set consists of N examples {X i , Y i } N i=1 , where the input X i is a sequence of word tokens w i 1 , w i 2 , . . . , w i T i and the output Y i can be either a single target or a sequence. Each input word token w t is represented by its word embedding x t \u2208 R k .NTI is a full n-ary tree (and the sub-trees can be overlapped).It has two types of transformation function: non-leaf node function f node (h 1 , . . . , h c ) and leaf node function f leaf (x t ). f leaf (x t ) computes a (possibly nonlinear) transformation of the input word embedding x t . f node (h 1 , . . . , h c ) is a function of its child nodes representation h 1 , . . . , h c , where c is the total number of child nodes of this non-leaf node.NTI can be implemented with different tree structures. In this study we implemented and evaluated a binary tree form of NTI: a non-leaf node can take in only two direct child nodes (i.e., c = 2). Therefore, the function f node (h l , h r ) composes its left child node h l and right child node h r . Figure 1 illustrates our NTI model that is applied to question answering (a) and natural language inference tasks (b). Note that the node and leaf node functions are neural networks and are the only training parameters in NTI.We explored two different approaches to compose node representations: an extended LSTM and attentive node composition functions, to be described below.",
+        "Non-Leaf Node Composition Functions": "We define two different methods for non-leaf node function f node (h l , h r ).LSTM-based Non-leaf Node Function (S-LSTM): We initiate f node (h l , h r ) with LSTM. For non-leaf node, we adopt S-LSTM  #b35 , an extension of LSTM to tree structures, to learn a node representation by its children nodes. Let h l t , h r t , c l t and c r t be vector representations and cell states for the left and right children. An S-LSTM computes a parent node representation h p t+1 and a node cell state c p t+1 asi t+1 = \u03c3(W s 1 h l t + W s 2 h r t + W s 3 c l t + W s 4 c r t ) (1) f l t+1 = \u03c3(W s 5 h l t + W s 6 h r t + W s 7 c l t + W s 8 c r t ) (2) f r t+1 = \u03c3(W s 9 h l t + W s 10 h r t + W s 11 c l t + W s 12 c r t ) (3) c p t+1 = f l t+1 c l t + f r t+1 c r t + i t+1 tanh(W s 13 h l t + W s 14 h r t ) (4) o t+1 = \u03c3(W s 15 h l t + W s 16 h r t + W s 18 c p t+1 ) (5) h p t+1 = o t+1 tanh(c p t+1 )(6)where W s 1 , . . . , W s 18 \u2208 R k\u00d7k and biases (for brevity we eliminated the bias terms) are the training parameters. \u03c3 and denote the elementwise sigmoid function and the element-wise vector multiplication. Extension of S-LSTM nonleaf node function to compose more children is straightforward. However, the number of parameters increases quadratically in S-LSTM as we add more child nodes.Attentive Non-leaf Node Function (ANF): Some NLP applications (e.g., QA and machine translation) would benefit from a dynamic query dependent composition function. We introduce ANF as a new non-leaf node function. Unlike S-LSTM, ANF composes the child nodes attentively in respect to another relevant input vector q \u2208 R k . The input vector q can be a learnable representation from a sequence representation. Given a matrix S AN F \u2208 R k\u00d72 resulted by concatenating the child node representations h l t , h r t and the third input vector q, ANF is defined asm = f score (S AN F , q) (7) \u03b1 = sof tmax(m) (8) z = S AN F \u03b1 (9) h p t+1 = ReLU (W AN F 1 z)(10)where W AN F 1 \u2208 R k\u00d7k is a learnable matrix, m \u2208 R 2 the attention score and \u03b1 \u2208 R 2 the attention weight vector for each child. f score is an attention scoring function, which can be implemented as a multi-layer perceptron (MLP)m = w ReLU (W score 1 S AN F + W score 2 q \u2297 e) (11)or a matrix-vector product m = q S AN F . The matrices W score 1 and W score 2 \u2208 R k\u00d7k and the vector w \u2208 R k are training parameters. e \u2208 R 2 is a vector of ones and \u2297 the outer product. We use ReLU function for non-linear transformation.",
+        "Attention Over Tree": "Comparing with sequential LSTM models, NTI has less recurrence, which is defined by the tree depth, log(n) for binary tree where n is the length of the input sequence. However, NTI still needs to compress all the input information into a single representation vector of the root. This imposes practical difficulties when processing long sequences. We address this issue with attention mechanism over tree. In addition, the attention mechanism can be used for matching trees (described in Section 4 as Tree matching NTI) that carry different sequence information. We first define a global attention and then introduce a tree attention which considers the parent-child dependency for calculation of the attention weights.Global Attention: An attention neural network for the global attention takes all node representations as input and produces an attentively blended vector for the whole tree. This neural net is similar to ANF. Particularly, given a matrix S GA \u2208 R k\u00d72n-1 resulted by concatenating the node representations h 1 , . . . , h 2n-1 and the relevant input representation q, the global attention is defined asm = f score (S GA , q) (12) \u03b1 = sof tmax(m) (13) z = S GA \u03b1 (14) h tree = ReLU (W GA 1 z + W GA 2 q) (15)where W GA 1 and W GA 2 \u2208 R k\u00d7k are training parameters and \u03b1 \u2208 R 2n-1 the attention weight vector for each node. This attention mechanism is robust as it globally normalizes the attention score m with sof tmax to obtain the weights \u03b1. However, it does not consider the tree structure when producing the final representation h tree .Tree Attention: We modify the global attention network to the tree attention mechanism. The resulting tree attention network performs almost the same computation as ANF for each node. It compares the parent and children nodes to produce a new representation assuming that all node representations are constructed. Given a matrix S T A \u2208 R k\u00d73 resulted by concatenating the parent node representation h p t , the left child h l t and the right child h r t and the relevant input representation q, every non-leaf node h p t simply updates its own representation by using the following equation in a bottom-up manner.m = f score (S T A , q) (16) \u03b1 = sof tmax(m)(17)z = S T A \u03b1 (18)h p t = ReLU (W T A 1 z)(19)and this equation is similarity to the global attention. However, now each non-leaf node attentively collects its own and children representations and passes towards the root which finally constructs the attentively blended tree representation. Note that unlike the global attention, the tree attention locally normalizes the attention scores with sof tmax.",
+        "Experiments": "We describe in this section experiments on three different NLP tasks, natural language inference, question answering and sentence classification to demonstrate the flexibility and the effectiveness of NTI in the different settings.We trained NTI using Adam  #b14  with hyperparameters selected on development set. The pre-trained 300-D Glove 840B vectors  #b22  were obtained for the word embeddings2 . The word embeddings are fixed during training. The embeddings for out-ofvocabulary words were set to zero vector. We pad the input sequence to form a full binary tree. A padding vector was inserted when padding. We analyzed the effects of the padding size and found out that it has no influence on the performance (see Appendix 5.3). The size of hidden units of the NTI modules were set to 300. The models were regularized by using dropouts and an l 2 weight decay.3 ",
+        "Natural Language Inference": "We conducted experiments on the Stanford Natural Language Inference (SNLI) dataset (Bowman et al., 2015a), which consists of 549,367/9,842/9,824 premise-hypothesis pairs for train/dev/test sets and target label indicating their relation. Unless otherwise noted, we follow the setting in the previous work  #b20  #b4  and use an MLP for classification which takes in NTI outputs and computes the concatenation [h p 2n-1 ; h h 2n-1 ], absolute difference h p 2n-1 -h h 2n-1 and elementwise product h p 2n-1 \u2022 h h 2n-1 of the two sentence representations. The MLP has also an input layer with 1024 units with ReLU activation and a sof tmax output layer. We explored nine different task-oriented NTI models with varying complexity, to be described below. For each model, we set the batch size to 32. The initial learning, the regularization strength and the number of epoch to be trained are varied for each model.NTI-SLSTM: this model does not rely on f leaf transformer but uses the S-LSTM units for the non-leaf node function. We set the initial learning rate to 1e-3 and l 2 regularizer strength to 3e-5, and train the model for 90 epochs. The neural net was regularized by 10% input dropouts and the 20% output dropouts.NTI-SLSTM-LSTM: we use LSTM for the leaf node function f leaf . Concretely, the LSTM output vectors are given to NTI-SLSTM and the memory cells of the lowest level S-LSTM were initialized with the LSTM memory states. The hyper-parameters are the same as the previous model.NTI-SLSTM node-by-node global attention: This model learns inter-sentence relation with the global attention over premise-indexed tree, which is similar to word-by-word attention model of  #b24  in that it attends over the premise tree nodes at every time step of hypothesis encoding. We tie the weight parameters of the two NTI-SLSTMs for premise and hypothesis and no f leaf transformer used. We set the initial learning rate to 3e-4 and l 2 regularizer strength to 1e-5, and train the model for 40 epochs. The neural net was regularized by 15% input dropouts and the 15% output dropouts.NTI-SLSTM node-by-node tree attention: this is a variation of the previous model with the tree attention. The hyper-parameters are the same as the previous model.NTI-SLSTM-LSTM node-by-node global attention: in this model we include LSTM as the leaf node function f leaf . Here we initialize the memory cell of S-LSTM with LSTM memory and hidden/memory state of hypothesis LSTM with premise LSTM (the later follows the work of  #b24 ). We set the initial learning rate to 3e-4 and l 2 regularizer strength to 1e-5, and train the model for 10 epochs. The neural net was regularized by 10% input dropouts and the 15% output dropouts.NTI-SLSTM-LSTM node-by-node tree attention: this is a variation of the previous model with the tree attention. The hyper-parameters are the same as the previous model.Tree matching NTI-SLSTM-LSTM global attention: this model first constructs the premise and hypothesis trees simultaneously with the NTI-SLSTM-LSTM model and then computes their matching vector by using the global attention and an additional LSTM. The attention vectors are produced at each hypothesis tree node and then are given to the LSTM model sequentially. The LSTM model compress the attention vectors and outputs a single matching vector, which is passed to an MLP for classification. The MLP for this tree matching setting has an input layer with 1024 units with ReLU activation and a sof tmax output layer.Unlike Wang and Jiang (2016)'s matching LSTM model which is specific to matching sequences, we use the standard LSTM units and match trees. We set the initial learning rate to 3e-4 and l 2 regularizer strength to 3e-5, and train the model for 20 epochs. The neural net was regularized by 20% input dropouts and the 20% output dropouts.Tree matching NTI-SLSTM-LSTM tree attention: we replace the global attention with the tree attention. The hyper-parameters are the same as the previous model.Full tree matching NTI-SLSTM-LSTM global attention: this model produces two sets of the attention vectors, one by attending over the premise tree regarding each hypothesis tree node and another by attending over the hypothesis tree regarding each premise tree node. Each set of the attention vectors is given to a LSTM model to achieve full tree matching. The last hidden states of the two LSTM models (i.e. one for each attention vector set) are concatenated for classification. The training weights are shared among the LSTM models The hyper-parameters are the same as the previous model. 4Table 1 shows the results of our models. For comparison, we include the results from the published state-of-the-art systems. While most of the sentence encoder models rely solely on word embeddings, the dependency tree CNN and the SPINN-PI models make use of sentence parser output; which present strong baseline systems.The last set of methods designs inter-sentence relation with soft attention  #b0 . Our best score on this task is 87.3% accuracy obtained with the full tree matching NTI model. The previous best performing model on the task performs phrase matching by using the attention mechanism.Our results show that NTI-SLSTM improved the performance of the sequential LSTM encoder by approximately 2%. Not surprisingly, using LSTM as leaf node function helps in learning better representations. Our NTI-SLSTM-LSTM is a hybrid model which encodes a sequence sequentially through its leaf node function and then hierarchically composes the output representations. The node-by-node attention models improve the performance, indicating that modeling inter-sentence interaction is an important element in NLI. Aggregating matching vector between trees or sequences with a separate LSTM model is effective.   #b27  85.4 45.7 CNN-MC  #b13  88.1 47.4 DRNN  #b11  86.6 49.8 2-layer LSTM  #b29  86.3 46.0 Bi-LSTM  #b29  87.5 49.1 NTI-SLSTM (Ours) 87.8 50.5 CT-LSTM  #b29  88.0 51.0 DMN  #b16  88.6 52.1 NTI-SLSTM-LSTM (Ours) 89.3 53.1Table 3: Test accuracy for sentence classification. Bin: binary, FG: fine-grained 5 classes.be robust on this task. The tree attention were not helpful as it normalizes the attention scores locally in parent-child relationship.",
+        "Answer Sentence Selection": "For this task, a model is trained to identify the correct sentences that answer a factual question, from a set of candidate sentences. We experiment on WikiQA dataset constructed from Wikipedia  #b32 . The dataset contains 20,360/2,733/6,165 QA pairs for train/dev/test sets.We used the same setup in the language inference task except that we replace the sof tmax layer with a sigmoid layer and model the following conditional probability distribution.p \u03b8 (y = 1|h q n , h a n ) = sigmoid(o QA )(20)where h q n and h a n are the question and the answer encoded vectors and o QA denotes the output of the hidden layer of the MLP. For this task, we use NTI-SLSTM-LSTM to encode answer candidate sentences and NTI-ANF-LSTM to encode the question sentences. Note that NTI-ANF-LSTM is relied on ANF as the non-leaf node function. q vector for NTI-ANF-LSTM is the answer representation produced by the answer encoding NTI-SLSTM-LSTM model. We set the batch size to 4 and the initial learning rate to 1e-3, and train the an outdoor concert at the park a snowmobile in a blizzard an Obama supporter is upset a woman kids playing at a park outside a Skier ski -jumping but doesn't have any money a young person a mom takes a break in a park A skier preparing a trick crying because he didn't get cake a guy people play frisbee outdoors a child is playing on christmas trying his hardest to not fall off a single human takes his lunch break in the park two men play with a snowman is upset and crying on the ground Table 4: Nearest-neighbor phrases based on cosine similarity between learned representations. model for 10 epochs. We used 20% input dropouts and no l 2 weight decay. Following previous work, we adopt MAP and MRR as the evaluation metrics for this task. 5Table 2 presents the results of our model and the previous models for the task. 6 The classifier with handcrafted features is a SVM model trained with a set of features. The Bigram-CNN model is a simple convolutional neural net. The Deep LSTM and LSTM attention models outperform the previous best result by a large margin, nearly 5-6%. NASM improves the result further and sets a strong baseline by combining variational autoencoder  #b15  with the soft attention. In NASM, they adopt a deep three-layer LSTM and introduced a latent stochastic attention mechanism over the answer sentence. Our NTI model exceeds NASM by approximately 0.4% on MAP for this task.",
+        "Sentence Classification": "Lastly, we evaluated NTI on the Stanford Sentiment Treebank (SST)  #b27 . This dataset comes with standard train/dev/test sets and two subtasks: binary sentence classification or fine-grained classification of five classes. We trained our model on the text spans corresponding to labeled phrases in the training set and evaluated the model on the full sentences.We use NTI-SLSTM and NTI-SLSTM-LSTM models to learn sentence representations for the task. The sentence representations were passed to a two-layer MLP for classification. We set the batch size to 64, the initial learning rate to 1e-3 and l 2 regularizer strength to 3e-5, and train each model for 10 epochs. The NTI-SLSTM model was regularized by 10%/20% of input/output and 20%/30% of input/output dropouts and the NTI-SLSTM-LSTM model 20% of input and 20%/30% of input/output dropouts for binary and finegrained settings. NTI-SLSTM-LSTM (as shown in Table 5) set the state-of-the-art results on both subtasks. Our NTI-SLSTM model performed slightly worse A dog mouth holds a retrieved ball.A cat nurses puppies.A dog sells a woman a hat. A brown and white dog holds a tennis ball in his mouth.A golden retriever nurses some other dogs puppies.The dog is a labrador retriever.The dog has a ball.A golden retriever nurses puppies.A girl is petting her dog. The dogs are chasing a ball.A mother dog checking up on her baby puppy.The dog is a shitzu.A small dog runs to catch a ball. A girl is petting her dog.A husband and wife making pizza. The puppy is chasing a ball.The hat wearing girl is petting a cat. The dog is a chihuahua. 5 Qualitative Analysis",
+        "Attention and Compositionality": "To help analyzing the results, we output attention weights by our NTI-SLSTM node-by-node global attention model. Figure 2 shows the attention heatmaps for two sentences in the SNLI test set. It shows that our model semantically aligns single or multiword expressions (\"little child\" and \"toddler\"; \"rock wall\" and \"stone\"). In addition, our model is able to re-orient its attention over different parts of the hypothesis when the expression is more complex. For example, for (c) \"rock wall in autumn\", NTI mostly focuses on the nodes in depth 1, 2 and 3 representing contexts related to \"a stone\", \"leaves.\" and \"a stone wall surrounded\". Surprisingly, attention degree for the single word expression like \"stone\", \"wall\" and \"leaves\" is lower to compare with multiword phrases. Sequence models lack this property as they have no explicit composition module to produce such mu- Finally, the most interesting pattern is that the model attends over higher level (low depth) tree nodes with rich semantics when considering a (c) longer phrase or (d) full sentence. As shown in (d), the NTI model aligns the root node representing the whole hypothesis sentence to the higher level tree nodes covering larger sub-trees in the premise. It certainly ignores the lower level single word expressions and only starts to attend when the words are collectively to form rich semantics.",
+        "Learned Representations of Phrases and Sentences": "Using cosine similarity between their representations produced by the NTI-SLSTM model, we show that NTI is able to capture paraphrases on SNLI test data. As shown in Table 4, NTI seems to distinguish plural from singular forms (similar phrases to \"a person\"). In addition, NTI captures non-surface knowledge. For example, the phrases similar to \"park for fun\" tend to align to the semantic content of fun and park, including \"people play frisbee outdoors\". The NTI model was able to relate \"Santa Claus\" to christmas and snow. Interestingly, the learned representations were also able to connect implicit semantics. For example, NTI found that \"sad, depressed, and hatred\" is close to the phrases like \"an Obama supporter is upset\". Overall the NTI model is robust to the length of the phrases being matched. Given a short phrase, NTI can retrieve longer yet semantically coherent sequences from the SNLI test set.In Table 5, we show nearest-neighbor sentences from SNLI test set. Note that the sentences listed in the first two columns sound semantically coherent but not the ones in the last column. The query sentence \"A dog sells a women a hat\" does not actually represent a common-sense knowledge and this sentence now seem to confuse the NTI model. As a result, the retrieved sentence are arbitrary and not coherent.",
+        "Effects of Padding Size": "We introduced a special padding character in order to construct full binary tree. Does this padding character influence the performance of the NTI models? In Figure 3, we show relationship between the padding size and the accuracy on Stanford sentiment analysis data. Each sentence was padded to form a full binary tree. The x-axis represents the number of padding characters introduced. When the padding size is less (up to 10), the NTI-SLSTM-LSTM model performs better. However, this model tends to perform poorly or equally when the padding size is large. Overall we do not observe any significant performance drop for both models as the padding size increases. This suggests that NTI learns to ignore the special padding character while processing padded sentences. The same scenario was also observed while analyzing attention weights. The attention over the padded nodes was nearly zero.",
+        "Discussion and Conclusion": "We introduced Neural Tree Indexers, a class of tree structured recursive neural network. The NTI models achieved state-of-the-art performance on different NLP tasks. Most of the NTI models form deep neural networks and we think this is one reason that NTI works well even if it lacks direct linguistic motivations followed by other syntactictree-structured recursive models  #b27 .CNN and NTI are topologically related  #b12 . Both NTI and CNNs are hierarchical. However, current implementation of NTI only operates on non-overlapping subtrees while CNNs can slide over the input to produce higher-level representations. NTI is flexible in selecting the node function and the attention mechanism. Like CNN, the computation in the same tree-depth can be parallelized effectively; and therefore NTI is scalable and suitable for large-scale sequence processing. Note that NTI can be seen as a generalization of LSTM. If we construct left-branching trees in a bottom-up fashion, the model acts just like sequential LSTM. Different branching factors for the underlying tree structure have yet to be explored. NTI can be extended so it learns to select and compose dynamic number of nodes for efficiency, essentially discovering intrinsic hierarchical structure in the input."
+    },
+    {
+        "1": "Code for the experiments and NTI is available at https://bitbucket.org/tsendeemts/nti",
+        "2": "http://nlp.stanford.edu/projects/glove/",
+        "3": "More detail on hyper-parameters can be found in code.",
+        "4": "Computational constraint prevented us from experimenting the tree attention variant of this model",
+        "5": "We used trec eval script to calculate the evaluation metrics",
+        "6": "  6  Inclusion of simple word count feature improves the performance by around 0.15-0.3 across the board"
+    },
+    {
+        "b0": [
+            "",
+            "",
+            "Neural machine translation by jointly learning to align and translate",
+            ""
+        ],
+        "b1": [
+            "Learning long-term dependencies with gradient descent is difficult",
+            "",
+            "",
+            "",
+            "Bengio",
+            "Simard",
+            "Frasconi"
+        ],
+        "b2": [
+            "2015a. A large annotated corpus for learning natural language inference",
+            "",
+            "",
+            "",
+            "Samuel",
+            "Bowman",
+            "Angeli",
+            "Potts",
+            "Manning"
+        ],
+        "b3": [
+            "Tree-structured composition in neural networks without tree-structured architectures",
+            "",
+            "",
+            "",
+            "Samuel",
+            "Bowman",
+            "Manning",
+            "Potts"
+        ],
+        "b4": [
+            "A fast unified model for parsing and sentence understanding",
+            "",
+            "",
+            "",
+            "Samuel",
+            "Bowman",
+            "Gauthier",
+            "Rastogi",
+            "Gupta",
+            "Manning",
+            "Potts"
+        ],
+        "b5": [
+            "Long short-term memory-networks for machine reading",
+            "",
+            "",
+            "",
+            "Cheng",
+            "Dong",
+            "Lapata"
+        ],
+        "b6": [
+            "Finding structure in time",
+            "",
+            "",
+            "",
+            "Jeffrey L Elman"
+        ],
+        "b7": [
+            "Learning task-dependent distributed representations by backpropagation through structure",
+            "",
+            "",
+            "",
+            "Goller",
+            "Kuchler"
+        ],
+        "b8": [
+            "",
+            "",
+            "Teaching machines to read and comprehend",
+            ""
+        ],
+        "b9": [
+            "Long short-term memory",
+            "",
+            "",
+            "",
+            "Hochreiter",
+            "Schmidhuber"
+        ],
+        "b10": [
+            "The vanishing gradient problem during learning recurrent neural nets and problem solutions",
+            "",
+            "",
+            "",
+            "Hochreiter"
+        ],
+        "b11": [
+            "",
+            "",
+            "Modeling compositionality with multiplicative recurrent neural networks",
+            ""
+        ],
+        "b12": [
+            "Recurrent continuous translation models",
+            "",
+            "",
+            "",
+            "Kalchbrenner",
+            "Blunsom"
+        ],
+        "b13": [
+            "Convolutional neural networks for sentence classification",
+            "",
+            "",
+            "",
+            "Kim"
+        ],
+        "b14": [
+            "Adam: A method for stochastic optimization",
+            "",
+            "",
+            "",
+            "Kingma",
+            "Ba"
+        ],
+        "b15": [
+            "Autoencoding variational bayes",
+            "",
+            "",
+            "",
+            "Diederik",
+            "Kingma",
+            "Welling"
+        ],
+        "b16": [
+            "Ask me anything: Dynamic memory networks for natural language processing",
+            "",
+            "",
+            "",
+            "Kumar",
+            "Irsoy",
+            "Su",
+            "Bradbury",
+            "English",
+            "Pierce",
+            "Ondruska",
+            "Gulrajani",
+            "Socher"
+        ],
+        "b17": [
+            "Neural architectures for named entity recognition",
+            "",
+            "",
+            "",
+            "Lample",
+            "Ballesteros",
+            "Subramanian",
+            "Kawakami",
+            "Dyer"
+        ],
+        "b18": [
+            "Distributed representations of sentences and documents",
+            "",
+            "",
+            "",
+            "Quoc",
+            "Le",
+            "Mikolov"
+        ],
+        "b19": [
+            "",
+            "",
+            "Neural variational inference for text processing",
+            ""
+        ],
+        "b20": [
+            "Natural language inference by tree-based convolution and heuristic matching",
+            "",
+            "",
+            "",
+            "Mou",
+            "Men",
+            "Li",
+            "Xu",
+            "Zhang",
+            "Yan",
+            "Jin"
+        ],
+        "b21": [
+            "A decomposable attention model for natural language inference",
+            "",
+            "",
+            "",
+            "Parikh",
+            "T\u00e4ckstr\u00f6m",
+            "Das",
+            "Uszkoreit"
+        ],
+        "b22": [
+            "Glove: Global vectors for word representation",
+            "",
+            "",
+            "",
+            "Pennington",
+            "Socher",
+            "Manning"
+        ],
+        "b23": [
+            "Recursive distributed representations",
+            "",
+            "",
+            "",
+            "Pollack"
+        ],
+        "b24": [
+            "",
+            "",
+            "Reasoning about entailment with neural attention",
+            ""
+        ],
+        "b25": [
+            "Semi-supervised recursive autoencoders for predicting sentiment distributions",
+            "",
+            "",
+            "",
+            "Socher",
+            "Pennington",
+            "Huang",
+            "Ng",
+            "Manning"
+        ],
+        "b26": [
+            "Semantic compositionality through recursive matrix-vector spaces",
+            "",
+            "",
+            "",
+            "Socher",
+            "Huval",
+            "Manning",
+            "Ng"
+        ],
+        "b27": [
+            "Recursive deep models for semantic compositionality over a sentiment treebank",
+            "",
+            "",
+            "",
+            "Socher",
+            "Perelygin",
+            "Wu",
+            "Chuang",
+            "Manning",
+            "Ng",
+            "Potts"
+        ],
+        "b28": [
+            "Sequence to sequence learning with neural networks",
+            "",
+            "",
+            "",
+            "Sutskever",
+            "Vinyals",
+            "Quoc",
+            "Le"
+        ],
+        "b29": [
+            "Improved semantic representations from tree-structured long short-term memory networks",
+            "",
+            "",
+            "",
+            "Sheng",
+            "Socher",
+            "Manning"
+        ],
+        "b30": [
+            "",
+            "",
+            "Grammar as a foreign language",
+            ""
+        ],
+        "b31": [
+            "Learning natural language inference with lstm",
+            "",
+            "",
+            "",
+            "Wang",
+            "Jiang"
+        ],
+        "b32": [
+            "Wikiqa: A challenge dataset for open-domain question answering",
+            "",
+            "",
+            "",
+            "Yang",
+            "Yih",
+            "Meek"
+        ],
+        "b33": [
+            "Question answering using enhanced lexical semantic models",
+            "",
+            "",
+            "",
+            "Yih",
+            "Chang",
+            "Meek",
+            "Pastusiak"
+        ],
+        "b34": [
+            "Deep learning for answer sentence selection",
+            "",
+            "",
+            "",
+            "Yu",
+            "Hermann",
+            "Blunsom",
+            "Pulman"
+        ],
+        "b35": [
+            "Long short-term memory over recursive structures",
+            "",
+            "",
+            "",
+            "Zhu",
+            "Sobhani",
+            "Guo"
+        ]
+    },
+    {
+        "tab_0": "Table 1 :1Training and test accuracy on natural language inference task. d is the word embedding size and |\u03b8| M the number of model parameters.Modeld|\u03b8|MTrain TestClassifier with handcrafted features (Bowman et al., 2015a)--99.7 78.2LSTMs encoders (Bowman et al., 2015a)300 3.0M83.9 80.6Dependency Tree CNN encoders (Mou et al., 2016)300 3.5M83.3 82.1NTI-SLSTM (Ours)300 3.3M83.9 82.4SPINN-PI encoders (Bowman et al., 2016)300 3.7M89.2 83.2NTI-SLSTM-LSTM (Ours)300 4.0M82.5 83.4LSTMs attention (Rockt\u00e4schel et al., 2016)100 242K85.4 82.3LSTMs word-by-word attention (Rockt\u00e4schel et al., 2016)100 250K85.3 83.5NTI-SLSTM node-by-node global attention (Ours)300 3.5M85.0 84.2NTI-SLSTM node-by-node tree attention (Ours)300 3.5M86.0 84.3NTI-SLSTM-LSTM node-by-node tree attention (Ours)300 4.2M88.1 85.7NTI-SLSTM-LSTM node-by-node global attention (Ours)300 4.2M87.6 85.9mLSTM word-by-word attention (Wang and Jiang, 2016)300 1.9M92.0 86.1LSTMN with deep attention fusion (Cheng et al., 2016)450 3.4M88.5 86.3Tree matching NTI-SLSTM-LSTM tree attention (Ours)300 3.2M87.3 86.4Decomposable Attention Model (Parikh et al., 2016)200 580K90.5 86.8Tree matching NTI-SLSTM-LSTM global attention (Ours)300 3.2M87.6 87.1Full tree matching NTI-SLSTM-LSTM global attention (Ours) 300 3.2M88.5 87.3",
+        "tab_1": "Table 2 :2The global attention seems to Test set performance on answer sentence selection.ModelMAPMRRClassifier with features (2013)0.5993 0.6068Paragraph Vector (2014)0.5110 0.5160Bigram-CNN (2014)0.6190 0.62813-layer LSTM (2016)0.6552 0.67473-layer LSTM attention (2016) 0.6639 0.6828NASM (2016)0.6705 0.6914NTI (Ours)0.6742 0.6884ModelBinFGRNTN",
+        "tab_2": "Table 5 :5Nearest-neighbor sentences based on cosine similarity between learned representations.than its constituency tree-based counter part, CT-LSTM model. The CT-LSTM model composesphrases according to the output of a sentenceparser and uses a node composition function sim-ilar to S-LSTM. After we transformed the inputwith the LSTM leaf node function, we achievedthe best performance on this task."
+    }
+]

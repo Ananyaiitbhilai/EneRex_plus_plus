@@ -1,0 +1,246 @@
+[
+    {
+        "basename": "269730dbbabed8b8b5ba720e44a4c31b1f51e8f1.grobid",
+        "fulltext": 16,
+        "footnote_size": 1,
+        "footnote_max": 2,
+        "reference": 21,
+        "authors": [
+            "Seo",
+            "Min",
+            "Farhadi",
+            "Hajishirzi"
+        ]
+    },
+    {
+        "title": "QUERY-REDUCTION NETWORKS FOR QUESTION ANSWERING",
+        "abstract": "In this paper, we study the problem of question answering when reasoning over multiple facts is required. We propose Query-Reduction Network (QRN), a variant of Recurrent Neural Network (RNN) that effectively handles both short-term (local) and long-term (global) sequential dependencies to reason over multiple facts. QRN considers the context sentences as a sequence of state-changing triggers, and reduces the original query to a more informed query as it observes each trigger (context sentence) through time. Our experiments show that QRN produces the state-of-the-art results in bAbI QA and dialog tasks, and in a real goal-oriented dialog dataset. In addition, QRN formulation allows parallelization on RNN's time axis, saving an order of magnitude in time complexity for training and inference.",
+        "INTRODUCTION": "In this paper, we address the problem of question answering (QA) when reasoning over multiple facts is required. For example, consider we know that Frogs eat insects and Flies are insects. Then answering Do frogs eat flies? requires reasoning over both of the above facts. Question answering, more specifically context-based QA, has been extensively studied in machine comprehension tasks  #b16  #b7  #b8  #b14 . However, most of the datasets are primarily focused on lexical and syntactic understanding, and hardly concentrate on inference over multiple facts. Recently, several datasets aimed for testing multi-hop reasoning have emerged; among them are story-based QA  #b19  and the dialog task (Bordes and Weston, 2016).Recurrent Neural Network (RNN) and its variants, such as Long Short-Term Memory (LSTM)  #b9  and Gated Recurrent Unit (GRU)  #b2 , are popular choices for modeling natural language. However, when used for multi-hop reasoning in question answering, purely RNN-based models have shown to perform poorly  #b19 . This is largely due to the fact that RNN's internal memory is inherently unstable over a long term. For this reason, most recent approaches in the literature have mainly relied on global attention mechanism and shared external memory  #b17  #b12  #b20  #b5 . The attention mechanism allows these models to focus on a single sentence in each layer. They can sequentially read multiple relevant sentences from the memory with multiple layers to perform multi-hop reasoning. However, one major drawback of these standard attention mechanisms is that they are insensitive to the time step (memory address) of the sentences when accessing them.Our proposed model, Query-Reduction Network 1 (QRN), is a single recurrent unit that addresses the long-term dependency problem of most RNN-based models by simplifying the recurrent update, while taking the advantage of RNN's capability to model sequential data (Figure 1). QRN considers the context sentences as a sequence of state-changing triggers, and transforms (reduces) the original query to a more informed query as it observes each trigger through time. For instance in Figure 1b, the original question, Where is the apple?, cannot be directly answered by any single sentence from the story. After observing the first sentence, Sandra got the apple there, QRN transforms the original question to a reduced query Where is Sandra?, which is presumably Figure 1: (1a) QRN unit, (1b) 2-layer QRN on 5-sentence story, and (1c) entire QA system (QRN and input / output modules). x, q, \u0177 are the story, question and predicted answer in natural language, respectively. x = x1, . . . , xT , q, \u0177 are their corresponding vector representations (upright font). \u03b1 and \u03c1 are update gate and reduce functions, respectively. \u0177 is assigned to be h2 5 , the local query at the last time step in the last layer. Also, red-colored text is the inferred meanings of the vectors (see 'Interpretations' of Section 5.3). easier to answer than the original question given the context provided by the first sentence. 2 Unlike RNN-based models, QRN's candidate state ( ht in Figure 1a) does not depend on the previous hidden state (h t-1 ). Compared to memory-based approaches  #b18  #b17  #b12  #b10  #b20 , QRN can better encodes locality information because it does not use a global memory access controller (circle nodes in Figure 2), and the query updates are performed locally.In short, the main contribution of QRN is threefold. First, QRN is a simple variant of RNN that reduces the query given the context sentences in a differentiable manner. Second, QRN is situated between the attention mechanism and RNN, effectively handling time dependency and long-term dependency problems of each technique, respectively. Hence it is well-suited for sequential data with both local and global interactions (note that QRN is not the replacement of RNN, which is arguably better for modeling complex local interactions). Third, unlike most RNN-based models, QRN can be parallelized over time by computing candidate reduced queries ( ht ) directly from local input queries (q t ) and context sentence vectors (x t ). In fact, the parallelizability of QRN implies that QRN does not suffer from the vanishing gradient problem of RNN, hence effectively addressing the long-term dependency. We experimentally demonstrate these contributions by achieving the state-of-the-art results on story-based QA and interactive dialog datasets.",
+        "MODEL": "In story-based QA (or dialog dataset), the input is the context as a sequence of sentences (story or past conversations) and a question in natural language (equivalent to the user's last utterance in the dialog). The output is the predicted answer to the question in natural language (the system's next utterance in the dialog). The only supervision provided during training is the answer to the question.In this paper we particularly focus on end-to-end solutions, i.e., the only supervision comes from questions and answers, and we restrain from using manually defined rules or external language resources, such as lexicon or dependency parser. Let x 1 , . . . , x T denote the sequence of sentences, where T is the number of sentences in the story, and let q denote the question. Let \u0177 denote the predicted answer, and y denote the true answer. Our proposed system for end-to-end QA task is divided into three modules (Figure 1c): input module, QRN layers, and output module.Input module. Input module maps each sentence x t and the question q to d-dimensional vector space, x t \u2208 R d and q t \u2208 R d . We adopt a previous solution for the input module (details in Section 5).QRN layers. QRN layers use the sentence vectors and the question vector from the input module to obtain the predicted answer in vector space, \u0177 \u2208 R d . A QRN layer refers to the recurrent application of a QRN unit, which can be considered as a variant of RNN with two inputs, two outputs, and a hidden state (reduced query), all of which operate in vector space. The details of the QRN module is explained throughout this section (2.1, 2.2).Output module. Output module maps \u0177 obtained from QRN to a natural language answer \u0177. Similar to the input module, we adopt a standard solution for the output module (details in Section 5).We first formally define the base model of a QRN unit, and then we explain how we connect the input and output modules to it (Section 2.1). We also present a few extensions to the network that can improve QRN's performance (Section 2.2). Finally, we show that QRN can be parallelized over time, giving computational advantage over most RNN-based models by one order of magnitude (Section 3).",
+        "QRN UNIT": "As an RNN-based model, QRN is a single recurrent unit that updates its hidden state (reduced query) through time and layers. Figure 1a depicts the schematic structure of a QRN unit, and Figure 1b demonstrates how layers are stacked. A QRN unit accepts two inputs (local query vector q t \u2208 R d and sentence vector x t \u2208 R d ), and two outputs (reduced query vector h t \u2208 R d , which is similar to the hidden state in RNN, and the sentence vector x t from the input without modification). The local query vector is not necessarily identical to the original query (question) vector q. In order to compute the outputs, we use update gate function \u03b1 : R d \u00d7 R d \u2192 [0, 1] and reduce function \u03c1 : R d \u00d7 R d \u2192 R d . Intuitively, the update gate function measures the relevance between the sentence and the local query and is used to update the hidden state. The reduce function transforms the local query input to a candidate state which is a new reduced (easier) query given the sentence. The outputs are calculated with the following equations:z t = \u03b1(x t , q t ) = \u03c3(W (z) (x t \u2022 q t ) + b (z) ) (1) ht = \u03c1(x t , q t ) = tanh(W (h) [x t ; q t ] + b (h) )(2)h t = z t ht + (1 -z t )h t-1 (3)where z t is the scalar update gate, ht is the candidate reduced query, and h t is the final reduced query at time step t, \u03c3(\u2022) is sigmoid activation, tanh(\u2022) is hyperboolic tangent activation (applied element-wise),W (z) \u2208 R 1\u00d7d , W (h) \u2208 R d\u00d72d are weight matrices, b (z) \u2208 R, b (h) \u2208 R d are bias terms,\u2022 is element-wise vector multiplication, and [; ] is vector concatenation along the row. As a base case, h 0 = 0. Here we have explicitly defined \u03b1 and \u03c1, but they can be any reasonable differentiable functions.The update gate is similar to the global attention mechanism  #b17  #b20  in that it measures the similarity between the sentence (a memory slot) and the query. However, a significant difference is that the update gate is computed using sigmoid (\u03c3) function on the current memory slot only (hence internally embedded within the unit), whereas the global attention is computed using softmax function over the entire memory (hence globally defined). The update gate can be rather considered as local sigmoid attention.",
+        "Stacking layers": "We just showed the single-layer case of QRN, but QRN with multiple layers is able to perform reasoning over multiple facts more effectively, as shown in the example of Figure 1b.In order to stack several layers of QRN, the outputs of the current layer are used as the inputs to the next layer. That is, using superscript k to denote the current layer's index (assuming 1-based indexing), we let q k+1 t = h k t . Note that x t is passed to the next layer without any modification, so we do not put a layer index on it.Bi-direction. So far we have assumed that QRN only needs to look at past sentences, whereas often times, query answers can depend on future sentences. For instance, consider a sentence \"John dropped the football.\" at time t. Then, even if there is no mention about the \"football\" in the past (at time i < t), it can be implied that \"John\" has the \"football\" at the current time t. In order to incorporate the future dependency, we obtain -\u2192 h t and \u2190h t in both forward and backward directions, respectively, using Equation 3. We then add them together to get q t for the next layer. That is, h) are shared between the two directions.q k+1 t = - \u2192 h k t + \u2190 - h k t (4) for layer indices 1 \u2264 k \u2264 K -1. Note that the variables W (z) , b (z) , W (h) , b(Connecting input and output modules. Figure 1c depicts how QRN is connected with the input and output modules. In the first layer of QRN, q 1 t = q for all t, where q is obtained from the input module by processing the natural language question input q. x t is also obtained from x t by the same input module. The output at the last time step in the last layer is passed to the output module. That is, \u0177 = h K t where K represent the number of layers in the network. Then the output module gives the predicted answer \u0177 in natural language.",
+        "EXTENSIONS": "Here we introduce a few extensions of QRN, and later in our experiments, we test QRN's performance with and without each of these extensions.Reset gate. Inspired by GRU  #b2 , we found that it is useful to allow the QRN unit to reset (nullify) the candidate reduced query (i.e., ht ) when necessary. For this we use a reset gate function \u03b2 : R d \u00d7 R d \u2192 [0, 1], which can be defined similarly to the update gate function:r t = \u03b2(x t , q t ) = \u03c3(W (r) (x t \u2022 q t ) + b (r) )(5)where W (r) \u2208 R 1\u00d7d is a weight matrix, and b (r) \u2208 R is a bias term. Equation 3 is rewritten ash t = z t r t ht + (1 -z t )h t-1 .(6)Note that we do not use the reset gate in the last layer.Vector gates. As in LSTM and GRU, update and reset gates can be vectors instead of scalar values for fine-controlled gating. For vector gates, we modify the row dimension of weights and biases in Equation 1 and 5 from 1 to d. Then we obtain z t , r t \u2208 R d (instead of z t , r t \u2208 R), and these can be element-wise multiplied (\u2022) instead of being broadcasted in Equation 3 and 6.",
+        "PARALLELIZATION": "An important advantage of QRN is that the recurrent updates in Equation 3 and 5 can be computed in parallel across time. This is in contrast with most RNN-based models that cannot be parallelized, where computing the candidate hidden state at time t explicitly requires the previous hidden state.In QRN, the final reduced queries (h t ) can be decomposed into computing over candidate reduced queries ( ht ), without looking at the previous reduced query. Here we primarily show that the query update in Equation 3 can be parallelized by rewriting the equation with matrix operations. The extension to Equation 5 is straightforward. The proof for QRN with vector gates is shown in Appendix B. The recursive definition of Equation 3 can be explicitly written ash t = t i=1 \uf8ee \uf8f0 t j=i+1 1 -z j \uf8f9 \uf8fb z i hi = t i=1 exp \uf8f1 \uf8f2 \uf8f3 t j=i+1 log (1 -z j ) \uf8fc \uf8fd \uf8fe z i hi . (7)Let b i = log(1 -z i ) for brevity. Then we can rewrite Equation 7 as the following equation:  #b17  \ud835\udc31  #b20  Figure 2: The schematics of QRN and the two state-of-the-art models, End-to-End Memory Networks (N2N) and Improved Dynamic Memory Networks (DMN+), simplified to emphasize the differences among the models. AGRU is a variant of GRU where the update gate is replaced with soft attention, proposed by  #b10 . For QRN and DMN+, only forward direction arrows are shown.\uf8eb \uf8ec \uf8ec \uf8ec \uf8ec \uf8ec \uf8ed h 1 h 2 h 3 . . . h T \uf8f6 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f8 = \uf8ee \uf8ef \uf8ef \uf8ef \uf8ef \uf8ef \uf8f0 exp \uf8f1 \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8f2 \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8f3 \uf8eb \uf8ec \uf8ec \uf8ec \uf8ec \uf8ec \uf8ed 0 -\u221e -\u221e . . . -\u221e b 2 0 -\u221e . . . -\u221e b 2 + b 3 b 3 0 . . . -\u221e . . . . . . . . . . . . . . . T j=2 b j T j=3 b j T j=4 b j . . . 0 \uf8f6 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f8 \uf8fc \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8fd \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8fe \uf8f9 \uf8fa \uf8fa \uf8fa \uf8fa \uf8fa \uf8fb \uf8eb \uf8ec \uf8ec \uf8ec \uf8ec \uf8ec \uf8ed z 1 h 1 z 2 h 2 z 3 h 3 . . . z T h T \uf8f6 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f8 (8) \ud835\udc31 \" \ud835\udc31 # \ud835\udc31 $ q \u22ef \ud835\udc31 \" \ud835\udc31 # \ud835\udc31 $ QRN \u22ef \ud835\udc21 $ # = \ud835\udc32 ) \ud835\udc21 \" \" \ud835\udc21 # \" \ud835\udc21 $ \" \ud835\udc21 \" # \ud835\udc21 \" \" \ud835\udc21 # \" \ud835\udc21 # # QRN QRN QRN QRN QRN (a) QRN \ud835\udc31 \" \ud835\udc31 # \ud835\udc31 $ \ud835\udc2a = \ud835\udc21 ( \ud835\udc31 \" \ud835\udc31 # \ud835\udc31 $ \u22ef \ud835\udc21 \" \ud835\udc32 + = \ud835\udc21 # \u03a3 \u03a3 \u22ef (b) N2N\" \ud835\udc31 # \ud835\udc31 $ \ud835\udc2a = \ud835\udc21 ( AGRU AGRU AGRU GRU \u22ef \ud835\udc31 \" \ud835\udc31 # \ud835\udc31 $ AGRU AGRU AGRU GRU \u22ef \ud835\udc21 \" \ud835\udc32 + = \ud835\udc21 # (c) DMN+Let H = [h 1 ; . . . ; h T ] be a T -by-d matrix where the transposes ( ) of the column vectors h t are concatenated across row. We similarly define H from ht . Also, let z = [z 1 ; . . . ; z T ] and b = [0; b 2 ; . . . ; b T ] be column vectors (note that we use 0 instead of b 1 ). Then Equation 8is:H = [L \u2022 exp (L [B \u2022 L ])] Z \u2022 H (9)where L, L \u2208 R T \u00d7T are lower and strictly lower triangular matrices of 1's, respectively, \u2022",
+        "RELATED WORK": "QRN is inspired by RNN-based models with gating mechanism, such as LSTM  #b9  and GRU  #b2 . While GRU and LSTM use the previous hidden state and the current input to obtain the candidate hidden state, QRN only uses the current two inputs to obtain the candidate reduced query (equivalent to candidate hidden state). We conjecture that this not only gives computational advantage via parallelization, but also makes training easier, i.e., avoiding vanishing gradient (which is critical for long-term dependency), overfitting (by simplifying the model), and converging to local minima.The idea of structurally simplifying (constraining) RNNs for learning longer-term patterns has been explored in recent previous work, such as Structurally Constrained Recurrent Network  #b11  and Strongly-Typed Recurrent Neural Network (STRNN)  #b1 .QRN is similar to STRNN in that both architectures use gating mechanism, and the gates and the candidate hidden states do not depend on the previous hidden states, which simplifies the recurrent relation. However, QRN can be distinguished from STRNN in three ways. First, QRN's update gate simulates attention mechanism, measuring the relevance between the input sentence and query.On the other hand, the gates in STRNN can be considered as the simplification of LSTM/GRU by removing their dependency on previous hidden state. Second, QRN is an RNN that is natively compatible with context-based QA tasks, where the QRN unit accepts two inputs, i.e. each context sentence and query. This is distinct from STRNN which has only one input. Third, we show that QRN is timewise-parallelizable on GPUs. Our parallelization algorithm is also applicable to STRNN.End-to-end Memory Network (N2N)  #b17  uses external memory with multi-layer attention mechanism to focus on sentences that are relevant to the question. There are two key differences between N2N and our QRN. First, N2N summarizes the entire memory in each layer to control the attention in the next layer (circle nodes in Figure 2b). Instead, QRN does not have any controller node (Figure 2a) and is able to focus on relevant sentences through the update gate that is internally embodied within its unit. Second, N2N adds time-dependent trainable weights to the sentence representations to model the time dependency of the sentences (as discussed in Section 1). QRN does not need such additional weights as its inherent RNN architecture allows QRN to effectively model the time dependency. Neural Reasoner  #b12  and Gated End-toend Memory Network  #b13 ) are variants of MemN2N that share its fundamental characteristics.Improved Dynamic Memory Network (DMN+)  #b20  uses the hybrid of the attention mechanism and the RNN architecture to model the sequence of sentences. It consists of two distinct GRUs, one for the time axis (rectangle nodes in Figure 2c) and one for the layer axis (circle nodes in Figure 2c). Note that the update gate of the GRU for the time axis is replaced with external softmax attention weights. DMN+ uses the time-axis GRU to summarizes the entire memory in each layer, and then the layer-axis GRU controls the attention weights in each layer. In contrast, QRN is simply a single recurrent unit without any controller node.",
+        "EXPERIMENTS": "5.1 DATA bAbI story-based QA dataset bAbI story-based QA dataset  #b19 ) is composed of 20 different tasks (Appendix A), each of which has 1,000 (1k) synthetically-generated story-question pair. A story can be as short as two sentences and as long as 200+ sentences. A system is evaluated on the accuracy of getting the correct answers to the questions. The answers are single words or lists (e.g. \"football, apple\"). Answering questions in each task requires selecting a set of relevant sentences and applying different kinds of logical reasoning over them. The dataset also includes 10k training data (for each task), which allows training more complex models. Note that DMN+  #b20  only reports on the 10k dataset.bAbI dialog dataset bAbI dialog dataset (Bordes and Weston, 2016) consists of 5 different tasks (Table 3), each of which has 1k synthetically-generated goal-oriented dialogs between a user and the system in the domain of restaurant reservation. Each dialog is as long as 96 utterances and comes with external knowledge base (KB) providing information of each restaurant. The authors also provide Out-Of-Vocabulary (OOV) version of the dataset, where many of the words and KB keywords in test data are not seen during training. A system is evaluated on the accuracy of its response to each utterance of the user, choosing from up to 2500 possible candidate responses. A system is required not only to understand the user's request but also refer to previous conversations in order to obtain the context information of the current conversation.DSTC2 (Task 6) dialog dataset Bordes and Weston (2016) transformed the Second Dialog State Tracking Challenge (DSTC2) dataset  #b6  into the same format as the bAbI dialog dataset, for the measurement of performance on a real dataset. Each dialog can be as long as 800+ utterances, and a system needs to choose from 2407 possible candidate responses for each utterance of the user. Note that the evaluation metric of the original DSTC2 is different from that of the transformed DSTC2, so previous work on the original DSTC2 should not be directly compared to our work. We will refer to this transformed DSTC2 dataset by \"Task 6\" of dialog dataset.",
+        "MODEL DETAILS": "Input Module. In the input module, we are given sentences (previous conversations in dialog) x t and a question (most recent user utterance) q, and we want to obtain their vector representations, x t , q \u2208 R d . We use a trainable embedding matrix A \u2208 R d\u00d7V to encode the one-hot vector of each word x tj in each sentence x t into a d-dimensional vector x tj \u2208 R d . Then the sentence representation x t is obtained by Position Encoder  #b18 . The same encoder with the same embedding matrix is also used to obtain the question vector q from q.Output Module for story-based QA. In the output module, we are given the vector representation of the predicted answer \u0177 and we want to obtain the natural language form of the answer, \u0177.We use a V -way single-layer softmax classifier to map \u0177 to a V -dimensional sparse vector, v = softmax W (y) \u0177 \u2208 R V , where W (y) \u2208 R V \u00d7d is a weight matrix. Then the final answer \u0177 is simply the argmax word in v. To handle questions with multiple-word answers, we consider each of them as a single word that contains punctuations such as space and comma, and put it in the vocabulary.Output Module for dialog. We use a fixed number single-layer softmax classifiers, each of which is similar to that of the sotry-based QA model, to sequentially output each word of the system's response. While it is similar in spirit to the RNN decoder  #b2 , our output module does not have a recurrent hidden state or gating mechanism. Instead, it solely uses the final ouptut of the QRN, \u0177, and the current word output to influence the prediction of the next word among possible candidates.Training. We withhold 10% of the training for development. We use the hidden state size of 50 by deafult. Batch sizes of 32 for bAbI story-based QA 1k, bAbI dialog and DSTC2 dialog, and 128 for bAbI QA 10k are used. The weights in the input and output modules are initialized with zero mean and the standard deviation of 1/ \u221a d. Weights in the QRN unit are initialized using techniques by  #b4 , and are tied across the layers. Forget bias of 2.5 is used for update gates (no bias for reset gates). L2 weight decay of 0.001 (0.0005 for QA 10k) is used for all weights. The loss function is the cross entropy between v and the one-hot vector of the true answer. The loss is minimized by stochastic gradient descent for maximally 500 epochs, but training is early stopped if the loss on the development data does not decrease for 50 epochs. The learning rate is controlled by AdaGrad  #b3  with the initial learning rate of 0.5 (0.1 for QA 10k). Since the model is sensitive to the weight initialization, we repeat each training procedure 10 times (50 times for 10k) with the new random initialization of the weights and report the result on the test data with the lowest loss on the development data.",
+        "RESULTS.": "We compare our model with baselines and previous state-of-the-art models on story-based and dialog tasks (Table 1). These include LSTM  #b9 , End-to-end Memory Networks (N2N)  #b17 , Dynamic Memory Networks (DMN+)  #b20 , Gated End-to-end Memory Networks (GMemN2N)  #b13 , and Differentiable Neural Computer (DNC)  #b5 .Story-based QA. Table 1(top) reports the summary of results of our model (QRN) and previous work on bAbI QA (task-wise results are shown in Table 2 in Appendix). In 1k data, QRN's '2r' (2 layers + reset gate + d = 50) outperforms all other models by a large margin (2.8+%). In 10k dataset, the average accuracy of QRN's '6r200' (6 layers + reset gate + d = 200) model outperforms all previous models by a large margin (2.5+%), achieving a nearly perfect score of 99.7%.Dialog. Table 1(bottom) reports the summary of the results of our model (QRN) and previous work on bAbI dialog and Task 6 dialog (task-wise results are shown in Table 3 in Appendix). As done in previous work (Bordes and Weston, 2016; #b13 , we also report results when we use 'Match' for dialogs. 'Match' is the extension to the model which additionally takes as input whether each answer candidate matches with context (more details on Appendix). QRN outperforms previous work by a large margin (2.0+%) in every comparison.Ablations. We test four types of ablations (also discussed in Section 2.2): number of layers (1, 2, 3, or 6), reset gate (r), and gate vectorization (v) and the dimension of the hidden vector (50, 100). We show a subset of combinations of the ablations for bAbI QA in Table 1 andTable 2; other combinations performed poorly and/or did not give interesting observations. According to the ablation results, we infer that: (a) When the number of layers is only one, the model lacks reasoning capability. In the case of 1k dataset, when there are too many layers (6), it seems correctly training the model becomes increasingly difficult. In the case of 10k dataset, many layers (6) and hidden dimensions (200) helps reasoning, most notably in difficult task such as task 16. (b) Adding the reset gate helps. (c) Including vector gates hurts in 1k datasets, as the model either overfits to the training data or converges to local minima. On the other hand, vector gates in bAbI story-based QA 10k dataset sometimes help. (d) Increasing the dimension of the hidden state to 100 in the dialog's Task 6 (DSTC2) helps, while there is not much improvement in the dialog's Task 1-5. It can be hypothesized that a larger hidden state is required for real data. belongs to Sandra. In dialog Task 3 (bottom left), the model is able to infer that three restaurants are already recommended so that it can recommend another one. In dialog Task 6 (bottom), the model focuses on the sentences containing Spanish, and does not concentrate much on other facts such as I don't care.",
+        "CONCLUSION": "In this paper, we introduce Query-Reduction Network (QRN) to answer context-based questions and carry out conversations with users that require multi-hop reasoning. We show the state-of-theart results in the three datasets of story-based QA and dialog. We model a story or a dialog as a sequence of state-changing triggers and compute the final answer to the question or the system's next utterance by recurrently updating (or reducing) the query. QRN is situated between the attention mechanism and RNN, effectively handling time dependency and long-term dependency problems of each technique, respectively. It addresses the long-term dependency problem of most RNNs by simplifying the recurrent update, in which the candidate hidden state (reduced query) does not depend on the previous state. Moreover, QRN can be parallelized and can address the well-known problem of RNN's vanishing gradients.A TASK-WISE RESULTSHere we provide detailed per-task breakdown of our results in QA(Table 2) and dialog datasets (Table 3).   #b19  error rates (%) of QRN and previous work: LSTM  #b19 , End-to-end Memory Networks (N2N)  #b17 , Dynamic Memory Networks (DMN+)  #b20 , Gated End-to-end Memory Networks(GMemN2N)  #b13  and Weston, 2016)) and Gated End-to-end Memory Networks(GMemN2N  #b13 ). For QRN, a number in the front (1,2,3,6) indicates the number of layers and a number in the back (100) indicates the dimension of hidden vector, while the default value is 50. 'r' indicates that the reset gate is used, 'v' indicates that the gates were vectorized, and '+' indicates that 'match' was used.",
+        "B VECTOR GATE PARALLELIZATION": "For vector gates, we have z t \u2208 R d instead of z t \u2208 R. Therefore the following equation replaces Equation 7:h t = t i=1 exp \uf8f1 \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8f2 \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8f3 \uf8eb \uf8ec \uf8ec \uf8ec \uf8ec \uf8ed t j=i+1 log 1 -z j 1 t j=i+1 log 1 -z j 2 . . . t j=i+1 log 1 -z j d \uf8f6 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f8 \uf8fc \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8fd \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8fe \u2022 z i \u2022 hi (10)where z j k is the k-th column vector of z j . Let b ij = log(1 -z i j ) for brevity. Then, we can rewrite Equation 8 as following:  Then Equation 11is:\uf8eb \uf8ec \uf8ec \uf8ec \uf8ec \uf8ec \uf8ed h 1 h 2 h 3 . . . h T \uf8f6 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f8 j = \uf8ee \uf8ef \uf8ef \uf8ef \uf8ef \uf8f0 exp \uf8f1 \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8f2 \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8f3 \uf8eb \uf8ec \uf8ec \uf8ec \uf8ec \uf8ed 0 -\u221e -\u221e . . . -\u221e b 2j 0 -\u221e . . .\uf8f6 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f8 \uf8fc \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8fd \uf8f4 \uf8f4 \uf8f4 \uf8f4 \uf8fe \uf8f9 \uf8fa \uf8fa \uf8fa \uf8fa \uf8fb \uf8eb \uf8ec \uf8ec \uf8ec \uf8ec \uf8ec \uf8ed z 1 \u2022 h 1 z 2 \u2022 h 2 z 3 \u2022 h \uf8f6 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f8 j(H = \uf8eb \uf8ec \uf8ec \uf8ec \uf8ec \uf8ec \uf8ec \uf8ec \uf8ed [L \u2022 exp (L [B 1 \u2022 L ])] Z \u2022 H 1 [L \u2022 exp (L [B 2 \u2022 L ])] Z \u2022 H 2 . . . [L \u2022 exp (L [B d \u2022 L ])] Z \u2022 H d \uf8f6 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f7 \uf8f8(12)where L, L \u2208 R T \u00d7T are lower and strictly lower triangular matrices of 1's are tiled across the column. Z = [z 1 , . . . , z d ] \u2208 R T \u00d7d .",
+        "C MODEL DETAILS": "Match. While similar in spirit, our 'Match' model is slightly different from previous work (Bordes and Weston, 2016; #b13 . We use answer candidate embedding matrix, and add 2 dimension of 0-1 matrix which expresses whether the answer candidate matches with any word in the paragraph and the question. In other words, the softmax is computed by v = softmax W[W (y) ; M (y) ]\u0177 \u2208 R V , where W \u2208 R d\u00d7d and W (y) \u2208 R V \u00d7(d-2) are trainable weight matrices, and M (y) \u2208 R V \u00d72 is the 0-1 match matrix.",
+        "D VISUALIZATIONS": "Visualization of Story-based QA. Figure 4 shows visualization of models for story-based QA tasks.In the task 3 (left), the focuses on the facts that contain 'football' in the first layer, and found out where Mary journeyed to before the bathroom in the second layer. In task 7 (right), the model focuses on the facts that provide information about the location of Sandra."
+    },
+    {
+        "2": "This mechanism is akin to logic regression in situation calculus(Reiter, 2001)."
+    },
+    {
+        "b0": [
+            "",
+            "",
+            "Tensorflow: Large-scale machine learning on heterogeneous distributed systems",
+            ""
+        ],
+        "b1": [
+            "Strongly-typed recurrent neural networks",
+            "",
+            "",
+            "",
+            "Balduzzi",
+            "Ghifary"
+        ],
+        "b2": [
+            "Learning phrase representations using rnn encoder-decoder for statistical machine translation",
+            "",
+            "",
+            "",
+            "Cho",
+            "Van Merri\u00ebnboer",
+            "Gulcehre",
+            "Bahdanau",
+            "Bougares",
+            "Schwenk",
+            "Bengio"
+        ],
+        "b3": [
+            "Adaptive subgradient methods for online learning and stochastic optimization",
+            "",
+            "",
+            "",
+            "Duchi",
+            "Hazan",
+            "Singer"
+        ],
+        "b4": [
+            "Understanding the difficulty of training deep feedforward neural networks",
+            "",
+            "",
+            "",
+            "Glorot",
+            "Bengio"
+        ],
+        "b5": [
+            "Hybrid computing using a neural network with dynamic external memory",
+            "",
+            "",
+            "",
+            "Graves",
+            "Wayne",
+            "Reynolds",
+            "Harley",
+            "Danihelka",
+            "Grabska-Barwi\u0144ska",
+            "Colmenarejo",
+            "Grefenstette",
+            "Ramalho",
+            "Agapiou"
+        ],
+        "b6": [
+            "The second dialog state tracking challenge",
+            "",
+            "",
+            "",
+            "Henderson",
+            "Thomson",
+            "Williams"
+        ],
+        "b7": [
+            "Teaching machines to read and comprehend",
+            "",
+            "",
+            "",
+            "Moritz Hermann",
+            "Kocisky",
+            "Grefenstette",
+            "Espeholt",
+            "Kay",
+            "Suleyman",
+            "Blunsom"
+        ],
+        "b8": [
+            "The goldilocks principle: Reading children's books with explicit memory representations",
+            "",
+            "",
+            "",
+            "Hill",
+            "Bordes",
+            "Chopra",
+            "Weston"
+        ],
+        "b9": [
+            "Long short-term memory",
+            "",
+            "",
+            "",
+            "Hochreiter",
+            "Schmidhuber"
+        ],
+        "b10": [
+            "Ask me anything: Dynamic memory networks for natural language processing",
+            "",
+            "",
+            "",
+            "Kumar",
+            "Irsoy",
+            "Su",
+            "Bradbury",
+            "English",
+            "Pierce",
+            "Ondruska",
+            "Gulrajani",
+            "Socher"
+        ],
+        "b11": [
+            "Learning longer memory in recurrent neural networks",
+            "",
+            "",
+            "",
+            "Mikolov",
+            "Joulin",
+            "Chopra",
+            "Mathieu",
+            "Ranzato"
+        ],
+        "b12": [
+            "",
+            "",
+            "Towards neural network-based reasoning",
+            ""
+        ],
+        "b13": [
+            "",
+            "",
+            "Gated end-to-end memory networks",
+            ""
+        ],
+        "b14": [
+            "Squad: 100,000+ questions for machine comprehension of text",
+            "",
+            "",
+            "",
+            "Rajpurkar",
+            "Zhang",
+            "Lopyrev",
+            "Liang"
+        ],
+        "b15": [
+            "",
+            "",
+            "Knowledge in Action",
+            ""
+        ],
+        "b16": [
+            "Mctest: A challenge dataset for the open-domain machine comprehension of text",
+            "",
+            "",
+            "",
+            "Richardson",
+            "Christopher",
+            "Burges",
+            "Renshaw"
+        ],
+        "b17": [
+            "End-to-end memory networks",
+            "",
+            "",
+            "",
+            "Sukhbaatar",
+            "Szlam",
+            "Weston",
+            "Fergus"
+        ],
+        "b18": [
+            "Memory networks",
+            "",
+            "",
+            "",
+            "Weston",
+            "Chopra",
+            "Bordes"
+        ],
+        "b19": [
+            "Towards ai-complete question answering: A set of prerequisite toy tasks",
+            "",
+            "",
+            "",
+            "Weston",
+            "Bordes",
+            "Chopra",
+            "Mikolov"
+        ],
+        "b20": [
+            "Dynamic memory networks for visual and textual question answering",
+            "",
+            "",
+            "",
+            "Xiong",
+            "Merity",
+            "Socher"
+        ]
+    },
+    {
+        "tab_0": "Table 1 :1(top)  bAbI QA dataset(Weston et al., 2016): number of failed tasks and average error rates (%). \u2020 is obtained from github.com/therne/dmn-tensorflow. (bottom) bAbI dialog and DSTC2 dialog dataset (Bordes and Weston, 2016) average error rates (%) of QRN and previous work (LSTM, N2N, DMN+, GMemN2N, and DNC). For QRN, the first number (1, 2, 3) indicates the number of layers, 'r' means the reset gate is used, and the last number (100, 200), if exists, indicates the dimension of the hidden state, where the default value is 50. '+' indicates that 'match' (See Appendix for details) is used. The task-wise results are shown in Appendices: Table2(bAbI QA) and Table3(dialog datasets). See Section 5.3 for details.1k10kTaskPrevious worksQRNPrevious worksQRNLSTM N2N DMN+  \u2020 GMemN2N 2r3rN2N DMN+ GMemN2N DNC 6r200# Failed201016107531320Average error rates51.315.233.212.79.9 11.34.22.83.73.80.3PlainWith MatchTaskPrevious worksQRNPrevious worksQRNN2N GMemN2N2r2r100 N2N+ GMemN2N+2r+bAbI dialog Average error rates13.914.35.55.56.75.41.5bAbI dialog (OOV) Average error rates30.327.911.111.111.210.32.3DSTC2 dialog Average error rates58.952.649.548.959.051.349.3",
+        "tab_1": "Table 2 :2bAbI QA dataset1k10kTaskPrevious worksQRNPrevious worksQRNLSTM N2N DMN+ GMemN2N1r22r3r6r6r200* N2N DMN+ GMemN2N2r2rv3r6r2001: Single supporting fact50.00.11.30.00.00.00.00.00.013.10.00.00.00.00.00.00.02: Two supporting facts80.018.872.38.165.7 1.20.70.51.515.30.30.30.00.40.80.40.03: Three supporting facts80.031.773.338.768.2 17.5 5.71.2 15.313.82.11.14.50.41.40.00.04: Two arg relations39.017.526.90.40.00.00.00.79.013.60.00.00.00.00.00.00.05: Three arg relations30.012.925.61.01.01.11.11.21.312.50.80.50.20.50.20.30.06: Yes/no questions52.02.028.58.40.10.00.91.2 50.615.50.10.00.00.00.00.00.07: Counting51.010.121.917.810.9 11.1 9.69.4 13.115.32.02.41.81.00.70.70.08: Lists/sets55.06.121.912.56.85.75.63.77.815.10.90.00.31.40.60.80.49 : Simple negation36.01.542.910.70.00.60.00.0 32.713.00.30.00.00.00.00.00.010: Indefinite knowledge56.02.623.116.50.80.60.00.03.512.90.00.00.20.00.00.00.011: Basic coreference38.03.34.30.011.3 0.50.00.00.914.70.10.00.00.00.00.00.012: Conjunction26.00.03.50.00.00.00.00.00.015.10.00.00.00.00.00.00.013: Compound coreference6.00.57.80.05.35.50.00.38.913.70.00.00.00.00.00.00.014: Time reasoning73.02.061.91.220.2 1.30.83.8 18.214.50.10.00.00.20.00.00.115: Basic deduction79.01.847.60.039.4 0.00.00.00.114.70.00.00.00.00.00.00.016: Basic induction77.051.054.40.150.6 54.8 53.0 53.4 53.515.551.845.30.049.4 50.4 49.10.017: Positional reasoning49.042.644.141.740.6 36.5 34.4 51.8 52.013.018.64.227.80.90.05.84.118: Size reasoning48.09.29.19.28.28.67.98.8 47.514.95.32.18.51.68.41.80.719: Path finding92.090.690.888.588.8 89.8 78.7 90.7 88.613.62.30.031.036.1 1.0 27.90.120: Agents motivations9.00.22.20.00.00.00.20.35.514.60.00.00.00.00.00.00.0# Failed201016101287513203132230Average error rates (%)51.315.233.212.720.1 11.7 9.9 11.3 20.514.24.22.83.74.63.24.30.3",
+        "tab_2": ". Results within each task of Differentiable Neural Computer(DNC) were not provided in its paperGraves et al. (2016)). For QRN, a number in the front (1, 2, 3, 6) indicates the number of layers. A number in the back (200) indicates the dimension of hidden vector, while the default value is 50. 'r' indicates that the reset gate is used, and 'v' indicates that the gates were vectorized. '*' indicates joint training.PlainWith MatchTaskPrevious worksQRNPrevious worksQRNN2N GMemN2N1r2r2r100 2rvN2N+ GMemN2N+2r+1: Issuing API calls0.10.00.02 0.00.00.00.00.00.02: Updating API calls0.00.00.11 0.010.00.01.70.00.03: Displaying options25.125.112.6 12.612.612.625.125.17.64: Providing extra information40.542.814.3 14.314.314.30.00.00.05: Conducting full dialogs3.93.79.40.60.70.96.62.00.0Average error rates (%)13.914.37.35.55.55.66.75.41.51 (OOV): Issuing API calls27.717.66.66.66.66.63.50.00.02 (OOV): Updating API calls21.121.18.58.48.48.55.55.80.03 (OOV): Displaying options25.624.712.4 12.412.412.524.824.97.74 (OOV): Providing extra information42.443.014.3 14.314.414.40.00.00.05 (OOV): Conducting full dialogs34.533.319.5 14.0 13.71 13.622.320.64.0Average error rates (%)30.327.912.3 11.111.111.111.210.32.36: DSTC2 dialog58.952.649.9 49.548.953.859.051.349.3",
+        "tab_3": "Table 3 :3bAbI dialog and DSTC2 dialog dataset (Bordes and Weston, 2016) average error rates (%) of QRN and previous work: End-to-end Memory Networks(N2N (Bordes"
+    }
+]

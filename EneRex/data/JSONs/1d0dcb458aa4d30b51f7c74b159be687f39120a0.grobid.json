@@ -1,0 +1,703 @@
+[
+    {
+        "basename": "1d0dcb458aa4d30b51f7c74b159be687f39120a0.grobid",
+        "fulltext": 15,
+        "footnote_size": 0,
+        "reference": 66,
+        "authors": [
+            "Su",
+            "Li",
+            "Zhang",
+            "Xing",
+            "Gao",
+            "Tian"
+        ]
+    },
+    {
+        "title": "Pose-driven Deep Convolutional Model for Person Re-identification",
+        "abstract": "Feature extraction and matching are two crucial components in person Re-Identification (ReID). The large pose deformations and the complex view variations exhibited by the captured person images significantly increase the difficulty of learning and matching of the features from person images. To overcome these difficulties, in this work we propose a Pose-driven Deep Convolutional (PDC) model to learn improved feature extraction and matching models from end to end. Our deep architecture explicitly leverages the human part cues to alleviate the pose variations and learn robust feature representations from both the global image and different local parts. To match the features from global human body and local body parts, a pose driven feature weighting sub-network is further designed to learn adaptive feature fusions. Extensive experimental analyses and results on three popular datasets demonstrate significant performance improvements of our model over all published state-of-the-art methods. * indicates equal contribution. \u2020 Chi Su finished this work when he was a Ph.d candiadate in Peking University, now he has got his Ph.d degree and is working in Beijing King-",
+        "Introduction": "Person Re-Identification (ReID) is an important component in a video surveillance system. Here person ReID refers to the process of identifying a probe person from a gallery captured by different cameras, and is generally deployed in the following scenario: given a probe image or video sequence containing a specific person under a certain camera, querying the images, locations, and time stamps of this person from other cameras.Despite decades of studies, the person ReID problem is still far from being solved. This is mainly because of chal- lenging situations like complex view variations and large pose deformations on the captured person images. Most of traditional works try to address these challenges with the following two approaches:  #b0  representing the visual appearance of a person using customized local invariant features extracted from images  #b11  #b5  #b33  #b29  #b60  #b51  #b64  #b44  or (2) learning a discriminative distance metric to reduce the distance among features of images containing the same person  #b32  #b9  #b17  #b36  #b55  #b23  #b54  #b30  #b26  #b65  #b50  #b2  #b27  #b3  #b39  #b28  #b10  #b37  #b59 . Because the human poses and viewpoints are uncontrollable in real scenarios, hand-coded features may be not robust enough to pose and viewpoint variations. Distance metric is computed for each pair of cameras, making distance metric learning based person ReID suffers from the O 2 computational complexity.In recent years, deep learning has demonstrated strong model capabilities and obtains very promising performances in many computer vision tasks  #b24  #b14  #b31  #b38  #b8 . Meanwhile, the release of person ReID datasets like CUHK 03  #b25 , Market-1501  #b63 , and MARS  #b61 , both of which contain many annotated person images, makes training deep models for person ReID feasible. Therefore, many researchers attempt to leverage deep models in person ReID  #b0  #b10  #b53  #b46  #b42  #b61  #b13  #b56  #b43  #b57 . Most of these methods first learn a pedestrian feature and then compute Euclidean distance to measure the similarity between two samples. More specifically, existing deep learning based person ReID approaches can be summarized into two categories: 1) use Softmax Loss with person ID labels to learn a global representation  #b0  #b10  #b53  #b46  #b42  #b61  #b13 , and 2) first learn local representations using predefined rigid body parts, then fuse the local and global representations  #b4  #b47  #b40  to depict person images. Deep learning based methods have demonstrated significant performance improvements over the traditional methods. Although these approaches have achieved remarkable results on mainstream person ReID datasets, most of them do not consider pose variation of human body.Because pose variations may significantly change the appearance of a person, considering the human pose cues is potential to help person re-identification. Although there are several methods  #b4  #b47  #b40  that segment the person images according to the predefined configuration, such simple segmentation can not capture the pose cues effectively. Some recent works  #b62  #b16  attempt to use pose estimation algorithms to predict human pose and then train deep models for person ReID. However, they use manually cropped human body parts and their models are not trained from end to end. Therefore, the potential of pose information to boost the ReID performance has not been fully explored.To Most of current deep learning based person ReID works do not consider the human pose cues and the weights of representation on different parts. This paper proposes a novel deep architecture that transforms body parts into normalized and homologous feature representations to better overcome the pose variations. Moreover, a sub-network is proposed to automatically learn weights for different parts to facilitate feature similarity measurement. Both the representation and weighting are learned jointly from end to end. Since pose estimation is not the focus of this paper, the used pose estimation algorithm, i.e., Fully Convolutional Networks(FCN)  #b31  based pose estimation method is simple and trained independently. Once the FCN is trained, it is incorporated in our framework, which is hence trained in an end-to-end manner, i.e., using images as inputs and person ID labels as outputs. Experimental results on three popular datasets show that our algorithm significantly outperforms many state-of-the-art ones.",
+        "Related Work": "Traditional algorithms perform person re-identification through two ways: (a) acquiring robust local features visually representing a person's appearance and then encoding them  #b11  #b5  #b33  #b29  #b60  #b51  #b64 ; (b) closing the gap Deep learning is commonly used to either learn a person's representation or the distance metric. When handling a pair of person images, existing deep learning methods usually learn feature representations of each person by using a deep matching function from convolutional features  #b0  #b25  #b53  #b13  or from the Fully Connected (FC) features  #b58  #b40  #b61 . Apart from deep metric learning methods, some algorithms first learn image representations directly with the Triplet Loss or the Siamese Contrastive Loss, then utilize Euclidean distance for comparison  #b48  #b4  #b10  #b46 . Wang et al.  #b48  use a joint learning framework to unify single-image representation and crossimage representation using a doublet or triplet CNN. Shi et al.  #b40  propose a moderate positive mining method to use deep distance metric learning for person ReID. Another novel method  #b40  learns deep attributes feature for ReID with semi-supervised learning. Xiao et al.  #b53  train one network with several person ReID datasets using a Domain Guided Dropout algorithm.Predefined rigid body parts are also used by many deep learning based methods  #b4  #b47  #b40  for the purpose of learning local pedestrian features. Different from these algorithms, our work and the ones in  #b62  #b16  use more accurate human pose estimation algorithms to acquire human pose features. However, due to the limited accuracy of pose estimation algorithms as well as reasons like occlusion and lighting change, pose estimation might be not accurate enough. Moreover, different parts convey different levels of discriminative cues. Therefore, we normalize the part regions to get more robust feature representation using Feature Embedding sub-Net (FEN) and propose a Feature Weighting sub-Net (FWN) to learn the weight for each part feature. In this way, the part with high discriminative power can be identified and emphasized. This also makes our work different from existing ones  #b62  #b16 , which do not consider the inaccuracy of human poses estimation and weighting on different parts features.",
+        "Pose-driven Deep ReID Model": "In this section, we describe the overall framework of the proposed approach, where we mainly introduce the Feature Embedding sub-Net (FEN) and the Feature Weighting sub-Net (FWN). Details about the training and test procedures of the proposed approach will also be presented. Considering that pedestrian images form different datasets have different sizes, it is not appropriate to directly use the CNN models pre-trained on the ImageNet dataset  #b7 . We thus modify and design a network based on the GoogLeNet  #b45 , as shown in the Table 1. Layers from data to inception(4e) in Table 1 corresponds to the blue CNN block in Fig. 2, CNNg and CNNp are inception(5a) and inception(5b), respectively. The green CONV matches the subsequent 1\u00d71 convolution. The loss layers are not shown in Table 1. The Batch Normalization Layers  #b18  are inserted before every ReLU Layer to accelerate the convergence. We employ a Convolutional Layer and a Global Average Pooling Layer (GAP) at the end of network to let our network can fit different sizes of input images. In this work, we fix input image size as 512\u00d7256.",
+        "Framework": "",
+        "Feature Embedding sub-Net": "The Feature Embedding sub-Net (FEN) is divided into four steps, including locating the joint, generating the original part images, PTN, and outputting the final modified part images.With a given person image, FEN first locates the 14 joints of human body using human pose estimation algorithm  #b31 . Fig. 1(c) shows an example of the 14 joints of human body. According to number, the 14 joints are {head, neck, rightshoulder, rightelbow, rightwrist, lef tshoulder, lef telbow, lef twrist, lef thip, lef tknee, lef tankle, righthip, rightknee, rightankle}. Then we propose six rectangles to cover six different parts of human body, including the head region, the upper body, two arms and two legs.For each human joint, we calculate a response feature map V i \u2208 R (X,Y ) . The horizontal and vertical dimensions of the feature maps are denoted by X and Y , respectively. With the feature maps, the fourteen body joints the center of mass with the feature values:J i = [X i , Y i ], (i = 1, 2 \u2022 \u2022 \u2022 14),J i = [X i , Y i ] = [ V i (x j , y)x j V i , V i (x, y j )y j V i ],(1)where X i , Y i in Eq.1 are the coordinates of joints , and V (x, y) is the value of pixels in response feature maps.Different from  #b62  #b16  , we do not use complex pose estimation networks as the pre-trained network. Instead, we use a standard FCN  #b31  trained on the LSP dataset  #b21  and MPII human pose dataset  #b1 . In the second step, the FEN uses the 14 human joints to further locate six sub-regions (head, upper body, left arm, right arm, left leg, and right leg) as human parts. These parts are normalized through cropping, rotating, and resizing to fixed size and orientation.As shown in Fig. 1 For each body part set P i \u2208 {P 1 , P 2 , P 3 , P 4 , P 5 , P 6 }, The corresponding sub-region bounding box H i \u2208 {H 1 , H 2 , H 3 , H 4 , H 5 , H 6 } can be obtained based on the location coordinates of all body joints in each part set:H i = \uf8f1 \uf8f2 \uf8f3 [x -30, x + 30, y -30, y + 30], if i = 1 [x min -10, x max +10, y min -10, y min +10], if i = 2, 3, 4, 5, 6(2)An example of the extracted six body sub-regions are visualized in Fig. 1(d). As shown in Fig. 1(e), these body sub-regions are normalized through cropping, rotating, and resizing to fixed sizes and orientations. All body parts are rotated to fixed vertical direction. Arms and legs are resized to 256\u00d764, upper body is resized to 256\u00d7128 and head is resized to 128\u00d7128. Those resized and rotated parts are combined to form the body part image. Because 6 body parts have different sizes, black area is unavoidable in body part image.Simply resizing and rotation can not overcome the complex pose variations, especially if the pose estimations are inaccurate. We thus design a PTN modified from Spatial Transformer Networks (STN)  #b19  to learn the angles required for rotating the five body parts.STN is a spatial transformer module which can be inserted to a neural network to provide spatial transformation capabilities. It thus is potential to adjust the localizations and angles of parts. A STN is a small net which allows for end-to-end training with standard back-propagation, therefore, the introduction of STN doesn't substantially increase the complexity of training procedure. The STN consist of three components: localisation network, parameterised sampling grid, and differentiable image sampling. The localisation network takes the input feature map and outputs the parameters of the transformation. For our net, we choose affine transformation so our transformation parameter is 6-dimensional. The parameterized sampling grid computes each output pixel and the differentiable image sampling component produces the sampled output image. For more details about STN, please refer to  #b19 .As discussed above, we use a 6-dimensional parameter A \u03b8 to complete affine transformation:x s y s = A \u03b8 \uf8eb \uf8ed x t y t 1 \uf8f6 \uf8f8 = \u03b8 1 \u03b8 2 \u03b8 3 \u03b8 4 \u03b8 5 \u03b8 6 \uf8eb \uf8ed x t y t 1 \uf8f6 \uf8f8 ,(3)where the \u03b8 1 , \u03b8 2 , \u03b8 4 , \u03b8 5 are the scale and rotation parameters, while the \u03b8 3 , \u03b8 6 are the translation parameters. The (x t , y t ) in Eq.3 are the target coordinates of the output image and the (x s , y s ) are the source coordinates of the input image.Usually the STN computes one affine transform for the whole image, considering a pedestrian's different parts have various orientations and sizes from each other, STN is not applicable to a part image. Inspired by STN, we design a Pose Transformer Network (PTN) which computes the affine transformation for each part in part image individually and combines 6 transformed parts together. Similar to STN, our PTN is also a small net and doesn't substantially increase the complexity of our training procedure. As a consequence, PTN has potential to perform better than STN for person images. Fig. 3 shows the detailed structure of PTN. Considering a pedestrian's head seldom has a large rotation angle, we don't insert a PTN net for the pedestrian's head part. Therefore, we totally have 5 independent PTN, namely A \u03b8-larm , A \u03b8-rarm , A \u03b8-upperbody , A \u03b8-lleg , A \u03b8-rleg . Each PTN can generate a 6-dimensional transformation parameter A \u03b8i and use A \u03b8i to adjust pedestrian's part P i , we can get modified body part M i . By combining the five transformed parts and a head part together, we obtain the modified part image. ",
+        "Feature Weighting sub-Net": "The generated part features are combined with the global feature to generate a robust feature representation for precise person re-identification. As the poses generated by the pose detector might be affected by factors like occlusions, pose changes, etc. Then inaccurate part detection results could be obtained. Examples are shown in Fig. 5. Therefore, the part features could be not reliable enough. This happens frequently in real applications with unconstrained video gathering environment. Simply fusing global feature and the part feature may introduces noises. This motivates us to introduce Feature Weighting sub-Net (FWN) to seek a more optimal feature fusion. FWN is consisted with a Weight Layer and a nonlinear transformation, which decides the importance of each dimension in the part feature vector. Considering that a single linear Weight Layer might cause excessive response on some specific dimensions of the part vector, we add a nonlinear function to equalize the response of part feature vector, and the fused feature representation isF f usion = [F global , tanh(F part W + B)],(4)where the F global and the F part are the global and part feature vectors. The W and B in Eq. 4 are the weight and bias vectors which have the same dimensions with F part . The means the Hadamard product of two vectors, and the [, ] means concatenation of two vectors together. The tanh(x) = e x -e -x e x +e -x imposes the hyperbolic tangent nonlinearity. F f usion is our final person feature generated by F global and F part .To allow back-propagation of the loss through the FWN, we give the gradient formula: where  \u2202f i \u2202g j = 1, if i = j 0, if i = j (5)\u2202f i \u2202p k = w(1 -tanh 2 (wp j + b)), if i = k + m, 0, if i = k + m.(6)f i \u2208 F f usion (i = 1, 2 \u2022 \u2022 \u2022 m + n), g j \u2208 F global (j = 1, 2 \u2022 \u2022 \u2022 m), p k \u2208 F part (k = 1, 2 \u2022 \u2022 \u2022 n), w k \u2208 W (k = 1, 2 \u2022 \u2022 \u2022 n), b \u2208 B(k = 1, 2 \u2022 \u2022 \u2022 n), m",
+        "Experiment": "",
+        "Datasets": "We select three widely used person ReID datasets as our evaluation protocols, including the CUHK 03  #b25 , Market 1501  #b63 , and VIPeR  #b15 . Note that, because the amount of images in VIPeR is not enough for training a deep model, we combine the training sets of VIPeR, CUHK 03 and Market 1501 together to train the model for VIPeR.CUHK 03: This dataset is made up of 14,096 images of 1,467 different persons taken by six campus cameras. Each person only appears in two views. This dataset provides two types of annotations, including manually labelled pedestrian bounding boxes and bounding boxes automatically detected by the Deformable-Part-Model (DPM)  #b12  detector. We denote the two corresponding subsets as labeled dataset and detected dataset, respectively. The dataset also provides 20 test sets, each includes 100 identities. We select the first set and use 100 identities for testing and the rest 1,367 identities for training. We report the averaged performance after repeating the experiments for 20 times.Market 1501: This dataset is made up of 32,368 pedestrian images taken by six manually configured cameras. It  ",
+        "Implementation Details": "The pedestrian representations are learned through multi-class classification CNN. We use the full body and body parts to learn the representations with Softmax Loss, respectively. We report rank1, rank5, rank10 and rank20 accuracy of cumulative match curve (CMC) on the three datasets to evaluate the ReID performance.As for Market-1051, mean Average Precision (mAP) is also reported as an additional criterion to evaluate the performance.Our model is trained and fine-tuned on Caffe  #b20 . Stochastic Gradient Descent (SGD) is used to optimize our model. Images for training are randomly divided into several batches, each of which includes 16 images. The initial learning rate is set as 0.01, and is gradually lowered after each 2 \u00d7 10 4 iterations. It should be noted that, the learning rate in part localization network is only 0.1% of that in feature learning network. For each dataset, we train a model on its corresponding training set as the pretrained body-based model. For the overall network training, the network is initialized using pretrained body-based model. Then, we adopt the same training strategy as described above. We implement our approach with GTX TITAN X GPU, Intel i7 CPU, ",
+        "Evaluation of Individual Components": "We evaluate five variants of our approach to verify the validity of individual components in our PDC, e.g., components like Feature Embedding sub-Net (FEN) and Feature Weighting sub-Net (FWN). Comparisons on three datasets are summarized in Table 2. In the table, \"Global Only\" means we train our deep model without using any part information. \"Global+Part\" denotes CNN trained through two streams without FEN and FWN. Based on \"Global+Part\", considering FEN is denoted as \"Global+Part+FEN\". Similarly, \"Global+Part+FWN\" means considering FWN. In addition, \"Part Only\" denotes only using part features. PDC considers all of these components.From the experimental results, it can be observed that, fusing global features and part features achieves better performance than only using one of them. Compared with \"Global Only\", considering extra part cues, i.e., \"Global+Part\", largely improves the ReID performance and achieves the rank1 accuracy of 85.07% and 76.33% on CUHK 03 labeled and detected datasets, respectively. Moreover, using FEN and FWN further boosts the rank1 identification rate. This shows that training our model using PTN and Weight Layer gets more competitive performance on three datasets.The above experiments shows that each of the components in our method is helpful for improving the performance. By considering all of these components, PDC exhibits the best performance.",
+        "Comparison with Related Works": "CUHK 03: For the CUHK 03 dataset, we compare our PDC with some recent methods, including distance metric learning methods: MLAPG  #b28 , LOMO + XQDA  #b27 , BoW+HS  #b63 , WARCA  #b22 , LDNS  #b59 , feature extraction method: GOG  #b35  and deep learning based methods: IDLA  #b0 , PersonNet  #b52 , DGDropout  #b53 , SI+CI  #b48 , Gate S-CNN  #b46 , LSTM S-CNN  #b47 , EDM  #b40 , PIE  #b62  and Spindle  #b16 . We conduct experiments on both the detected dataset and the labeled dataset. Experimental results are presented in Table 3 and Table 4.Experimental results show that our approach outperforms all distance metric learning methods by a large margin. It can be seen that PIE  #b62 , Spindle  #b16  and our PDC which all use the human pose cues achieve better performance than the other methods. This shows the advantages of considering extra pose cues in person ReID. It is also clear that, our PDC achieves the rank1 accuracy of 78.29% and 88.70% on detected and labeled datasets, respectively. This leads to 11.19% and 0.20% performance gains over the reported performance of PIE  #b62  and Spindle  #b16 , respectively.Market 1501: On Market 1501, the compared works that learn distance metrics for person ReID include LOMO + XQDA  #b27 , BoW+Kissme  #b63 , WARCA  #b22 , LDNS  #b59 , TMA  #b34  and HVIL  #b49 . Compared works based on deep learning are PersonNet  #b52 , Gate S-CNN  #b46 , LSTM S-CNN  #b47 , PIE  #b62  and Spindle  #b16 . DGDropout  #b53  does not report performance on Mar-ket1501. So we implemented DGDroput and show experimental results in Table 5.It is clear that our method outperforms these compared works by a large margin. Specifically, PDC achieves rank1 accuracy of 84.14%, and mAP of 63.41% using the single query mode. They are higher than the rank1 accuracy and  mAP of PIE  #b62 , which performs best among the compared works. This is because our PDC not only learns pose invariant features with FEN but also learns better fusion strategy with FWN to emphasize the more discriminative features.VIPeR: We also evaluate our method by comparing it with several existing methods on VIPeR. The compared methods include distance metric learning ones: MLAPG  #b28 , LOMO + XQDA  #b27 , BoW  #b63 , WARCA  #b22  and LDNS  #b59 , and deep learning based ones: IDLA  #b0 , DGDropout  #b53 , SI+CI  #b48 , Gate S-CNN  #b46 , LSTM S-CNN  #b47 , MTL-LORAE  #b41  and Spindle  #b16 .From the results shown in Table 6, our PDC achieves the rank1 accuracy of 51.27%. This outperforms most of compared methods except Spindle  #b16  which also considers the human pose cues. We assume the reason might be because, Spindle  #b16  involves more training sets to learn the model for VIPeR. Therefore, the training set of Spindle  #b16  is larger than ours, i.e., the combination of Market 1501, CUHK03 and VIPeR. For the other two datasets, our PDC achieves better performance than Spindle  #b16 .",
+        "Evaluation of Feature Weighting sub-Net": "To test the effectiveness of Feature Weighting sub-Net (FWN), we verify the performance of five variants of FWN, which are denoted as W k , k = {0,1,2,3,4}, where k is the number of Weight Layers in FWN with nonlinear transformation. For example, W 2 means we cascade two Weight Layers with nonlinear transformation, W 0 means we only have one Weight Layer without nonlinear transformation.  The experimental results are shown in Table 7. As we can see that one Weight Layer with nonlinear transformation gets the best performance on the three datasets. The ReID performance starts to drop as we increase of the number of Weight Layers, despite more computations are being brought in. It also can be observed that, using one layer with nonlinear transformation gets better performance than one layer without nonlinear transformation, i.e., W 0 . This means adding one nonlinear transformation after a Weight Layer learns more reliable weights for feature fusion and matching. Based on the above observations, we adopt W 1 as our final model in this paper. Examples of features before and after FWN are shown Fig. 7.",
+        "Conclusions": "This paper presents a pose-driven deep convolutional model for the person ReID. The proposed deep architecture explicitly leverages the human part cues to learn effective feature representations and adaptive similarity measurements. For the feature representations, both global human body and local body parts are transformed to a normalized and homologous state for better feature embedding. For similarity measurements, weights of feature representations from human body and different body parts are learned to adaptively chase a more discriminative feature fusion. Experimental results on three benchmark datasets demonstrate the superiority of the proposed model over current state-of-the-art methods."
+    },
+    {},
+    {
+        "b0": [
+            "An improved deep learning architecture for person re-identification",
+            "",
+            "",
+            "",
+            "Ahmed",
+            "Jones",
+            "Marks"
+        ],
+        "b1": [
+            "2d human pose estimation: New benchmark and state of the art analysis",
+            "",
+            "",
+            "",
+            "Andriluka",
+            "Pishchulin",
+            "Gehler",
+            "Schiele"
+        ],
+        "b2": [
+            "Similarity learning on an explicit polynomial kernel feature map for person re-identification",
+            "",
+            "",
+            "",
+            "Chen",
+            "Yuan",
+            "Hua",
+            "Zheng",
+            "Wang"
+        ],
+        "b3": [
+            "Mirror representation for modeling view-specific transform in person reidentification",
+            "",
+            "",
+            "",
+            "Chen",
+            "Zheng",
+            "Lai"
+        ],
+        "b4": [
+            "Person re-identification by multi-channel parts-based cnn with improved triplet loss function",
+            "",
+            "",
+            "",
+            "Cheng",
+            "Gong",
+            "Zhou",
+            "Wang",
+            "Zheng"
+        ],
+        "b5": [
+            "",
+            "",
+            "Custom pictorial structures for re-identification",
+            ""
+        ],
+        "b6": [
+            "",
+            "",
+            "BMVC",
+            ""
+        ],
+        "b7": [
+            "ImageNet: A Large-Scale Hierarchical Image Database",
+            "",
+            "",
+            "",
+            "Deng",
+            "Dong",
+            "Socher",
+            "Li",
+            "Li",
+            "Fei-Fei"
+        ],
+        "b8": [
+            "Fine-grained crowdsourcing for fine-grained recognition",
+            "",
+            "",
+            "",
+            "Deng",
+            "Krause",
+            "Fei-Fei"
+        ],
+        "b9": [
+            "Pedestrian recognition with a learned metric",
+            "",
+            "",
+            "",
+            "Dikmen",
+            "Akbas",
+            "Huang",
+            "Ahuja"
+        ],
+        "b10": [
+            "Deep feature learning with relative distance comparison for person re-identification",
+            "",
+            "",
+            "",
+            "Ding",
+            "Lin",
+            "Wang",
+            "Chao"
+        ],
+        "b11": [
+            "Person re-identification by symmetry-driven accumulation of local features",
+            "",
+            "",
+            "",
+            "Farenzena",
+            "Bazzani",
+            "Perina",
+            "Murino",
+            "Cristani"
+        ],
+        "b12": [
+            "A discriminatively trained, multiscale, deformable part model",
+            "",
+            "",
+            "",
+            "Felzenszwalb",
+            "Mcallester",
+            "Ramanan"
+        ],
+        "b13": [
+            "",
+            "",
+            "Deep transfer learning for person re-identification",
+            ""
+        ],
+        "b14": [
+            "Regionbased convolutional networks for accurate object detection and segmentation",
+            "",
+            "",
+            "",
+            "Girshick",
+            "Donahue",
+            "Darrell",
+            "Malik"
+        ],
+        "b15": [
+            "Evaluating appearance models for recognition, reacquisition, and tracking",
+            "",
+            "",
+            "",
+            "Gray",
+            "Brennan",
+            "Tao"
+        ],
+        "b16": [
+            "Spindle net: Person re-identification with human body region guided feature decomposition and fusion",
+            "",
+            "",
+            "",
+            "Haiyu",
+            "Maoqing",
+            "Jing",
+            "Shuyang",
+            "Junjie",
+            "Shuai",
+            "Xiaogang",
+            "Xiaoou"
+        ],
+        "b17": [
+            "Relaxed pairwise learned metric for person re-identification",
+            "",
+            "",
+            "",
+            "Hirzer",
+            "Roth",
+            "K\u00f6stinger",
+            "Bischof"
+        ],
+        "b18": [
+            "",
+            "",
+            "Batch normalization: Accelerating deep network training by reducing internal covariate shift",
+            ""
+        ],
+        "b19": [
+            "Spatial transformer networks",
+            "",
+            "",
+            "",
+            "Jaderberg",
+            "Simonyan",
+            "Zisserman"
+        ],
+        "b20": [
+            "Caffe: Convolutional architecture for fast feature embedding",
+            "",
+            "",
+            "",
+            "Jia",
+            "Shelhamer",
+            "Donahue",
+            "Karayev",
+            "Long",
+            "Girshick",
+            "Guadarrama",
+            "Darrell"
+        ],
+        "b21": [
+            "Clustered pose and nonlinear appearance models for human pose estimation",
+            "",
+            "",
+            "",
+            "Johnson",
+            "Everingham"
+        ],
+        "b22": [
+            "Scalable metric learning via weighted approximate rank component analysis",
+            "",
+            "",
+            "",
+            "Jose",
+            "Fleuret"
+        ],
+        "b23": [
+            "Large scale metric learning from equivalence constraints",
+            "",
+            "",
+            "",
+            "K\u00f6stinger",
+            "Hirzer",
+            "Wohlhart",
+            "Roth",
+            "Bischof"
+        ],
+        "b24": [
+            "Imagenet classification with deep convolutional neural networks",
+            "",
+            "",
+            "",
+            "Krizhevsky",
+            "Sutskever",
+            "Hinton"
+        ],
+        "b25": [
+            "Deepreid: Deep filter pairing neural network for person re-identification",
+            "",
+            "",
+            "",
+            "Li",
+            "Zhao",
+            "Xiao",
+            "Wang"
+        ],
+        "b26": [
+            "Learning locally-adaptive decision functions for person verification",
+            "",
+            "",
+            "",
+            "Li",
+            "Chang",
+            "Liang",
+            "Huang",
+            "Cao",
+            "Smith"
+        ],
+        "b27": [
+            "Person re-identification by local maximal occurrence representation and metric learning",
+            "",
+            "",
+            "",
+            "Liao",
+            "Hu",
+            "Zhu",
+            "Li"
+        ],
+        "b28": [
+            "Efficient psd constrained asymmetric metric learning for person re-identification",
+            "",
+            "",
+            "",
+            "Liao",
+            "Li"
+        ],
+        "b29": [
+            "Person reidentification: what features are important",
+            "",
+            "",
+            "",
+            "Liu",
+            "Gong",
+            "Loy",
+            "Lin"
+        ],
+        "b30": [
+            "Pop: Person reidentification post-rank optimisation",
+            "",
+            "",
+            "",
+            "Liu",
+            "Loy",
+            "Gong",
+            "Wang"
+        ],
+        "b31": [
+            "Fully convolutional networks for semantic segmentation",
+            "",
+            "",
+            "",
+            "Long",
+            "Shelhamer",
+            "Darrell"
+        ],
+        "b32": [
+            "Domain transfer support vector ranking for person re-identification without target camera label information",
+            "",
+            "",
+            "",
+            "Ma",
+            "Yuen",
+            "Li"
+        ],
+        "b33": [
+            "Bicov: a novel image representation for person re-identification and face verification",
+            "",
+            "",
+            "",
+            "Ma",
+            "Su",
+            "Jurie"
+        ],
+        "b34": [
+            "Temporal model adaptation for person reidentification",
+            "",
+            "",
+            "",
+            "Martinel",
+            "Das",
+            "Micheloni",
+            "Roy-Chowdhury"
+        ],
+        "b35": [
+            "Hierarchical gaussian descriptor for person re-identification",
+            "",
+            "",
+            "",
+            "Matsukawa",
+            "Okabe",
+            "Suzuki",
+            "Sato"
+        ],
+        "b36": [
+            "Local fisher discriminant analysis for pedestrian re-identification",
+            "",
+            "",
+            "",
+            "Pedagadi",
+            "Orwell",
+            "Velastin",
+            "Boghossian"
+        ],
+        "b37": [
+            "Unsupervised cross-dataset transfer learning for person re-identification",
+            "",
+            "",
+            "",
+            "Peng",
+            "Xiang",
+            "Wang",
+            "Pontil",
+            "Gong",
+            "Huang",
+            "Tian"
+        ],
+        "b38": [
+            "Facenet: A unified embedding for face recognition and clustering",
+            "",
+            "",
+            "",
+            "Schroff",
+            "Kalenichenko",
+            "Philbin"
+        ],
+        "b39": [
+            "Person re-identification with correspondence structure learning",
+            "",
+            "",
+            "",
+            "Shen",
+            "Lin",
+            "Yan",
+            "Xu",
+            "Wu",
+            "Wang"
+        ],
+        "b40": [
+            "Embedding deep metric for person re-identification: A study against large variations",
+            "",
+            "",
+            "",
+            "Shi",
+            "Yang",
+            "Zhu",
+            "Liao",
+            "Lei",
+            "Zheng",
+            "Li"
+        ],
+        "b41": [
+            "Multi-task learning with low rank attribute embedding for multi-camera person re-identification",
+            "",
+            "",
+            "",
+            "Su",
+            "Yang",
+            "Zhang",
+            "Tian",
+            "Davis",
+            "Gao"
+        ],
+        "b42": [
+            "Deep attributes driven multi-camera person re-identification",
+            "",
+            "",
+            "",
+            "Su",
+            "Zhang",
+            "Xing",
+            "Gao",
+            "Tian"
+        ],
+        "b43": [
+            "Multi-type attributes driven multi-camera person re-identification",
+            "",
+            "",
+            "",
+            "Su",
+            "Zhang",
+            "Xing",
+            "Tian",
+            "Gao"
+        ],
+        "b44": [
+            "Attributes driven tracklet-to-tracklet person reidentification using latent prototypes space mapping",
+            "",
+            "",
+            "",
+            "Su",
+            "Zhang",
+            "Yang",
+            "Zhang",
+            "Tian",
+            "Gao",
+            "Davis"
+        ],
+        "b45": [
+            "Going deeper with convolutions",
+            "",
+            "",
+            "",
+            "Szegedy",
+            "Liu",
+            "Jia",
+            "Sermanet",
+            "Reed",
+            "Anguelov",
+            "Erhan",
+            "Vanhoucke",
+            "Rabinovich"
+        ],
+        "b46": [
+            "Gated siamese convolutional neural network architecture for human reidentification",
+            "",
+            "",
+            "",
+            "Varior",
+            "Haloi",
+            "Wang"
+        ],
+        "b47": [
+            "A siamese long short-term memory architecture for human reidentification",
+            "",
+            "",
+            "",
+            "Varior",
+            "Shuai",
+            "Lu",
+            "Xu",
+            "Wang"
+        ],
+        "b48": [
+            "Joint learning of single-image and cross-image representations for person re-identification",
+            "",
+            "",
+            "",
+            "Wang",
+            "Zuo",
+            "Lin",
+            "Zhang",
+            "Zhang"
+        ],
+        "b49": [
+            "Human-in-the-loop person re-identification",
+            "",
+            "",
+            "",
+            "Wang",
+            "Gong",
+            "Zhu",
+            "Xiang"
+        ],
+        "b50": [
+            "Person reidentification by video ranking",
+            "",
+            "",
+            "",
+            "Wang",
+            "Gong",
+            "Zhu",
+            "Wang"
+        ],
+        "b51": [
+            "Person re-identification: System design and evaluation overview",
+            "",
+            "",
+            "",
+            "Wang",
+            "Zhao"
+        ],
+        "b52": [
+            "",
+            "",
+            "Personnet: person re-identification with deep convolutional neural networks",
+            ""
+        ],
+        "b53": [
+            "Learning deep feature representations with domain guided dropout for person re-identification",
+            "",
+            "",
+            "",
+            "Xiao",
+            "Li",
+            "Ouyang",
+            "Wang"
+        ],
+        "b54": [
+            "Person reidentification using kernel-based metric learning methods",
+            "",
+            "",
+            "",
+            "Xiong",
+            "Gou",
+            "Camps",
+            "Sznaier"
+        ],
+        "b55": [
+            "Graph embedding and extensions: A general framework for dimensionality reduction",
+            "",
+            "",
+            "",
+            "Yan",
+            "Xu",
+            "Zhang",
+            "Zhang",
+            "Yang",
+            "Lin"
+        ],
+        "b56": [
+            "Large-scale person re-identification as retrieval",
+            "",
+            "",
+            "",
+            "Yao",
+            "Zhang",
+            "Zhang",
+            "Zhang",
+            "Li",
+            "Wang",
+            "Tian"
+        ],
+        "b57": [
+            "",
+            "",
+            "Deep representation learning with part loss for person re-identification",
+            ""
+        ],
+        "b58": [
+            "Deep metric learning for practical person re-identification",
+            "",
+            "",
+            "",
+            "Yi",
+            "Lei",
+            "Li"
+        ],
+        "b59": [
+            "Learning a discriminative null space for person re-identification",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Xiang",
+            "Gong"
+        ],
+        "b60": [
+            "Unsupervised salience learning for person re-identification",
+            "",
+            "",
+            "",
+            "Zhao",
+            "Ouyang",
+            "Wang"
+        ],
+        "b61": [
+            "Mars: A video benchmark for large-scale person re-identification",
+            "",
+            "",
+            "",
+            "Zheng",
+            "Bie",
+            "Sun",
+            "Wang",
+            "Su",
+            "Wang",
+            "Tian"
+        ],
+        "b62": [
+            "",
+            "",
+            "Pose invariant embedding for deep person re-identification",
+            ""
+        ],
+        "b63": [
+            "Scalable person re-identification: A benchmark",
+            "",
+            "",
+            "",
+            "Zheng",
+            "Shen",
+            "Tian",
+            "Wang",
+            "Wang",
+            "Tian"
+        ],
+        "b64": [
+            "Query-adaptive late fusion for image search and person reidentification",
+            "",
+            "",
+            "",
+            "Zheng",
+            "Wang",
+            "Tian",
+            "He",
+            "Liu",
+            "Tian"
+        ],
+        "b65": [
+            "Re-identification by relative distance comparison",
+            "",
+            "",
+            "",
+            "Zheng",
+            "Gong",
+            "Xiang"
+        ]
+    },
+    {
+        "tab_0": "Table 1 .1Detailed structure of the proposed Pose-driven Deep Convolutional (PDC) model.typeshare weightpatch size /strideoutput sizedepth #1\u00d71#3\u00d73 #3\u00d73 reducedouble#3\u00d73 double reduce #3\u00d73pool projdata--512\u00d7 256\u00d7 3-------convolutionYes7\u00d7 7/2256\u00d7 128\u00d7 641------max pool-3\u00d7 3/2128\u00d7 64\u00d7 640------convolutionYes3\u00d7 3/1128\u00d7 64\u00d7 1921-64192---max pool-3\u00d7 3/264\u00d7 32\u00d7 1920------inception(3a)Yes-64\u00d7 32\u00d7 25636464646496avg+32inception(3b)Yes-64\u00d7 32\u00d7 32036464966496avg+64inception(3c)Yesstride 232\u00d7 16\u00d7 576301281606496max+pass throughinception(4a)Yes-32\u00d7 16\u00d7 5763224649696128avg+128inception(4b)Yes-32\u00d7 16\u00d7 57631929612896128avg+128inception(4c)Yes-32\u00d7 16\u00d7 5763160128160128160avg+128inception(4d)Yes-32\u00d7 16\u00d7 576396128192160192avg+128inception(4e)Yesstride 216\u00d7 8\u00d7 102430128192192256max+pass throughinception(5a)No-16\u00d7 8\u00d7 10243352192320160224avg+128inception(5b)No-16\u00d7 8\u00d7 10243352192320192224max+128convolutionNo1\u00d7 1/116\u00d7 8\u00d7 class num1------ave pool-global pooling1\u00d7 1\u00d7 class num0------between a person's different features by learning a dis-criminative distance metric [32, 9, 17, 36, 55, 23, 54, 30,26,65,50,3,27,4,39,28,10,37,59]. Some recent works[1,10,53,46,42,61,13,5,47,40,62,16] have started to apply deep learning in person ReID and achieved promising performance. In the following, we briefly review recent deep learning based person ReID methods.",
+        "tab_1": "Table 2 .2The results on the CUHK 03, Market 1501 and VIPeR datasets by five variants of our approach and the complete PDC.datasetCUHK03 labeled detectedMarket1501VIPeRmethodrank1rank1mAP rank1 rank1Global Only79.8371.8952.84 76.22 37.97Part Only53.7347.2931.74 55.67 22.78Global+Part85.0776.3362.20 81.74 48.42Global+Part+FEN87.1577.5762.58 83.05 50.32Global+Part+FWN86.4177.6262.58 82.69 50.00PDC88.7078.2963.41 84.14 51.27",
+        "tab_2": "Table 3 .3Comparisons on CUHK 03 detected dataset.Methodsrank1 rank5 rank10 rank20MLAPG [28]51.1583.5592.0596.90LOMO + XQDA [27]46.2578.9088.5594.25BoW+HS [63]24.30---LDNS [59]54.7084.7594.8095.20GOG [35]65.5088.4093.70-IDLA [1]44.9676.0184.3793.15SI+CI [48]52.1784.3092.3095.00LSTM S-CNN [47]57.3080.1088.30-Gate S-CNN [46]61.8080.9088.30-EDM [40]52.0982.8791.7897.17PIE [62]67.1092.2096.6098.10PDC78.2994.8397.1598.43and 128GB memory.All images are resized to 512 \u00d7 256. The mean value issubtracted from each channel (B, G, and R) for training thenetwork. The images of each dataset are randomized in theprocess of training stage.",
+        "tab_3": "Table 4 .4Comparisons on CUHK 03 labeled dataset.Methodsrank1 rank5 rank10 rank20MLAPG [28]57.9687.0994.7496.90LOMO + XQDA [27]52.2082.2394.1496.25WARCA [22]78.4094.60--LDNS [59]62.5590.0594.8098.10GOG [35]67.3091.0096.00-IDLA [1]54.7486.5093.8898.10PersonNet [52]64.8089.4094.9098.20DGDropout [53]72.5891.5995.2197.72EDM [40]61.3288.9096.4499.94Spindle [16]88.5097.8098.6099.20PDC88.7098.6199.2499.67",
+        "tab_4": "Table 5 .5Comparison with state of the art on Market 1501.MethodsmAPrank1 rank5 rank10 rank20LOMO + XQDA [27]22.2243.79---BoW+Kissme [63]20.7644.4263.9072.1878.95WARCA [22]-45.1668.1276.0084.00TMA [34]22.3147.92---LDNS [59]29.8755.43---HVIL [49]-78.00---PersonNet [52]26.3537.21---DGDropout [53]31.9459.53---Gate S-CNN [46]39.5565.88---LSTM S-CNN [47]35.3061.60---PIE [62]55.9579.3390.7694.4196.65Spindle [16]-76.9091.5094.6096.70PDC63.4184.1492.7394.9296.82",
+        "tab_5": "Table 6 .6Comparison with state of the art on VIPeR dataset.Methodsrank1 rank5 rank10 rank20MLAPG [28]40.73-82.3492.37LOMO + XQDA [27]40.0067.4080.5191.08BoW [63]21.74---WARCA [22]40.2268.1680.7091.14LDNS [59]42.2871.4682.9492.06IDLA [1]34.8176.12--DGDropout [53]38.6---SI+CI [48]35.8067.4083.50-LSTM S-CNN [47]42.4068.7079.40-Gate S-CNN [46]37.8066.9077.40-MTL-LORAE [41]42.3072.2081.6089.60Spindle [16]53.8074.1083.2092.10PDC51.2774.0584.1891.46",
+        "tab_6": "Table 7 .7Performance of five variants of FWN on CUHK 03, Market 1501 and VIPeR, respectively.datasetCUHK03 labeled detectedMarket1501VIPeRtyperank1rank1mAPrank1rank1W 088.1877.5862.5883.0542.09W 188.7078.2963.4184.1443.04W 288.1477.4862.2082.7241.77W 387.9777.2961.9982.4841.77W 487.6977.1761.6782.4241.14"
+    }
+]

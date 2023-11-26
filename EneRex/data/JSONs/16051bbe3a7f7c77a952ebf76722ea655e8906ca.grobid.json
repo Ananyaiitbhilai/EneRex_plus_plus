@@ -1,0 +1,562 @@
+[
+    {
+        "basename": "16051bbe3a7f7c77a952ebf76722ea655e8906ca.grobid",
+        "fulltext": 16,
+        "footnote_size": 0,
+        "reference": 58,
+        "authors": [
+            "Li",
+            "Lam",
+            "Wang"
+        ]
+    },
+    {
+        "title": "Image Super-resolution via Feature-augmented Random Forest",
+        "abstract": "Recent random-forest (RF)-based image super-resolution approaches inherit some properties from dictionary-learning-based algorithms, but the effectiveness of the properties in RF is overlooked in the literature. In this paper, we present a novel feature-augmented random forest (FARF) for image super-resolution, where the conventional gradient-based features are augmented with gradient magnitudes and different feature recipes are formulated on different stages in an RF. The advantages of our method are that, firstly, the dictionary-learning-based features are enhanced by adding gradient magnitudes, based on the observation that the non-linear gradient magnitude are with highly discriminative property. Secondly, generalized locality-sensitive hashing (LSH) is used to replace principal component analysis (PCA) for feature dimensionality reduction and original high-dimensional features are employed, instead of the compressed ones, for the leaf-nodes' regressors, since regressors can benefit from higher dimensional features. This original-compressed coupled feature sets scheme unifies the unsupervised LSH evaluation on both image super-resolution and content-based image retrieval (CBIR). Finally, we present a generalized weighted ridge regression (GWRR) model for the leaf-nodes' regressors. Experiment results on several public benchmark datasets show that our FARF method can achieve an average gain of about 0.3 dB, compared to traditional RF-based methods. Furthermore, a fine-tuned FARF model can compare to or (in many cases) outperform some recent stateof-the-art deep-learning-based algorithms.",
+        "INTRODUCTION": "In the past few years, random forest (RF)  #b2  #b13  as a machine-learning tool, working via an ensemble of multiple decision trees, has been employed for efficient classification or regression problems, and applied to a large variety of computer-vision applications, such as object recognition  #b26 , face alignment  #b14  #b17  #b20 , data clustering  #b16 , single image super-resolution (SISR)  #b7  #b18 , and so on.The RF method, which benefits from its simple implementation of binary trees, has been widely used, and exhibits a number of merits, including (1) it works with an ensemble of multiple decision trees to express the principle that \"two heads are better than one\",  #b1  it is easy to be sped up with parallel processing technology, on both the training and inference stages, (3) it has sub-linear search complexity, because of the use of the binary tree structure, (4) the bagging strategy for feature candidates on splitnodes enable it to handle high-dimensional features and avoid over-fitting on regression, and (5) the clustering-regression scheme employs the \"divide and conquer\" strategy, which can tackle the classification and regression tasks with more stable performance.The RF-based image super-resolution approach can be considered as a clustering/classificationbased method, as shown in Fig. 1. But the clustering and regression problems in RF require with different discriminative features, which have not been systematically studied in existing literature. Feature engineering has been a research hotspot for decades. Several features have been proposed for learning the mapping functions from low-resolution (LR) patches to high-resolution (HR) patches on image restoration problems. Pioneer work in  #b44  used a simple high-pass filter as simple as subtracting a low-pass filtered values from the input image raw values. Meanwhile, most algorithms  #b0  #b1  #b3  #b4  #b7  follow the approach in  #b27 , which concatenates the first-and second-order gradients to form the features, as an inexpensive solution to approximating high-pass filtering. Since RF is used as a dictionarylearning-based tool, it inherits many properties from the conventional dictionary-learning-based algorithms on feature extraction. However, the discriminative ability of those gradient-based features for random forest has been overlooked in the literature. We found, from experiments, that augmented features based on two gradient-magnitude filters can achieve more than 0.1dB quality improvement in RF based SISR, with the same parameter setting.In most dictionary-learning-based algorithms, principal component analysis (PCA) is used for dimensionality reduction before classification and regression processes. The impact of using PCA has also been paid less attention in the literature. PCA projection may damage the structure of features, which are originally discriminative for clustering at the split-nodes and regression at the leaf-nodes. Motivated from content-based image retrieval (CBIR)  #b45  #b46 , where the coarse-level search uses compressed features, while the fine-level search uses augmented features. Therefore, in our method, we use the original features rather than the compressed features generated by PCA as worked in  #b0  #b1  #b3  #b4  #b7  #b27 , so that more accurate regression and higher image quality improvement can be achieved. Moreover, the unsupervised locality-sensitive hashing (LSH) model, instead of PCA, is employed for feature dimensionality reduction, which can reduce the damage on the feature structure for the compressed features used on clustering at the split-nodes and thus improve the final image quality.For regression problems at the leaf-nodes, we propose a generalized weighted ridge regression (GWRR) as an extension of the work in  #b0 . GWRR models are generated based on the data distributions from the leaf-nodes.The main contribution of our method is on feature augmentation, so we call our method featureaugmented random forest (FARF). The pipeline of our FARF method, which includes feature extraction, the training stage, and inference stages for SISR, is shown in Fig. 1. In the FARF-based image SR scheme, higher discriminative features are extracted by using the first-and second-order gradients and their magnitudes. Then, the conventional PCA is replaced by the generalized LSH for dimensionality reduction, and the compressed features are used for clustering in the split-nodes on an RF. Finally, the respective regressors at the leaf-nodes are learned by using the original high dimensional features with the GWRR models.Having introduced the main idea of our paper, the remainder of this paper is organized as follows.In Section 2, we review the related works on SISR, particularly the RF-based approaches and our insights.In Section 3, we introduce the proposed method FARF, including the discriminative feature augmented by the gradient-magnitude filters, the generalized weighted ridge regression (GWRR) model, and the fine-tuned FARF version. In Section 4, we evaluate our FARF scheme on public datasets, and conclusions are given in Section 5.",
+        "IMAGE SUPER-RESOLUTION VIA RANDOM FOREST": "",
+        "Image Super-Resolution": "Image SR attempts to achieve an impressive HR quality image from one or a set of LR images via artistic skills, which has been an active research topic for decades in the image restoration area. Generalized SR includes interpolation algorithms, such as the classic bicubic interpolation, and other edge-preserving algorithms  #b40  #b41  #b42  #b43  #b50 .The traditional super-resolution algorithms are based on pixel operations. Intuitively, operating on a \"big pixel\", i.e. a patch  #b51 , is more effective. Since patch-based algorithms can preserve the local texture structure of an image, various methods based on image patches, such as non-local means  #b50 , self-similarity  #b30 , manifold learning  #b28 , block-matching and 3D filtering (BM3D)  #b52 , sparse representation  #b27 , etc. have been proposed.The neighbor-embedding (NE) methods  #b28  #b29  are the milestone for patch-based dictionary learning methods. NE learns the mapping between low-and high-resolution patches, with the use of manifold learning. Based on the locally linear embedding (LLE) theory, an LR patch can be represented as a linear combination of its nearest neighbors in a learned dictionary, and its HR counterpart can be approximated as a linear combination of the corresponding HR patches of its LR neighbors, with the same coefficients. Although the NE method is simple and sounds practical, a problem with the method is how to build a feasible patch dictionary. For example, for a patch size of 5\u00d75, with 256 gray levels, it is necessary to have a massive dataset, which has millions of patches, in order to achieve high-quality reconstructed HR patches, if the patches are collected directly from natural scene images. Because of the large dictionary size, it is time consuming to search for a neighbor in such a large dataset.Other method to reduce the dictionary size is to learn a relatively smaller dictionary with discrete cosine transform (DCT) or wavelet fixed basis, which the adaptiveness is sacrificed. In 2010, Yang et al.  #b27  proposed a sparse prior for dictionary learning. Using sparse coding, image representation can work with a relatively smaller dictionary while keep the adaptiveness by learning the basis from data directly, which opens the era for sparse coding in the image inverse problems.With the sparse constraint used in the sparse-coding super-resolution (ScSR) framework, an LR patch and its corresponding HR patch can both be reconstructed through two learned coupled dictionaries, with the same coefficients as following:\ud835\udc66 \u2248 D \ud835\udc59 \ud835\udefc, x \u2248 D \u210e \ud835\udefc, \ud835\udefc \u2208 R \ud835\udc58 with \u2016\ud835\udefc\u2016 0 \u226a \ud835\udc58.where \ud835\udc65 and \ud835\udc66 denote an LR patch and its HR counterpart, respectively, and D \ud835\udc59 and D \u210e are the low and high-resolution coupled dictionaries trained jointly from LR and HR patch samples. The value of \ud835\udf17 in \u2016\ud835\udefc\u2016 \u03d1 is the sparsity factor of the coefficients \ud835\udefc. \u2016\ud835\udefc\u2016 0 , called the \ud835\udc59 0 -norm, is the non-zero count of the coefficients in \ud835\udefc. The LR and HR coupled dictionaries are trained jointly with a sparsity constraint, as following:D \u210e , D \ud835\udc59 = argmin D \u210e ,D \ud835\udc59 \u2016\ud835\udc65 -D \u210e \ud835\udefc\u2016 2 2 + \u2016\ud835\udc66 -D \ud835\udc59 \ud835\udefc\u2016 2 2 + \ud835\udf06\u2016\ud835\udefc\u2016 0,(2)an LR patch \ud835\udc66 of an input LR image Y can be formulated in terms of D \ud835\udc59 as following:min\u2016\ud835\udefc\u2016 0 s.t. \u2016D \ud835\udc59 \ud835\udefc -\ud835\udc66\u2016 2 2 \u2264 \ud835\udf00,(3)or min\u2016\ud835\udefc\u2016 0 s.t. \u2016\ud835\udc39D \ud835\udc59 \ud835\udefc -\ud835\udc39\ud835\udc66\u2016 2 2 \u2264 \ud835\udf00,(4)where \ud835\udc39 is a feature-extraction operator on the LR patches, which aims to extract discriminative features from LR patches, rather than using the raw pixel intensity.Although the \ud835\udc59 0 -norm of \u03b1 is an ideal regularization term for the sparse constraint, this strong constraint leads to an NP-hard problem in solving the coefficients \u03b1. Yang et al.  #b27  relaxed the \ud835\udc59 0 -norm to \ud835\udc59 1 -norm, so as to achieve a feasible solution as following:min\u2016\ud835\udefc\u2016 1 s.t. \u2016\ud835\udc39D \ud835\udc59 \ud835\udefc -\ud835\udc39\ud835\udc66\u2016 2 2 \u2264 \ud835\udf00,(5)and an equivalent formulation can be achieved by using the Lagrange multiplier,min \ud835\udefc \u2016\ud835\udc39D \ud835\udc59 \ud835\udefc -\ud835\udc39y\u2016 2 2 + \ud835\udf06\u2016\ud835\udefc\u2016 1 ,(6)where the parameter \ud835\udf06 balances the sparsity of the solution and the fidelity of the approximation to \ud835\udc66.As the sparse constraint in  #b27  is still a bottleneck on training dictionaries considering the computation, an intuitive way to solve it is to relax the constraint again to \ud835\udc59 2 -norm. Meanwhile, the effectiveness of sparsity is challenged  #b0  #b4  by researchers as to whether sparsity or collaborative representation really helps in image classification and restoration. As a natural solution to that, Timofte et al. proposed an anchored neighborhood regression (ANR)  #b1  framework, where there is no sparse constraint in the model. ANR replaces the sparse-decomposition optimization (\ud835\udc59 1 -norm) with a ridge regression (i.e. \ud835\udc59 2norm), where the coefficients can be computed offline and each coefficient can be stored as an atom (anchor) in the dictionary. This offline learning can greatly speed-up the prediction stage, and this approach has subsequently led to several variant algorithms.Timofte et al. later extended the ANR approach to the A+  #b4 . In A+  #b4 , the coupled dictionaries are trained from a large pool of training samples (in the order of millions) rather than only from the anchoring atoms, which greatly improves the image quality. After that, more extensions based on ANR and A+ have emerged  #b0  #b32  #b33  #b34  #b35 .However, in the above-mentioned dictionary-learning methods, the complexity of finding those similar patches by comparing an input patch with all the dictionary items has been overlooked. Recently, algorithms using random forest (RF)  #b1  #b4  #b6  have achieved state-of-the-art performances, in terms of both accuracy and efficiency for classification and regression tasks. This is mainly due to the use of ensemble learning and sublinear search based on binary trees. Schulter et al.  #b7  adopted random forest and the clustering-regression scheme to learn regressors from the patches in leaf-nodes for SISR. With the same number of regressors, the RF-based algorithm can outperform or achieve comparable performance with A+ and its variants, in terms of accuracy but with less computational complexity.In recent years, deep learning has achieved promising performances on image super-resolution  #b36  #b37  #b38  #b39 . In  #b36  #b37 , milestone works on image super-resolution based on deep learning were presented, where a convolutional neural network (SRCNN) was proposed to learn an end-to-end mapping between LR and HR images for image super-resolution. Later a scheme with very deep networks for SISR was proposed in  #b38 , where the convergence rate of the deep network is improved by using residual learning and extremely high learning rates. In addition, Ledig et al.  #b39  introduced a generative adversarial network (GAN) based image super-resolution model (SRGAN), where the image perceptual loss function is reformulated as the combination of content loss and adversarial loss. Although deeplearning-based approaches have achieved promising progress on SISR, the heavy computational requirement is still a large burden even though the implementation is accelerated by GPU. This may limit them from those applications without powerful GPU, such as smart mobile terminals. In the inference stage, each decision tree returns a class probability \ud835\udc5d \ud835\udc61 (\ud835\udc66|\ud835\udc97) for a given test sample \ud835\udc97 \u2208 \ud835\udc45 \ud835\udc5a , and the final class label \ud835\udc66 * is then obtained via averaging, as follows:",
+        "Image Super-Resolution via Random Forest": "\ud835\udc66 * = arg max \ud835\udc66 1 \ud835\udc47 \u2211 \ud835\udc5d \ud835\udc61 (\ud835\udc66|\ud835\udc97), \ud835\udc47 \ud835\udc61=1(7)A splitting function \ud835\udc60(\ud835\udc97; \u0398) is typically parameterized by two values: (i) a feature dimensional index: \u0398 \ud835\udc56 \uf0ce{1, . . . , \ud835\udc5a}, and (ii) a threshold \u0398 \ud835\udc61 \uf0ce\u211d. The splitting function is defined as follows:\ud835\udc60(\ud835\udc97; \u0398) = { 0, if \ud835\udc97(\u0398 \ud835\udc56 ) < \u0398 \ud835\udc61 , 1, otherwise,(8)where the outcome defines to which child node \ud835\udc97 is routed, and 0 and 1 are the two labels belonging to the left and right child node, respectively. Each node chooses the best splitting function \u0398 * out of a randomly sampled set {\u0398 \ud835\udc56 }, and the threshold \u0398 \ud835\udc61 is determined by optimizing the following function:\ud835\udc3c = |\ud835\udc3f| |\ud835\udc3f|+|\ud835\udc45| \ud835\udc3b(\ud835\udc3f) + |\ud835\udc45| |\ud835\udc3f|+|\ud835\udc45| \ud835\udc3b(\ud835\udc45),(9)where \ud835\udc3f and \ud835\udc45 are the sets of samples that are routed to the left and right child nodes, respectively, and |\ud835\udc46| represents the number of samples in the set \ud835\udc46. During the training of an RF, the decision trees are provided with a random subset of the training data (i.e. bagging), and are trained independently. Training a single decision tree involves recursively splitting each node, such that the training data in the newly created child node is clustered conforming to class labels. Each tree is grown until a stopping criterion is reached (e.g. the number of samples in a node is less than a threshold or the tree depth reaches a maximum value) and the class probability distributions are estimated in the leaf nodes. After fulfilling one of the stopping criteria, the density model \ud835\udc5d(\ud835\udc66) in each leaf node is estimated by using all the samples falling into the leaf node, which will be used as a prediction of class probabilities in the inference stage. A simple way to estimate the probability distribution function \ud835\udc5d(\ud835\udc66) is by averaging all the samples in the leaf node, and there are many variants, such as fitting a Gaussian distribution, kernel density estimation, etc.In  #b8 , \ud835\udc3b(\ud835\udc46) is the local score for a set of samples in S (S is either L or R), which is usually calculated by entropy, as shown in Eqn.  #b9 , and it can be replaced by variance  #b7  #b17  #b20  or by the Gini index  #b13 .\ud835\udc3b(\ud835\udc46) = -\u2211 [\ud835\udc5d(\ud835\udc58|\ud835\udc46) * log(\ud835\udc5d(\ud835\udc58|\ud835\udc46))] \ud835\udc3e \ud835\udc58=1 , (10)where \ud835\udc3e is the number of classes, and \ud835\udc5d(\ud835\udc58|\ud835\udc46) is the probability for class \ud835\udc58, which is estimated from the set \ud835\udc46. For the regression problem, the differential entropy is used, and is defined as,\ud835\udc3b(\ud835\udc5e) = \u222b \ud835\udc5e(\ud835\udc66|\ud835\udc65) * log (\ud835\udc5e(\ud835\udc66|\ud835\udc65) \ud835\udc66 )\ud835\udc51 \ud835\udc66 ,(11)where \ud835\udc5e(\ud835\udc66|\ud835\udc65) denotes the conditional probability of a target variable given an input sample. Assuming that \ud835\udc5e(. , . ) is of Gaussian distribution, and has only a set of finite samples, the differential entropy can be written as,\ud835\udc3b \ud835\udc3a\ud835\udc4e\ud835\udc62\ud835\udc60\ud835\udc60 (\ud835\udc46) = \ud835\udc3e 2 (1 -log(2\u03c0)) + 1 2 log(det(\u03a3 \ud835\udc46 )),(12)where det (\u03a3 \ud835\udc46 ) is the determinant of the estimated covariance matrix of the target variables in \ud835\udc46.RF-based approaches hold some properties, which make them powerful classifiers as SVM (support vector machine)  #b9  and AdaBoost (short for \"Adaptive Boosting\")  #b12 . Both SVM and AdaBoost work as to approximate the Bayes decision rule -known to be the optimal classifiers -via minimizing a margin-based global loss function.RF-based image super-resolution (SR), following a recent emerging stream  #b4  #b30  on single-image SR, formulates the SR problem as a clustering-regression problem. These emerging approaches attempt to reconstruct an HR image from patches with the aid of an external database. These methods first decompose an image into patches, then classify the patches into different clusters, and later regressors are trained for all the clusters respectively, which generate mappings from an input LR patch's features to its corresponding HR patch. In the inference stage, an LR image follows the same procedures, such that it is divided into patches and features are extracted from each patch. Then, the patches are classified into different clusters using K-NN  #b7  #b18  or RF  #b1  #b4  #b6 , and their super-resolved HR patches are computed through regression in the leaf nodes (see Fig. 1). This kind of clustering-regression-based random forest  #b1  #b4  #b6  methods has achieved state-of-the-art performance in SISR, both in terms of accuracy and efficiency.",
+        "FEATURE-AUGMENTED RANDOM FOREST": "Classification and regression can be regarded as probability problems from the statistical theory.Historical frequentist probability is the probability obtained from the relative frequency in a large number of trials. In contrast, the Bayesian probability is an interpretation of the concept of probability, in which probability is interpreted as an expectation taking the knowledge and personal belief into account. From the Bayesian theory, the posterior probability of a random event is a conditional probability, which can be calculated if the relevant evidence or context is considered. Therefore, the posterior probability is the probability \ud835\udc5d(\ud835\udf03|\ud835\udc65) of the parameters \ud835\udf03 given the evidence \ud835\udc65. We denote the probability distribution function of the prior for parameters \ud835\udf03 as \ud835\udc5d(\ud835\udf03), and the likelihood as \ud835\udc5d(\ud835\udc65|\ud835\udf03), which is the probability of \ud835\udc65 given \ud835\udf03. Then, based on the Bayesian rule, the posterior probability can be defined as follows:\ud835\udc5d(\ud835\udf03|\ud835\udc65) = \ud835\udc5d(\ud835\udc65|\ud835\udf03)\ud835\udc5d(\ud835\udf03) \ud835\udc5d(\ud835\udc65) . (13)The posterior probability can be denoted in a memorable form as: \ud835\udc43\ud835\udc5c\ud835\udc60\ud835\udc61\ud835\udc52\ud835\udc5f\ud835\udc56\ud835\udc5c\ud835\udc5f \ud835\udc5d\ud835\udc5f\ud835\udc5c\ud835\udc4f\ud835\udc4e\ud835\udc4f\ud835\udc56\ud835\udc59\ud835\udc56\ud835\udc61\ud835\udc66 \u221d \ud835\udc3f\ud835\udc56\ud835\udc58\ud835\udc52\ud835\udc59\ud835\udc56\u210e\ud835\udc5c\ud835\udc5c\ud835\udc51 \u00d7 \ud835\udc43\ud835\udc5f\ud835\udc56\ud835\udc5c\ud835\udc5f \ud835\udc5d\ud835\udc5f\ud835\udc5c\ud835\udc4f\ud835\udc4e\ud835\udc4f\ud835\udc56\ud835\udc59\ud835\udc56\ud835\udc61\ud835\udc66.Based on the Bayesian framework, the likelihood term and the prior term are both required to be determined in order to solve the inverse problems, and the extracted features are normally worked as prior or likelihood, particularly on some image restoration problems. From this point of view, most research works, from classic feature extractors to deep-learning neural networks, are essentially done under the Bayesian inference framework.Since SISR is a well-known ill-posed problem, researchers have put their efforts into the priors of the problem with skills from mathematics, computer vision and machine learning. One of the obvious and most studied priors is the edge prior, which can be found in many pioneering works: new edgedirected interpolation (NEDI)  #b40 , soft-decision adaptive interpolation (SAI)  #b41 , directional filtering and data-fusion (DFDF)  #b42 , modified edge-directed interpolation (MEDI)  #b43 , and so on. The edge prior is effective on image processing, and the first and second-order gradients are studied and employed by Yang et al.  #b27  in a pioneering dictionary-learning-based algorithm. However, the effect of edgebased features has not been investigated in depth. Normally it is unstable to directly use pixel intensities as features, which are susceptible to the environmental lighting variations and camera noise. Instead, the differences between the neighboring pixels' intensity values, which are computationally efficient, and are immune to lighting changes and noise, are examined. This type of features can be implemented efficiently through convolutional filters.",
+        "Augmented Features via Gradient Magnitude Filters": "Typically, the feature filter \ud835\udc39 can be chosen as a high-pass filter, while in  #b1  #b3  #b4  #b27 , the first and second-order gradient operators are used to generate an up-sampled version from a low-resolution image, then four patches are extracted from the gradient maps at each location, and finally the patches are concatenated to form feature vectors. The four 1-D filters used to extract the derivatives are described in Eqn.  #b13 ,\ud835\udc39 1 = [-1, 0, 1], \ud835\udc39 2 = \ud835\udc39 1 \ud835\udc47 \ud835\udc39 3 = [1, 0, -2, 0, 1], \ud835\udc39 4 = \ud835\udc39 3 \ud835\udc47 }. (14)These features can work well on dictionary-learning-based methods, because when searching a matched patch in a dictionary, the distance is calculated based on the whole feature vectors with the Euclidean distance. However, when training a split node in a decision tree of an RF, only one or a few of the feature dimensions are chosen as candidate features for comparison. Therefore, more discriminative features are required for RF, when compared with dictionary-learning-based methods. where \ud835\udf15\ud835\udc3c/\ud835\udf15\ud835\udc65 and \ud835\udf15\ud835\udc3c/\ud835\udf15\ud835\udc66 are the gradients in the x-axis and y-axis directions, respectively, at a given pixel. Meanwhile, the gradient magnitude image can provide the edge strength, as described in Eqn.  #b15 .Fig. 4 shows a toy example of a man-made \"circle\" image, to demonstrate its discriminative property.\u2016\u2207\ud835\udc3c\u2016 = \u221a( \ud835\udf15\ud835\udc3c \ud835\udf15\ud835\udc65 ) 2 + ( \ud835\udf15\ud835\udc3c \ud835\udf15\ud835\udc66 ) 2 . (16)With a natural image shown in Fig. 5, it can be observed that the gradient magnitude image has more detailed textures than the gradient images (\ud835\udf15\ud835\udc3c/\ud835\udf15\ud835\udc65 and \ud835\udf15\ud835\udc3c/\ud835\udf15\ud835\udc66), as well as the sum of the horizontal gradient and vertical gradient image, i.e. \ud835\udf15\ud835\udc3c/\ud835\udf15\ud835\udc65 + \ud835\udf15\ud835\udc3c/\ud835\udf15\ud835\udc66 , perceptually. An explanation for this phenomenon is that non-linear features are usually more discriminative. Thus, in our work, all the first and second-order gradients, and gradient magnitude are employed, and are concatenated to form more discriminative, augmented features.On the other hand, the image orientation (gradient angle) is defined by the following formulation,\u2220\u2207\ud835\udc3c = arctan (\ud835\udf15\ud835\udc66/\ud835\udf15\ud835\udc65),(17)where atan( ) is the gradient orientation, with a value between -90\uf0b0 and 90\uf0b0. As shown in Eqn. ( 17), when the value of \ud835\udf15\ud835\udc65 is equal to 0 or close to 0, the value of \u2220\u2207 becomes infinitely large and unstable, i.e., different \ud835\udf15\ud835\udc66 will result in approximately the same \u2220\u2207 value. Based on this analysis, we only use the two gradient magnitude filters derived from the four gradient filters  #b27  to generate the augmented features. Experiments validate that the use of the augmented features can improve the conventional RF algorithm  #b7  to achieve a performance gain of more than 0.1dB, which is a remarkable improvement, with the same setting and parameters.",
+        "Fine-grained Features for Regression": "The inference stage of the RF-based image super-resolution process is similar to the content-based image retrieval (CBIR) framework, as shown in Fig. 1. The general approximated nearest neighbor (ANN)search framework  #b45  #b46  is an efficient strategy for large-scale image retrieval, which mainly consists of 4 parts: (1) extracting compact features (e.g., locality-sensitive Hashing (LSH)  #b47  feature) for a query image;(2) coarse-level search using Hamming distance to measure the similarity between binary compact Hash features, then narrow the search scope into a smaller candidate group; (3) fine-level search by using Euclidean distance to measure the similarity between their corresponding feature vectors; and(4) finding the object in the smaller candidate group that is the nearest one to the query image.In the inference stage of conventional RF-based SISR, PCA projection is worked as a Hash-like function to compress the feature dimension for decreasing the search range, which can speed up the searching as the coarse-level search in a CBIR framework, but the impact of using PCA on feature dimensionality reduction has been overlooked in previous works  #b0  #b1  #b3  #b4  #b7  #b27 . Inspired by the finelevel search using augmented features in CBIR frameworks, the high dimensional features in the leaf nodes in an RF can further improve the prediction accuracy in the regression step, which has not been studied previously. Consequently, we use the original features, rather than PCA or the LSH compressed features, to perform ridge regression in the leaf nodes. Experimental results show that the new RF scheme can greatly improve the quality of super-resolved images, by using this augmented feature. Another explanation for this is that the regression problems can benefit more from higher dimensional features than classification problems.Based on the observation that the original edge-like features are used for the final regressors in the leaf  In the new scheme, we unify the research of LSH-based SISR and image retrieval (CBIR)  #b45  #b46 .In brief, the new achievement on unsupervised LSH can be evaluated not only in CBIR systems, but also in the clustering-regression RF-based SISR methods. Moreover, as evidence from  #b55 , proper unsupervised LSH models, e.g., iterative quantization (ITQ)  #b56  used for feature dimension reduction instead of PCA, can reduce the damage on the image structure. This can further improve the superresolved image quality. Different from  #b55  using an ITQ-like algorithm to rotate the original features into a new feature space, with the use of the proposed original-compressed coupled feature sets, any unsupervised LSH generated features can directly be employed.",
+        "Generalized Weighted Ridge Regression Model": "In this sub-section, we further analyze the ridge regression employed in the RF leaf nodes. The anchored neighborhood regression (ANR)  #b1  model relaxes the \ud835\udc59 1 -norm in Eqn.  #b5  to the \ud835\udc59 2 -norm constraint, with least-squares minimization as the following equation,min \ud835\udefc \u2016\ud835\udc39D \ud835\udc59 \ud835\udefc -\ud835\udc39\ud835\udc66\u2016 2 2 + \ud835\udf06\u2016\ud835\udefc\u2016 2 , (18)Based on the ridge regression  #b15  theory, this \ud835\udc59 2 -norm constrained least square regression regularized problem has a closed-form solution, according to the Tikhonov regularization theory, as follows:\ud835\udefc = (\ud835\udc37 \ud835\udc59 \ud835\udc47 \ud835\udc37 \ud835\udc59 + \ud835\udf06\ud835\udc3c) -1 \ud835\udc37 \ud835\udc59 \ud835\udc47 \ud835\udc39\ud835\udc66. (19)With the assumption in  #b27 , where HR patches and their counterpart LR patches share the same reconstructed coefficient \u03b1, i.e. \ud835\udc65 = D \u210e \ud835\udefc, from Eqn.  #b18  we have\ud835\udc65 = D \u210e (\ud835\udc37 \ud835\udc59 \ud835\udc47 \ud835\udc37 \ud835\udc59 + \ud835\udf06\ud835\udc3c) -1 \ud835\udc37 \ud835\udc59 \ud835\udc47 \ud835\udc39\ud835\udc66. (20)If we define \ud835\udc43 \ud835\udc3a as a pre-calculated projection matrix, as follows,\ud835\udc43 \ud835\udc3a = D \u210e (\ud835\udc37 \ud835\udc59 \ud835\udc47 \ud835\udc37 \ud835\udc59 + \ud835\udf06\ud835\udc3c) -1 \ud835\udc37 \ud835\udc59 \ud835\udc47 , (21)then the HR patches can be reconstructed with \ud835\udc65 = \ud835\udc43 \ud835\udc3a \ud835\udc39\ud835\udc66.Having studied the model in Eqn.  #b17 , the authors in  #b0  argued that different weights should be given to different atoms when reconstructing an HR patch so as to emphasize the similarity to the anchor atom.Based on this idea,  #b0  proposed a weighted collaborative representation (WCR) model by generalizing the normal collaborative representation (CR) model in the ANR,min \ud835\udefc \u2016\ud835\udc39D \ud835\udc59 \ud835\udefc -\ud835\udc39\ud835\udc66\u2016 2 2 + \u2016\ud835\udf06 \ud835\udc4a\ud835\udc36\ud835\udc45 \ud835\udefc\u2016 2 , (22)where \ud835\udf06 \ud835\udc4a\ud835\udc36\ud835\udc45 is a diagonal weight matrix, in which the non-zero entries are proportional to the similarities between the atoms and the anchor atom.Same as the ANR model, a new closed-form solution can be computed offline through the following equation,\ud835\udefc * = (\ud835\udc37 \ud835\udc59 \ud835\udc47 \ud835\udc37 \ud835\udc59 + \ud835\udf06 \ud835\udc4a\ud835\udc36\ud835\udc45 ) -1 \ud835\udc37 \ud835\udc59 \ud835\udc47 \ud835\udc39\ud835\udc66,(23)and the new projection matrix can be derived as\ud835\udc43 \ud835\udc3a * = D \u210e (\ud835\udc37 \ud835\udc59 \ud835\udc47 \ud835\udc37 \ud835\udc59 + \ud835\udf06 \ud835\udc4a\ud835\udc36\ud835\udc45 ) -1 \ud835\udc37 \ud835\udc59 \ud835\udc47 . (24)The WCR model further improves the ANR/A+ model in terms of image quality, while keeping the same level of computation. In  #b8 , the local geometry prior of the data sub-space is used. However, all the weighted ridge regression models  #b0  #b8  are constructed based on an existing dictionary, e.g., Zeyde et al.  #b3  used K-SVD to train a sparse-coding-based dictionary with 1024 items. This limits the models to collect samples in a smaller sub-space when constructing linear regressors based on existing anchor points.Fig. 7: Gaussian mixture model (GMM) is used to generate the weights for weighted ridge regression, and the weight of each entry lies on its belonging cluster's weight and its weight in the belonging cluster.When training the regressors in an RF, there is no existing anchor point in the clustered groups of the leaf nodes, similar to the previous models  #b0  #b8 . A solution to mentioned problem is inspired from the work on image classification using locality-constrained linear coding (LLC)  #b48 , where Gaussian mixture model (GMM) is used to describe the locality-constrained affine subspace coding (LASC)  #b49 .We employ GMM to construct the data distribution in the sub-space for each leaf node, which derives the weights of all the entries in the ridge regression models. Through the derived weights, we can obtain a generalized weighted ridge regression (GWRR) model for ridge regression. The new projection matrix is given as follows:\ud835\udc43 \ud835\udc3a * = D \u210e (\ud835\udc37 \ud835\udc59 \ud835\udc47 \ud835\udc37 \ud835\udc59 + \ud835\udf06 \ud835\udc3a\ud835\udc4a\ud835\udc45\ud835\udc45 ) -1 \ud835\udc37 \ud835\udc59 \ud835\udc47 ,(25)where \ud835\udf06 \ud835\udc3a\ud835\udc4a\ud835\udc45\ud835\udc45 is a diagonal weight matrix, and the weight of each diagonal entry is related to its belonging cluster's weight and its local weight in its belongingwhi cluster, as illustrated in the right part of Fig. 7. Obviously, a query entry falling into a bigger cluster and closer to the center of the belonging cluster achieves a larger weight. In a rough form, the diagonal weight matrix \ud835\udf06 \ud835\udc3a\ud835\udc4a\ud835\udc45\ud835\udc45 is given as follows:\ud835\udf06 \ud835\udc3a\ud835\udc4a\ud835\udc45\ud835\udc45 = diag{[\ud835\udc64 1 ; \ud835\udc64 2 ; \u2026 \ud835\udc64 \ud835\udc56 ; \u2026 ; \ud835\udc64 \ud835\udc5a ]}, \ud835\udc64 \ud835\udc56 \u221d \ud835\udc36 \ud835\udc56 \ud835\udc58 \u00d7\ud835\udc51 \ud835\udc56 \ud835\udc58 , \ud835\udc58 = (1, \u2026 , \ud835\udc3e) ,(26)where \ud835\udc64 \ud835\udc56 is the weight of the \ud835\udc56 th entry, \ud835\udc5a is number of samples in the leaf nodes, \ud835\udc36 \ud835\udc56 \ud835\udc58 is the \ud835\udc58 th cluster's weight for the \ud835\udc56 th entry, \ud835\udc51 \ud835\udc56 \ud835\udc58 is the \ud835\udc56 th entry's local weight in the \ud835\udc58 th cluster, which is approximated with the inverse value of the distance to the center of the belonging cluster, and \ud835\udc3e is the number of clusters generated by the GMM model for a leaf node.   #b0 , WCR  #b0 , and the proposed GWRR, in terms of PSNR (dB) with an upscale factor (\u00d73) on some public standard test images Note that when the number of samples in a leaf node becomes bigger, the performance of the GWRR model will achieve less advantage than the normal regression model, because the higher weights will be averaged by a large number of other samples. Theoretically, the regression of a leaf node can benefit from the GWRR model, particularly when there are a few samples falling into the leaf node.",
+        "Experimental results in": "",
+        "Initial Estimation with Iterative Back Projection": "Generally speaking, SISR is a low-level computer vision task, which attempts to restore an HR image \ud835\udcb3 from a single input LR image \ud835\udcb4. A mathematical model for image degradation can be formulated as follows:\ud835\udcb4 = (\ud835\udcb3 * \u212c) \u2193 \ud835\udc60,(27)where \u212c is a low-pass (blur) filter and \uf069\ud835\udc60 denotes the down-sampling operator with \ud835\udc60 factor. Based on a given LR image \ud835\udcb4, how to achieve an approximated HR image \ud835\udcb3 \u0302 is a classic inverse problem, which requires priors based on the Bayesian theory.Irani and Peleg  #b53  firstly proposed an iterative back projection (IBP) method for SR reconstruction, and IBP is the most effective way to obtain an HR image when comparing it with other SR methods. In the IBP method, the reconstruction error of an estimated LR image \ud835\udcb4 \u0302 is the difference between the input LR \ud835\udcb4 and the synthesized image \ud835\udcb4 \u0302 generated from the estimated HR image \ud835\udcb3 \u0302 as follows:\ud835\udc52(\ud835\udcb4 \u0302) = \ud835\udcb4 -\ud835\udcb4 \u0302= \ud835\udcb4 -(\ud835\udcb3 \u0302 * \u212c) \u2193 \ud835\udc60.(28)IBP is an efficient approach to obtain the HR image by minimizing the reconstruction error defined by Eqn.  #b27 . For the IBP approach on SISR, the updating procedure can be summarized as the following two steps, performed iteratively:\u2022 Compute the reconstruction error \ud835\udc52(\ud835\udcb3 \u0302) with the following equation:\ud835\udc52(\ud835\udcb3 \u0302) = \ud835\udc52(\ud835\udcb4 \u0302) \u2191 s * \ud835\udc5d,(29)where \u2191 is the up-sampling operator and \ud835\udc5d is a constant back-projection kernel to approximate the inverse operation of the low-pass filter \u212c.\u2022 Update the estimating HR image \ud835\udcb3 \u0302 by back-projecting errors as follows:\ud835\udcb3 \u0302\ud835\udc61+1 = \ud835\udcb3 \u0302\ud835\udc61 + \ud835\udc52(\ud835\udcb3 \u0302\ud835\udc61),(30)where \ud835\udcb3 \u0302\ud835\udc61 is the estimated HR image at the \ud835\udc61-th iteration.Most learning-based algorithms  #b0  #b1  #b3  #b4  follow the milestone work in  #b27 , which uses the coarse estimation firstly obtained via bicubic interpolation. As we know, the classic IBP algorithm is an efficient way to obtain high-quality up-scaled images, but it will inevitably produce artifacts (such as ringing, jaggy effects, and noise) at the output, because the kernel operator \ud835\udc5d in Eqn. ( 29) is hard to estimate accurately. That is the reason why algorithms with IBP need an additional denoising process  #b50  #b53  #b57 .However, the sparse-constraint-based approach  #b27  does not have this denoising capability.As the \ud835\udc59 2 -norm constraint-based ridge regression has the denoising effect, due to its averaging-like process, this means that the ridge regression-based RF scheme has the denoise capability intrinsically.Based on this observation, we obtain the coarse estimation of an HR image \ud835\udcb3 \u0302 by applying IBP to the corresponding input LR image \ud835\udcb4. Experimental results in Table-2 and Table-3 validate that using IBP, instead of bicubic, to obtain the initial coarse estimation can help the RF-based SR method obtain a remarkable improvement. As the number of trees is an important parameter in RF-based approaches, we plot the performance with respect to the number of trees. As shown in Fig. 8, the performance of the RF-based image superresolution method increases as expected, but the increment becomes relatively smaller after a certain number of trees are used. The experimental results in Fig. 8 are obtained on the Set14 dataset, and 2 million samples from the dataset are used for all training stages. It shows that using 45 trees is an optimal number, as a trade-off between performance and computational cost. Therefore, we set the number of trees for the proposed FARF method at 45, and our method with this number is denoted as FARF*. The performances of our methods, and other methods, are tabulated in Table -2 andTable-3. We also compare our methods with a recently proposed deep-learning-based algorithm, SRCNN algorithm  #b36  #b37 , and our methods outperform it in some cases.",
+        "Fine-Tuning with Proper Trees in Random Forest": "",
+        "Algorithm Workflow": "The training and inference stages of the proposed FARF algorithm are described in Algorithm 1 and Algorithm 2, respectively. To help the readers understand our paper, the source code of our algorithm will be available at: https://github.com/HarleyHK/FARF, for reference. ",
+        "EXPERIMENTS": "In this section, we evaluate our algorithm on standard super-resolution benchmarks Set 5, Set14 and B100  #b19 , and compare it with some state-of-the-art methods. They are bicubic interpolation, adjusted anchored neighborhood regression (A+)  #b4 , standard RF  #b7 , alternating regression forests (ARF)  #b7 ,and the convolutional neural-network-based image super-resolution (SRCNN)  #b36  #b37 , as listed in Table-  The objective quality metric, PSNR, in Table-2 also shows that the fine-tuned FARF, i.e. FARF*, can further improve the image quality, which is comparable to recently proposed state-of-the-art deeplearning-based algorithms, such as SRCNN  #b36  #b37 .Comparing our proposed FARF algorithm to other methods, the improved visual quality of our results is obvious, as shown in Fig. 9. This shows that our method can produce more details, particularly on some texture-rich regions.  9: Super-resolution (\u00d73) images from B100, bicubic, A+ (ACCV-2014)  #b4 , ARF (CVPR-2015)  #b7 , SRCNN (PAMI-2016)  #b37 , our proposed algorithm FARF, and ground truth. The results show that our FARF algorithm can produce more details and its performance is comparable to a recent state-of-the-art deep-learning method  #b37 .",
+        "CONCLUSIONS": "This paper presents a feature-augmented random forest (FARF) scheme for the single image superresolution (SISR) task by augmenting features and redesigning the inner structure of a random forest "
+    },
+    {},
+    {
+        "b0": [
+            "Fast super-resolution based on weighted collaborative representation",
+            "",
+            "",
+            "",
+            "Li",
+            "Lam"
+        ],
+        "b1": [
+            "Anchored neighborhood regression for fast example-based super-resolution",
+            "",
+            "",
+            "",
+            "Timofte",
+            "Smet",
+            "Van Gool"
+        ],
+        "b2": [
+            "Shape quantization and recognition with randomized trees",
+            "",
+            "",
+            "",
+            "Amit",
+            "Geman"
+        ],
+        "b3": [
+            "On single image scale-up using sparse-representations",
+            "",
+            "",
+            "",
+            "Zeyde",
+            "Elad",
+            "Protter"
+        ],
+        "b4": [
+            "A+: Adjusted anchored neighborhood regression for fast super-resolution",
+            "",
+            "",
+            "",
+            "Timofte",
+            "Smet",
+            "Van Gool"
+        ],
+        "b5": [
+            "A generalized solution of the orthogonal Procrustes problem",
+            "",
+            "",
+            "",
+            "Sch\u00f6nemann"
+        ],
+        "b6": [
+            "Aggregating local descriptors into a compact image representation",
+            "",
+            "",
+            "",
+            "J\u00e9 Gou",
+            "Douze",
+            "Schmid",
+            "P\u00e9"
+        ],
+        "b7": [
+            "Fast and accurate image upscaling with super-resolution forests",
+            "",
+            "",
+            "",
+            "Schulter",
+            "Leistner",
+            "Bischof"
+        ],
+        "b8": [
+            "Single Image Super-Resolution via Locally Regularized Anchored Neighborhood Regression and Nonlocal Means",
+            "",
+            "",
+            "",
+            "Jiang",
+            "Ma",
+            "Chen",
+            "Lu",
+            "Wang",
+            "Ma"
+        ],
+        "b9": [
+            "A tutorial on support vector machines for pattern recognition",
+            "",
+            "",
+            "",
+            "Burges"
+        ],
+        "b10": [
+            "",
+            "",
+            "An introduction to support vector machines",
+            ""
+        ],
+        "b11": [
+            "Support-vector networks",
+            "",
+            "",
+            "",
+            "Cortes",
+            "Vapnik"
+        ],
+        "b12": [
+            "Experiments with a new boosting algorithm",
+            "",
+            "",
+            "",
+            "Freund",
+            "Schapire"
+        ],
+        "b13": [
+            "Random forests",
+            "",
+            "",
+            "",
+            "Breiman"
+        ],
+        "b14": [
+            "One millisecond face alignment with an ensemble of regression trees",
+            "",
+            "",
+            "",
+            "Kazemi",
+            "Sullivan"
+        ],
+        "b15": [
+            "",
+            "",
+            "Solutions of ill-posed problems",
+            ""
+        ],
+        "b16": [
+            "Fast discriminative visual codebooks using randomized clustering forests",
+            "",
+            "",
+            "",
+            "Moosmann",
+            "Triggs",
+            "Jurie"
+        ],
+        "b17": [
+            "Cascaded face alignment via intimacy definition feature",
+            "",
+            "",
+            "",
+            "Li",
+            "Lam",
+            "Chiu",
+            "Wu",
+            "Lei"
+        ],
+        "b18": [
+            "Naive bayes super-resolution forest",
+            "",
+            "",
+            "",
+            "Salvador",
+            "P\u00e9 Rez-Pellitero"
+        ],
+        "b19": [
+            "A database of human segmented natural images and its application to evaluating segmentation algorithms and measuring ecological statistics",
+            "",
+            "",
+            "",
+            "Martin",
+            "Fowlkes",
+            "Tal",
+            "Malik"
+        ],
+        "b20": [
+            "Face alignment at 3000 fps via regressing local binary features",
+            "",
+            "",
+            "",
+            "Ren",
+            "Cao",
+            "Wei",
+            "Sun"
+        ],
+        "b21": [
+            "Optimized cartesian k-means",
+            "",
+            "",
+            "",
+            "Wang",
+            "Wang",
+            "Song",
+            "Xu",
+            "Shen",
+            "Li"
+        ],
+        "b22": [
+            "Alternating decision forests",
+            "",
+            "",
+            "",
+            "Schulter",
+            "Wohlhart",
+            "Leistner",
+            "Saffari",
+            "Roth",
+            "Bischof"
+        ],
+        "b23": [
+            "Alternating regression forests for object detection and pose estimation",
+            "",
+            "",
+            "",
+            "Schulter",
+            "Leistner",
+            "Wohlhart",
+            "Roth",
+            "Bischof"
+        ],
+        "b24": [
+            "Experiments with a new boosting algorithm",
+            "",
+            "",
+            "",
+            "Freund",
+            "Schapire"
+        ],
+        "b25": [
+            "Greedy function approximation: a gradient boosting machine",
+            "",
+            "",
+            "",
+            "Friedman"
+        ],
+        "b26": [
+            "Class-specific hough forests for object detection",
+            "",
+            "",
+            "",
+            "Gall",
+            "Lempitsky"
+        ],
+        "b27": [
+            "Image super-resolution via sparse representation",
+            "",
+            "",
+            "",
+            "Yang",
+            "Wright",
+            "Huang",
+            "Ma"
+        ],
+        "b28": [
+            "Super-resolution through neighbor embedding",
+            "",
+            "",
+            "",
+            "Chang",
+            "Yeung",
+            "Xiong"
+        ],
+        "b29": [
+            "",
+            "",
+            "Low-complexity single-image super-resolution based on nonnegative neighbor embedding",
+            ""
+        ],
+        "b30": [
+            "Fast direct super-resolution by simple functions",
+            "",
+            "",
+            "",
+            "Yang",
+            "Yang"
+        ],
+        "b31": [
+            "Learning multiple linear mappings for efficient single image superresolution",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Tao",
+            "Gao",
+            "Li",
+            "Xiong"
+        ],
+        "b32": [
+            "Adaptive local nonparametric regression for fast single image super-resolution",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Zhang",
+            "Zhang",
+            "Wang",
+            "Wang",
+            "Dai"
+        ],
+        "b33": [
+            "Single Image Super-Resolution via Locally Regularized Anchored Neighborhood Regression and Nonlocal Means",
+            "",
+            "",
+            "",
+            "Jiang",
+            "Ma",
+            "Chen",
+            "Lu",
+            "Wang",
+            "Ma"
+        ],
+        "b34": [
+            "Image super-resolution based on dictionary learning and anchored neighborhood regression with mutual incoherence",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Gu",
+            "Zhang",
+            "Zhang",
+            "Dai"
+        ],
+        "b35": [
+            "CCR: Clustering and Collaborative Representation for Fast Single Image Super-Resolution",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Zhang",
+            "Zhang",
+            "Dai"
+        ],
+        "b36": [
+            "Learning a deep convolutional network for image super-resolution",
+            "",
+            "",
+            "",
+            "Dong",
+            "Loy",
+            "He",
+            "Tang"
+        ],
+        "b37": [
+            "Image super-resolution using deep convolutional networks",
+            "",
+            "",
+            "",
+            "Dong",
+            "Loy",
+            "He",
+            "Tang"
+        ],
+        "b38": [
+            "Accurate image super-resolution using very deep convolutional networks",
+            "",
+            "",
+            "",
+            "Kim",
+            "Lee",
+            "Lee"
+        ],
+        "b39": [
+            "",
+            "",
+            "Photo-realistic single image super-resolution using a generative adversarial network",
+            ""
+        ],
+        "b40": [
+            "New edge-directed interpolation",
+            "",
+            "",
+            "",
+            "Li",
+            "Orchard"
+        ],
+        "b41": [
+            "Image interpolation by adaptive 2-D autoregressive modeling and soft-decision estimation",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Wu"
+        ],
+        "b42": [
+            "An edge-guided image interpolation algorithm via directional filtering and data fusion",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Wu"
+        ],
+        "b43": [
+            "Modified edge-directed interpolation for images",
+            "",
+            "",
+            "",
+            "Tam",
+            "Kok",
+            "Siu"
+        ],
+        "b44": [
+            "Example-based super-resolution",
+            "",
+            "",
+            "",
+            "Freeman",
+            "Jones",
+            "Pasztor"
+        ],
+        "b45": [
+            "Deep learning of binary hash codes for fast image retrieval",
+            "",
+            "",
+            "",
+            "Lin",
+            "Yang",
+            "Hsiao",
+            "Chen"
+        ],
+        "b46": [
+            "Deep supervised hashing for fast image retrieval",
+            "",
+            "",
+            "",
+            "Liu",
+            "Wang",
+            "Shan",
+            "Chen"
+        ],
+        "b47": [
+            "Similarity search in high dimensions via hashing",
+            "",
+            "",
+            "",
+            "Gionis",
+            "Indyk",
+            "Motwani"
+        ],
+        "b48": [
+            "Locality-constrained linear coding for image classification",
+            "",
+            "",
+            "",
+            "Wang",
+            "Yang",
+            "Yu",
+            "Lv",
+            "Huang",
+            "Gong"
+        ],
+        "b49": [
+            "From dictionary of visual words to subspaces: locality-constrained affine subspace coding",
+            "",
+            "",
+            "",
+            "Li",
+            "Lu",
+            "Wang"
+        ],
+        "b50": [
+            "Guided iterative back-projection scheme for single-image super-resolution",
+            "",
+            "",
+            "",
+            "Li",
+            "Lam"
+        ],
+        "b51": [
+            "Image processing using smooth ordering of its patches",
+            "",
+            "",
+            "",
+            "Ram",
+            "Elad",
+            "Cohen"
+        ],
+        "b52": [
+            "BM3D frames and variational image deblurring",
+            "",
+            "",
+            "",
+            "Danielyan",
+            "Katkovnik",
+            "Egiazarian"
+        ],
+        "b53": [
+            "Improving resolution by image registration",
+            "",
+            "",
+            "",
+            "Irani",
+            "Peleg"
+        ],
+        "b54": [
+            "Antipodally Invariant Metrics For Fast Regression-Based Super-Resolution",
+            "",
+            "",
+            "",
+            "Perez-Pellitero",
+            "Salvador",
+            "Ruiz-Hidalgo",
+            "Rosenhahn"
+        ],
+        "b55": [
+            "",
+            "",
+            "Joint Maximum Purity Forest with Application to Image Super-Resolution",
+            ""
+        ],
+        "b56": [
+            "Iterative quantization: A procrustean approach to learning binary codes for large-scale image retrieval",
+            "",
+            "",
+            "",
+            "Gong",
+            "Lazebnik",
+            "Gordo",
+            "Perronnin"
+        ],
+        "b57": [
+            "Nonlocal back projection for adaptive image enlargement",
+            "",
+            "",
+            "",
+            "Dong",
+            "Zhang",
+            "Shi",
+            "Wu"
+        ]
+    },
+    {
+        "tab_0": " show that the proposed GWRR model can achieve the same level of performance as WCR[1], and obtain 0.2dB gain more than the ANR[1] model.ImagesbaboonbabybirdbutterflyforemanheadlennawomanAverageANR23.5235.0634.4425.7432.9233.5432.9230.1731.04WCR23.5535.0934.7526.1833.5133.6133.1630.4231.28GWRR23.5435.0934.7426.1333.4633.5833.1230.3831.25Table-1: Performances of ANR",
+        "tab_2": "2 and Table-3. We set the same parameters for all the RF-based algorithms, i.e., the number of trees in an RF is 10, and the maximum depth of each tree is 15. We use the same set of training images (91 images) for all the algorithms, as previous works[2,4,5,8] do. RF+ means a normal RF-based algorithm added with the two gradient magnitudes augmented features, and RF# is the normal RF-based algorithm, where the original raw features, instead of using the PCA compressed features, are used to learn the regressors in leaf nodes. FARF denotes our proposed feature-augmented RF scheme, which combines RF+ and RF# by adding the gradient magnitude features and using the original raw features for regression.Table-2: Results of the proposed method compared with state-of-the-art works on 3 datasets in terms of PSNR (dB) using three different magnification factors (#) (\u00d72, \u00d73, \u00d74).FARF* is a further refined version of FARF, by performing further fine-tuning: (1) using the superior,unsupervised LSH projection, instead of PCA for dimensionality reduction, (2) employing IBP, insteadof the traditional bicubic interpolation algorithm, to obtain the initial coarse estimation in the inferencestage, (3) setting proper number of trees (e.g., 45) for training an RF.dataset#bicubicA+RFARFRF +RF #FARF -FARFFARF*SRCNN\u00d7233.6636.5536.5236.6536.6736.6336.6836.7836.8136.66Set5\u00d7330.3932.5932.4432.5332.5632.5332.6232.7332.7832.75\u00d7428.4230.2930.1030.1730.1830.2230.2730.3930.4530.48\u00d7230.2332.2832.2632.3332.3732.3232.3732.4132.4532.42Set14\u00d7327.5429.1329.0429.1029.1729.1129.1729.2329.2929.28\u00d7426.0027.3327.2227.2827.3127.2927.3627.4527.4827.49\u00d7229.3230.7831.1331.2131.2231.2331.3431.3531.3831.36B100\u00d7327.1528.1828.2128.2628.2728.2628.3028.3528.3828.41\u00d7425.9226.7726.7426.7726.7826.7926.8326.8826.9126.90",
+        "tab_3": "Table - 2-summarizes the performances of our proposed algorithm on the 3 datasets, in terms of the average peak signal to noise ratio (PSNR) scores, with different magnification factors (\u00d72, \u00d73, \u00d74).Table-3 gives more details of the results on some images from the Set5 dataset, with magnification factor \u00d73. As the results have shown based on the 3 datasets, our proposed algorithm FARF outperforms A+ and ARF for all the magnification factors. Table-3: Results of the proposed method compared with state-of-the-arts methods on 3 datasets in terms of PSNR (dB) with magnification factors (\u00d73) on dataset Set5.Set5(\u00d73) bicubicZeydeA+RFARFFARF -FARFFARF*SRCNNbaby33.9135.1335.2335.2535.1535.2035.3435.3735.25bird32.5834.6235.5335.2335.3135.3935.5335.5435.47butterfly24.0425.9327.1327.0027.3927.6527.6827.8227.95head32.8833.6133.8233.7333.7333.7533.8433.8533.71woman28.5630.3231.2430.9831.0831.1131.2731.3431.37average30.3931.9232.5932.4432.5332.6232.7332.7832.75"
+    }
+]

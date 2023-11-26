@@ -1,0 +1,645 @@
+[
+    {
+        "basename": "3acc07f7f8951617276cf99483ed02aeb0a6eeac.grobid",
+        "fulltext": 17,
+        "footnote_size": 0,
+        "reference": 69,
+        "authors": [
+            "Zhang",
+            "David",
+            "Gong"
+        ]
+    },
+    {
+        "title": "Curriculum Domain Adaptation for Semantic Segmentation of Urban Scenes",
+        "abstract": "During the last half decade, convolutional neural networks (CNNs) have triumphed over semantic segmentation, which is a core task of various emerging industrial applications such as autonomous driving and medical imaging. However, to train CNNs requires a huge amount of data, which is difficult to collect and laborious to annotate. Recent advances in computer graphics make it possible to train CNN models on photo-realistic synthetic data with computer-generated annotations. Despite this, the domain mismatch between the real images and the synthetic data significantly decreases the models' performance. Hence we propose a curriculum-style learning approach to minimize the domain gap in semantic segmentation. The curriculum domain adaptation solves easy tasks first in order to infer some necessary properties about the target domain; in particular, the first task is to learn global label distributions over images and local distributions over landmark superpixels. These are easy to estimate because images of urban traffic scenes have strong idiosyncrasies (e.g., the size and  spatial relations of buildings, streets, cars, etc.). We then train the segmentation network in such a way that the network predictions in the target domain follow those inferred properties. In experiments, our method significantly outperforms the baselines as well as the only known existing approach to the same problem.",
+        "Introduction": "This paper is concerned with domain adaptation for semantic image segmentation of urban scenes, i.e., assigning a category label to every pixel of an image or video frame  #b5 . Our interest in this problem is partially due to the exciting vision of autonomous driving, where understanding complex inner-city traffic scenes is an essential module and se-Code: https://github.com/YangZhang4065/AdaptationSeg. Extended version: https://arxiv.org/abs/1707.09465. mantic segmentation is one of its key constituents  #b11  #b18 .Machine learning methods for automatic semantic segmentation require massive amounts of high-quality annotated imagery in order to produce effective classifiers that generalize well to novel scenes. However, annotating training imagery for semantic segmentation is a very cumbersome task for humans. Cordts et al. report that the annotation and quality control take more than 1.5 hours on a single image of the Cityscapes dataset  #b11 . Besides, it is very difficult and time-consuming to collect imagery that depicts the large number of variabilities possible of urban scenes in different countries, seasons, and lighting conditions, etc.To overcome both shortcomings, simulated urban environments may be used to automatically generate large amounts of annotated training imagery. This, however, introduces a new problem, that of domain mismatch between the source (simulated) domain and the target (real) domain. Figure 2 illustrates some examples drawn from the synthetic SYNTHIA  #b47  dataset and the real Cityscapes  #b11  dataset. It is readily apparent that there are significant visual differences between the two datasets. Domain adaptation techniques  #b47  #b52  #b26  may be used by machine learning methods to bridge this gap between the two domains.In computer vision, learning domain-invariant features has been a prevalent and successful strategy to tackle the discrepancy between two domains, mainly for classification and regression problems  #b40  #b42 . The core idea is to infer a new feature space such that the marginal distributions of the source domain (S) and the target domain (T) are about the same, i.e., P S (Z) \u2248 P T (Z). Furthermore, the prediction function P (Y |Z) from that space is assumed to be the same across the domains so that one can leverage the rich labeled data in the source domain to train classifiers that generalize well to the target. It is hard to verify the assumption, but the work along this line is rich and has led to impressive practical results regardless, such as the algorithms using linear transformation  #b21  #b22  #b14  #b54 , kernel methods  #b39  #b19  #b1  #b30 , and the recent deep learning meth-ods that directly extract domain-invariant features from raw input images  #b61  #b35  #b60  #b17  #b16 .In contrast to prior arts, the semantic segmentation we study in this paper is a highly structured prediction problem, for which domain adaptation is only sparsely explored in the literature  #b65  #b26 . Under structured prediction, can we still achieve good domain adaptation results by following the above principles? Our intuition and experimental studies (cf. Section 4) tell us no. Learning a decision function for structured prediction is more involved than classification because it has to resolve the predictions in an exponentially large label space. As a result, the assumption that the source and target domains share the same prediction function becomes less likely to hold. Besides, some discriminative cues in the data would be suppressed if one matches the feature representations of the two domains without taking careful account of the structured labels. Finally, data instances are the proxy to measure the domain difference  #b24  #b16  #b17 . However, it is not immediately clear what comprises the instances in semantic segmentation  #b26 , especially given that the top-performing segmentation methods are built upon deep neural networks  #b34  #b43  #b38  #b9 . Hoffman et al. take each spatial unit in the fully convolutional network (FCN)  #b34  as an instance  #b26 . We contend that such instances are actually non-i.i.d. in either individual domain, as their receptive fields overlap with each other.How can we avoid the assumption that the source and target domains share the same prediction function in a transformed domain-invariant feature space? Our proposed solution draws on two key observations. One is that the urban traffic scene images have strong idiosyncrasies (e.g., the size and spatial relations of buildings, streets, cars, etc.). Therefore, some tasks are \"easy\" and, more importantly, suffer less because of the domain discrepancy. Second, the structured output in semantic segmentation enables convenient posterior regularization  #b15 , as opposed to the popular (e.g., \u2113 2 ) regularization over model parameters.Accordingly, we propose a curriculum-style  #b3  domain adaptation approach. Recall that, in domain adaptation, only the source domain supplies many labeled data while there are no or only scarce labels from the target. The curriculum domain adaptation begins with the easy tasks, in order to gain some high-level properties about the unknown pixel-level labels for each target image. It then learns a semantic segmentation network -the hard task, whose predictions over the target images are forced to follow those necessary properties as much as possible.To develop the easy tasks in the curriculum, we consider label distributions over both holistic images and some landmark superpixels of the target domain. Take the former for instance. The label distribution of an image indicates the percentage of pixels that belong to each category, respectively. We argue that such tasks are easier, despite the do-main mismatch, than assigning pixel-wise labels. Indeed, we may directly estimate the label distributions without inferring the pixel-wise labels. Moreover, the relative sizes of road, vehicle, pedestrian, etc. constrain the shape of the distributions, effectively reducing the search space. Finally, models to estimate the label distributions over superpixels may benefit from the urban scenes' canonical layout that transcends domains, e.g., buildings stand beside streets.Why and when are the seemingly simple label distributions useful for the domain adaptation of semantic segmentation? In our experiments, we find that the segmentation networks trained on the source domain perform poorly on many target images, giving rise to disproportionate label assignments (e.g., many more pixels are classified to sidewalks than to streets). To rectify this, the image-level label distribution informs the segmentation network how to update the predictions while the label distributions of the landmark superpixels tell the network where to update. Jointly, they guide the adaptation of the networks to the target domain to, at least, generate proportional label predictions. Note that additional \"easy tasks\" can be conveniently incorporated into our framework in the future.Our main contribution is on the proposed curriculumstyle domain adaptation for the semantic segmentation of urban scenes. We select into the curriculum the easy and useful tasks of inferring label distributions for the target images and landmark superpixels, in order to gain some necessary properties about the target domain. Built upon these, we learn a pixel-wise discriminative segmentation network from the labeled source data and, meanwhile, conduct a \"sanity check\" to ensure the network behavior is consistent with the previously learned knowledge about the target domain. Our approach effectively eludes the assumption about the existence of a common prediction function for both domains in a transformed feature space. It readily applies to different segmentation networks, as it does not change the network architecture or tax any intermediate layers.",
+        "Related work": "We discuss some related work on domain adaptation and semantic segmentation, with special focus on that transferring knowledge from virtual images to real photos. Domain adaptation. Conventional machine learning algorithms rely on the assumption that the training and test data are drawn i.i.d. from the same underlying distribution. However, it is often the case that there exists some discrepancy from the training to the test stage. Domain adaptation aims to rectify this mismatch and tune the models toward better generalization at testing  #b59  #b58  #b20  #b29  #b24 .The existing work on domain adaptation mostly focuses on classification and regression problems  #b42  #b40 , e.g., learning from online commercial images to classify realworld objects  #b49  #b21 , and, more recently, aims to improve the adaptability of deep neural networks  #b35  #b17  #b16  #b60  #b6  #b36 . Among them, the most relevant work to ours is that exploring simulated data  #b55  #b64  #b47  #b62  #b26  #b44  #b52 . Sun and Saenko train generic object detectors from the synthetic images  #b55 , while Vazquez et al. use the virtual images to improve pedestrian detections in real environment  #b62 . The other way around, i.e., how to improve the quality of the simulated images using the real ones, is studied in  #b52  #b44 .Semantic segmentation. Semantic segmentation is the task of assigning an object label to each pixel of an image. Traditional methods  #b51  #b57  #b67  rely on local image features manually designed by domain experts. After the pioneering work  #b9  #b34  that introduced the convolutional neural network (CNN)  #b31  to semantic segmentation, most recent top-performing methods are built on CNNs  #b63  #b48  #b2  #b68  #b38  $b13 ].An enormous amount of labor-intensive work is required to annotate the many images that are needed to obtain accurate segmentation models. The PASCAL VOC2012 Challenge  #b13  contains nearly 10,000 annotated images for the segmentation competition, and the MS COCO Challenge  #b33  includes over 200,000 annotated images. According to  #b46 , it took about 60 minutes to manually segment each image in  #b7  and about 90 minutes for each in  #b11 . A plausible approach to reducing the human workload is to utilize weakly supervised information such as image labels and bounding boxes  #b43  #b27  #b41  #b45 .We instead explore the use of almost effortlessly labeled virtual images for training high-quality segmentation networks. In  #b46 , annotating a synthetic image took only 7 seconds on average through a computer game. For the urban scenes, we use the SYNTHIA  #b47  dataset which contains images of a virtual city. Domain adaptation for semantic segmentation. Upon observing the obvious mismatch between virtual and real data  #b50  #b46  #b47 , we expect domain adaptation to enhance the segmentation performance on real images by networks trained on virtual ones. To the best of our knowledge, the only attempt to algorithmically address this problem is  #b26 . While it regularizes the intermediate layers and constrains the output of the network, we propose a different curriculum domain adaptation strategy. We solve the easy task first and then use the learned knowledge about the target domain to regularize the network predictions.",
+        "Approach": "In this section, we present the details of the proposed curriculum domain adaptation for semantic segmentation of urban scene images. Unlike previous work  #b42  #b26  that aligns the domains via an intermediate feature space and thereby implicitly assumes the existence of the same decision function for the two domains, it is our intuition that, for structured prediction (i.e., semantic segmentation here), the cross-domain generalization of machine learning models can be more efficiently improved if we avoid this assumption and instead train them subject to necessary properties they should retain in the target domain.Preliminaries. In particular, the properties are about the pixel-wise category labels Y t \u2208 R W \u00d7H\u00d7C of an arbitrary image I t \u2208 R W \u00d7H from the target domain, where W and H are the width and height of the image, respectively, and C is the number of categories. We use one-hot vector encoding for the groundtruth labels, i.e., Y t (i, j, c) takes the value of 0 or 1 and the latter means that the c-th label is assigned by a human annotator to the pixel at (i, j). Correspondingly, the prediction Y t (i, j, c) \u2208 [0, 1] by a segmentation network is realized by a softmax function per pixel.We express each target property in the form of a distribution p t \u2208 \u2206 over the C categories, where p t (c) represents the occupancy proportion of the category c over the t-th target image or a superpixel of the image. Therefore, one can immediately calculate the distribution p t given the human annotations Y t to the image. For instance, the image level label distribution is expressed byp t (c) = 1 W H W i=1 H j=1 Y t (i, j, c), \u2200c.(1)Similarly, we can compute the target property/distribution from the network predictions Y t and denote it by p t .",
+        "Domain adaptation using the target properties": "Ideally, we would like to have a segmentation network to imitate human annotators on the target domain. Therefore, necessarily, the properties of their annotation results should be the same too. We capture this notion by minimizing the cross entropy C(p t , p t ) = H(p t ) + KL(p t , p t ) at training, where the first term of the right-hand side is the entropy and the second is the KL-divergence.Given a mini-batch consisting of both source images (S) and target images (T ), the overall objective function for training the cross-domain generalizing segmentation network is,min \u03b3 |S| s\u2208S L Y s , Y s + 1 -\u03b3 |T | t\u2208T k C p k t , p k t (2)where L is the pixel-wise cross-entropy loss defined over the sufficiently labeled source domain images, enforcing the network to have the pixel level discriminative capabilities, and the second term is over the unlabeled target domain images, hinting the network what necessary properties its predictions should have in the target domain. We use \u03b3 \u2208 [0, 1] to balance the two strengths in training and superscript k to index different types of label distributions.Note that in the domain adaptation context, we actually cannot directly compute the label distribution p k t from the groundtruth annotations of the target domain. Nonetheless, estimating them using the labeled source data is easier than assigning labels to every single pixel of the target images. We present the details in the next section.Remarks. Mathematically, the objective function has a similar form as in model compression  #b8  #b25 . We thus borrow some concepts to gain more intuitive understanding about our domain adaptation procedure. The \"student\" network follows a curriculum to learn simple knowledge about the target domain before it addresses the hard one of semantically segmenting images. The models inferring the target properties act like \"teachers\", as they hint what label distributions the final solution (image annotation) may have in the target domain at the image and superpixel levels.Another perspective is to understand the target properties as a posterior regularization  #b15  for the network. The posterior regularization can conveniently encode a priori knowledge into the objective function. Some applications include weakly supervised segmentation  #b43  #b48  and detection  #b4 , and rule-regularized training of neural networks  #b28 . In addition to the domain adaptation setting and novel target properties, another key distinction of our work is that we decouple the label distributions from the network predictions and thus avoid the EM type of optimizations. Our approach learns the segmentation network with almost effortless changes to the popular deep learning tools.",
+        "Inferring the target properties": "Thus far we have presented the \"hard\" task in the curriculum domain adaptation. In this section, we describe the \"easy\" ones, i.e., how to infer the target properties without accessing the image annotations of the target domain. Our contributions also include selecting the particular property of label distributions to constitute the simple tasks.",
+        "Global label distributions of images": "Due to the domain disparity, a baseline segmentation network trained on the source domain (i.e., using the first term of eq. ( 2)) could be easily crippled given the target images.In our experiments, we find that our baseline network constantly mistakes streets for sidewalks and/or cars (cf. Figure 2). Consequently, the predicted labels for the pixels are highly disproportionate.To rectify this, we employ the label distribution p t over the global image as our first property (cf. eq. ( 1)). Without access to the target labels, we have to train machine learning models from the labeled source images to estimate the label distribution p t for the target image. Nonetheless, we argue that this is less challenging than generating the perpixel predictions despite that both tasks are influenced by the domain mismatch.In our experiments, we examine different approaches to this task. We extract image features using the Inception-Resnet-v2  #b56  as the input to the following models.Logistic regression. Although multinomial logistic regression (LR) is mainly used for classification, its output is actually a valid distribution over the categories. For our purpose, we thus train it by replacing the one-hot vectors in the cross-entropy loss with the groundtruth label distribution p s , which is calculated using eq. ( 1) and the available human labels of the source domain.Given a target image, we directly take the LR's output as the predicted label distribution.Mean of nearest neighbors. We also test a nonparametric method by simply retrieving the nearest neighbors (NNs) for a target image and then transferring the mean of the NNs' label distributions to the target image. We use the \u2113 2 distance for the NN retrieval.Finally, we include two dumb predictions as the control experiment. One is, for any target image, to output the mean of all the label distributions in the source domain (source mean), and the other is to output a uniform distribution.",
+        "Local label distributions of landmark superpixels": "The image level label distribution globally penalizes potentially disproportional segmentation output on the target domain, and yet is inadequate in providing spatial constraints. In this section, we consider the use of label distributions over some superpixels as the anchors to drive the network towards spatially desired target properties.Note that it is not necessary, and is even harmful, to use all of the superpixels in a target image to regularize the segmentation network, because that would be too strong a force and may overrule the pixel-wise discriminativeness revealed by the labeled source images, especially when the label distributions are not inferred accurately enough.In order to have the dual effect of both estimating the label distributions of superpixels and filtering the superpixels, we simplify the problem and employ a linear SVM in this work. In particular, we segment each image into 100 superpixels using linear spectral clustering  #b32 . For the superpixels of the source domain, we are able to assign a single dominant label to each of them, and then use the labels and the corresponding features extracted from the superpixels to train a multi-class SVM. Given a test superpixel of a target image, the multi-class SVM returns a class label as well as a decision value, which is interpreted as the confidence score about classifying this superpixel. We keep the top 60% superpixels, called landmark superpixels, in the target domain and calculate their label distributions as the second type of \"easy\" tasks. In particular, the class label of a landmark superpixel is encoded into a one-hot vector, which serves as a valid distribution about the categories in the landmark superpixel. Albeit simple, we find this method works very well in our experiments. We encode both visual and contextual information to represent a superpixel. First, we use the FCN-8s  #b34  pretrained on the PASCAL CONTEXT  #b37  dataset, which has 59 distinct classes, to obtain 59 detection scores for each pixel. We then average them within each superpixel. Finally, we represent a superpixel by the concatenation of the 59D vectors of itself, its left and right superpixels, as well as the two respectively above and below it.",
+        "Curriculum domain adaptation: recapitulation": "We recap the proposed curriculum domain adaptation using Figure 1 before presenting the experiments in the next section. Our main idea is to execute the domain adaptation step by step, starting from the easy tasks that are less sensitive to the domain discrepancy than the semantic segmentation. We choose the labels distributions over global images and local landmark superpixels in this work; more tasks will be explored in the future. The solutions to them provide useful gradients originating from the target domain (cf. the arrows with brown color in Figure 1), while the source domain feeds the network with well-labeled images and segmentation masks (cf. the dark blue arrows in Figure 1).",
+        "Experiments": "In this section, we describe the experimental setup and compare the results of our approach, its variations, and some existing baseline methods.",
+        "Segmentation network and optimization": "In our experiments, we use FCN-8s  #b34  as our semantic segmentation network. We initialize its convolutional lay-ers with VGG-19  #b53 , and then train it using the AdaDelta optimizer  #b66  with default parameters. Each mini-batch is comprised of five source images and five randomly chosen target images. When we train the baseline network with no adaptation, however, we try to use the largest possible minibatch that includes 15 source images. The network is implemented in Keras  #b10  and Theano  #b0 . We train different versions of the network on a single Tesla K40 GPU.Unlike the existing deep domain adaptation methods  #b16  #b17  #b35  #b26  which introduce regularization to the intermediate layers, we only revise the loss function over the output. Hence, our curriculum domain adaptation can be readily applied to other segmentation networks (e.g.,  #b38  #b9 ).",
+        "Datasets and evaluation": "We use the publicly available Cityscpaes  #b11  and SYN-THIA  #b47  datasets in our experiments.Cityscapes is a real-world, vehicle-egocentric image dataset collected in 50 cities in Germany and nearby countries. It provides four disjoint subsets: 2,993 training images, 503 validation image, 1,531 test images, and 20,021 auxiliary images. All the training, validation, and test images are accurately annotated with per pixel category labels, while the auxiliary set is coarsely labeled. There are 34 distinct categories in the dataset.SYNTHIA  #b47  is a large dataset of synthetic images and provides a particular subset, called SYNTHIA-RAND-CITYSCAPES, to pair with Cityscapes. This subset contains 9,400 images that are automatically annotated with 12 object categories, one void class, and some unnamed classes. Note that the virtual city used to generate the synthetic images does not correspond to any of the real cities covered by Cityscapes. We abbreviate SYNTHIA-RAND-CITYSCAPES to SYNTHIA hereon. Domain idiosyncrasies. Although both datasets depict urban scenes, and SYNTHIA is created to be as photorealistic as possible, they are mismatched domains in several ways. The most noticeable difference is probably the coarse-grained textures in SYNTHIA; very similar texture patterns repeat in a regular manner across different images. In contrast, the Cityscapes images are captured by high-quality dash-cameras. Another major distinction is the variability in view angles. Since Cityscapes images are recorded by the dash cameras mounted on a moving car, they are viewed from almost a constant angle that is about parallel to the ground. More diverse view angles are employed by SYNTHIA -it seems like some cameras are placed on the buildings that are significantly higher than a bus. Finally, some of the SYNTHIA images are severely shadowed by extreme lighting conditions, while we find no such conditions in the Cityscapes images. These combined factors, among others, make domain adaptation from SYN-THIA to Cityscapes a very challenging problem. For each target image in the first column, we retrieve its nearest neighbor from the SYNTHIA  #b11  dataset (source domain). The third column plots the label distributions due to the groundtruth pixel-wise semantic annotation, the predictions by the baseline network with no adaptation, and the inferred distribution by logistic regression. The last three columns are the segmentation results by the baseline network, our domain adaptation approach, and human annotators. Figure 2 shows some example images from both datasets. We pair each Cityscpaes image with its nearest neighbor in SYNTHIA, retrieved by the Inception-Resnet-v2  #b56  features. However, the cross-dataset nearest neighbors are visually very different from the query images, verifying the dramatic disparity between the two domains.Experiment setup. Since our ultimate goal is to solve the semantic segmentation problem for real images of urban scenes, we take Cityscapes as the target domain and SYN-THIA as the source domain. The Cityscapes validation set is used as our test set. We split 500 images out of the Cityscpaes training set for the validation purpose (e.g., to monitor the convergence of the networks). In training, we randomly sample mini-batches from both the images (and their labels) of SYNTHIA and the remaining images of Cityscapes yet with no labels.As in  #b26 , we manually find 16 common classes between the two datasets: sky, building, road, sidewalk, fence, vegetation, pole, car, traffic sign, person, bicycle, motorcycle, traffic light, bus, wall, and rider. The last four are unnamed and yet labeled in SYNTHIA.Evaluation. We use the evaluation code released along with the Cityscapes dataset to evaluate our results. It calculates the PASCAL VOC intersection-over-union, i.e., IoU = TP TP+FP+FN  #b13 , where TP, FP, and FN are the numbers of true positive, false positive, and false negative pixels, respectively, determined over the whole test set. Since we have to resize the images before feeding them to the segmentation network, we resize the output segmentation mask back to the original image size before running the evaluation against the groundtruth annotations.",
+        "Results of inferring global label distributions": "Before presenting the final semantic segmentation results, we first compare the different approaches to inferring the global label distributions of the target images (cf. Section 3.2.1). We report the results on the held-out validation images of Cityscapes in this experiment, and then select the best method for the remaining experiments.In Table 1, we compare the estimated label distributions with the groundtruth ones using the \u03c7 2 distance, the smaller the better. We see that the baseline network (NoAdapt), which is directly learned from the source domain without any adaptation methods, outperforms the dumb uniform distribution (Uniform) and yet no other methods. This confirms that the baseline network gives rise to severely disproportionate predictions over the target domain.Another dumb prediction (Src mean), i.e., using the mean of all label distributions over the source domain as the prediction for the target images, however, performs reasonably well. To some extent, this indicates the value of the simulated source domain for the semantic segmentation task of urban scenes.Finally, the nearest neighbors (NN) based method and the multinomial logistic regression (LR) (cf. Section 3.2.1) perform the best. We use the output of LR on the target domain in our remaining experiments.",
+        "Comparison results": "We report the final semantic segmentation results on the test data of the target domain in this section. We compare our approach to the following competing methods.No adaptation (NoAdapt). We directly train the FCN-8s model on SYNTHIA without applying any domain adaptation methods. This is the most basic baseline for our experiments.",
+        "Superpixel classification (SP)": ". Recall that we have trained a multi-class SVM using the dominant labels of the superpixels in the source domain. We then use them to classify the target superpixels.Landmark superpixels (SP Lndmk). Since we keep the top 60% most confidently classified superpixels as the landmarks to regularize our segmentation network during training (cf. Section 3.2.2), it is also interesting to examine the classification results of these superpixels. We run the evaluation after assigning the void class label to the other pixels of the images.In addition to the IoU, we have also evaluated the classification results of the superpixels by accuracy. We find that the classification accuracy is 71% for all the superpixels of the target domain, while for the selected 60% landmark superpixels, the classification accuracy is more than 88%.FCNs in the wild (FCN Wld). Hoffman et al.'s work  #b26  is the only existing one addressing the same problem as ours, to the best of our knowledge. They introduce a pixel-level adversarial loss to the intermediate layers of the network and impose constraints to the network output. Their experimental setup is about identical to ours except that they do not specify which part of Cityscapes is considered as the test set. Nonetheless, we include their results for comparison to put our work in a better perspective.The comparison results are shown in Table 2. Immediately, we note that all our domain adaptation results are significantly better than those without adaptation (NoAdapt). We denote by (Ours (I)) the network trained using the global label distributions over the target images (and the labeled source images). Although one may wonder that the image-wise label distributions are too high-level to supervise the pixel-wise discriminative network, the gain is actually significant. They are able to correct some obvious errors of the baseline network, such as the disproportional predictions about road and sidewalk (cf. the results of Ours (I) vs. NoAdapt in the last two columns).It is interesting to see that both superpixel classificationbased segmentation results (SP and SP Lndmk) are also better than the baseline network (NoAdapt). The label distributions obtained over the landmark superpixels boost the segmentation network (Ours (SP)) to the mean IoU of 28.1%, which is better than those by either superpixel classification or the baseline network individually. We have also tried to use the label distributions over all the superpixels to train the network, and observe little improvement over NoAdapt. This is probably because it is too forceful to regularize the network output at every single superpixel especially when the estimated label distributions are not accurate enough.The superpixel-based methods, including Ours (SP), miss small objects such as fences, traffic lights (t-light), and traffic signs (t-sign), and instead are very accurate for categories like the sky, road, and building, that typically occupy larger image regions. On the contrary, the label distributions on the images give rise to a network (Ours (I)) that performs better on the small objects than Ours (SP). In other words, they mutually complement to some extent. Re-training the network by using the label distributions over both global images and local landmark superpixels (Ours (I+SP)), we achieve the best semantic segmentation results on the target domain. In the future work, it is worth exploring other target properties, perhaps still in the form of label distributions, that handle the small objects well, in order to further complement the superpixel-level label distributions.Comparison with FCNs in the wild  #b26 . Although we use the same segmentation network (FCN-8s) as  #b26 , our baseline results (NoAdapt) are better than those reported in  #b26 . This may be due to subtle differences in terms of implementation or experimental setup. Although our own baseline results are superior, we gain larger improvements (7%) over them than the performance gain of  #b26  (3%) over the seemingly underperforming baseline network there.Comparison with learning domain-invariant features. At our first attempt to solve the domain adaptation problem for the semantic segmentation of urban scenes, we tried to learn domain invariant features following the deep domain adaptation methods  #b35  for classification. In particular, we impose the maximum mean discrepancy  #b23  over the layer before the output. We name such network layer the feature layer. Since there are virtually three output layers in FCN-8s, we experiment with all the three feature layers correspondingly. We have also tested the domain adaptation by reversing the gradients of a domain classifier  #b16 . However, none of these efforts lead to any noticeable gain over the baseline network so the results are omitted.",
+        "Conclusion": "In this paper, we address domain adaptation for the semantic segmentation of urban scenes. We propose a curriculum style approach to this problem. We learn to estimate the global label distributions of the images and local label distributions of the landmark superpixels of the target domain. Such tasks are easier to solve than the pixel-wise label assignment. Therefore, we use their results to effectively regularize our training of the semantic segmentation network such that its predictions meet the inferred label distributions over the target domain. Our method outperforms several competing methods that do domain adaptation from simulated images to real photos of urban traffic scenes. In future work, we will explore more target properties that can be conveniently inferred to enrich our curriculum domain adaptation framework."
+    },
+    {},
+    {
+        "b0": [
+            "",
+            "",
+            "Theano: A Python framework for fast computation of mathematical expressions",
+            ""
+        ],
+        "b1": [
+            "Landmarks-based kernelized subspace alignment for unsupervised domain adaptation",
+            "",
+            "",
+            "",
+            "Aljundi",
+            "Emonet",
+            "Muselet",
+            "Sebban"
+        ],
+        "b2": [
+            "",
+            "",
+            "Segnet: A deep convolutional encoder-decoder architecture for image segmentation",
+            ""
+        ],
+        "b3": [
+            "Curriculum learning",
+            "",
+            "",
+            "",
+            "Bengio",
+            "Louradour",
+            "Collobert",
+            "Weston"
+        ],
+        "b4": [
+            "Weakly supervised object detection with posterior regularization",
+            "",
+            "",
+            "",
+            "Bilen",
+            "Pedersoli",
+            "Tuytelaars"
+        ],
+        "b5": [
+            "Class-specific, top-down segmentation",
+            "",
+            "",
+            "",
+            "Borenstein",
+            "Ullman"
+        ],
+        "b6": [
+            "",
+            "",
+            "Unsupervised pixel-level domain adaptation with generative adversarial networks",
+            ""
+        ],
+        "b7": [
+            "Semantic object classes in video: A high-definition ground truth database",
+            "",
+            "",
+            "",
+            "Brostow",
+            "Fauqueur",
+            "Cipolla"
+        ],
+        "b8": [
+            "Model compression",
+            "",
+            "",
+            "",
+            "Bucilu",
+            "Caruana",
+            "Niculescu-Mizil"
+        ],
+        "b9": [
+            "",
+            "",
+            "Semantic image segmentation with deep convolutional nets and fully connected crfs",
+            ""
+        ],
+        "b10": [
+            "",
+            "",
+            "",
+            "https://github.com/fchollet/keras"
+        ],
+        "b11": [
+            "The cityscapes dataset for semantic urban scene",
+            "",
+            "",
+            "",
+            "Cordts",
+            "Omran",
+            "Ramos",
+            "Rehfeld",
+            "Enzweiler",
+            "Benenson",
+            "Franke",
+            "Roth",
+            "Schiele"
+        ],
+        "b12": [
+            "Instance-aware semantic segmentation via multi-task network cascades",
+            "",
+            "",
+            "",
+            "Dai",
+            "He",
+            "Sun"
+        ],
+        "b13": [
+            "The pascal visual object classes challenge: A retrospective",
+            "",
+            "",
+            "",
+            "Everingham",
+            "Eslami",
+            "Van Gool",
+            "Williams",
+            "Winn",
+            "Zisserman"
+        ],
+        "b14": [
+            "Unsupervised visual domain adaptation using subspace alignment",
+            "",
+            "",
+            "",
+            "Fernando",
+            "Habrard",
+            "Sebban",
+            "Tuytelaars"
+        ],
+        "b15": [
+            "Posterior regularization for structured latent variable models",
+            "",
+            "",
+            "",
+            "Ganchev",
+            "Gillenwater",
+            "Taskar"
+        ],
+        "b16": [
+            "Unsupervised domain adaptation by backpropagation",
+            "",
+            "",
+            "",
+            "Ganin",
+            "Lempitsky"
+        ],
+        "b17": [
+            "Domain-adversarial training of neural networks",
+            "",
+            "",
+            "",
+            "Ganin",
+            "Ustinova",
+            "Ajakan",
+            "Germain",
+            "Larochelle",
+            "Laviolette",
+            "Marchand",
+            "Lempitsky"
+        ],
+        "b18": [
+            "Vision meets robotics: The kitti dataset",
+            "",
+            "",
+            "",
+            "Geiger",
+            "Lenz",
+            "Stiller",
+            "Urtasun"
+        ],
+        "b19": [
+            "Connecting the dots with landmarks: Discriminatively learning domain invariant features for unsupervised domain adaptation",
+            "",
+            "",
+            "",
+            "Gong",
+            "Grauman",
+            "Sha"
+        ],
+        "b20": [
+            "Overcoming dataset bias: An unsupervised domain adaptation approach",
+            "",
+            "",
+            "",
+            "Gong",
+            "Sha",
+            "Grauman"
+        ],
+        "b21": [
+            "Geodesic flow kernel for unsupervised domain adaptation",
+            "",
+            "",
+            "",
+            "Gong",
+            "Shi",
+            "Sha",
+            "Grauman"
+        ],
+        "b22": [
+            "Domain adaptation for object recognition: An unsupervised approach",
+            "",
+            "",
+            "",
+            "Gopalan",
+            "Li",
+            "Chellappa"
+        ],
+        "b23": [
+            "A kernel two-sample test",
+            "",
+            "",
+            "",
+            "Gretton",
+            "Borgwardt",
+            "Rasch",
+            "Sch\u00f6lkopf",
+            "Smola"
+        ],
+        "b24": [
+            "Covariate shift by kernel mean matching",
+            "",
+            "",
+            "",
+            "Gretton",
+            "Smola",
+            "Huang",
+            "Schmittfull",
+            "Borgwardt",
+            "Sch\u00f6lkopf"
+        ],
+        "b25": [
+            "",
+            "",
+            "Distilling the knowledge in a neural network",
+            ""
+        ],
+        "b26": [
+            "",
+            "",
+            "FCNs in the Wild: Pixel-level Adversarial and Constraint-based Adaptation",
+            ""
+        ],
+        "b27": [
+            "Learning transferrable knowledge for semantic segmentation with deep convolutional neural network",
+            "",
+            "",
+            "",
+            "Hong",
+            "Oh",
+            "Lee",
+            "Han"
+        ],
+        "b28": [
+            "",
+            "",
+            "Harnessing deep neural networks with logic rules",
+            ""
+        ],
+        "b29": [
+            "Undoing the damage of dataset bias",
+            "",
+            "",
+            "",
+            "Khosla",
+            "Zhou",
+            "Malisiewicz",
+            "Efros",
+            "Torralba"
+        ],
+        "b30": [
+            "What you saw is not what you get: Domain adaptation using asymmetric kernel transforms",
+            "",
+            "",
+            "",
+            "Kulis",
+            "Saenko",
+            "Darrell"
+        ],
+        "b31": [
+            "",
+            "",
+            "Gradientbased learning applied to document recognition. Proceedings of the IEEE",
+            ""
+        ],
+        "b32": [
+            "Superpixel segmentation using linear spectral clustering",
+            "",
+            "",
+            "",
+            "Li",
+            "Chen"
+        ],
+        "b33": [
+            "Microsoft coco: Common objects in context",
+            "",
+            "",
+            "",
+            "Lin",
+            "Maire",
+            "Belongie",
+            "Hays",
+            "Perona",
+            "Ramanan",
+            "Dollr",
+            "Zitnick"
+        ],
+        "b34": [
+            "Fully convolutional networks for semantic segmentation",
+            "",
+            "",
+            "",
+            "Long",
+            "Shelhamer",
+            "Darrell"
+        ],
+        "b35": [
+            "Learning transferable features with deep adaptation networks",
+            "",
+            "",
+            "",
+            "Long",
+            "Cao",
+            "Wang",
+            "Jordan"
+        ],
+        "b36": [
+            "",
+            "",
+            "From virtual to real world visual perception using domain adaptation-the dpm as example",
+            ""
+        ],
+        "b37": [
+            "The role of context for object detection and semantic segmentation in the wild",
+            "",
+            "",
+            "",
+            "Mottaghi",
+            "Chen",
+            "Liu",
+            "Cho",
+            "Lee",
+            "Fidler",
+            "Urtasun",
+            "Yuille"
+        ],
+        "b38": [
+            "Learning deconvolution network for semantic segmentation",
+            "",
+            "",
+            "",
+            "Noh",
+            "Hong",
+            "Han"
+        ],
+        "b39": [
+            "Domain adaptation via transfer component analysis",
+            "",
+            "",
+            "",
+            "Pan",
+            "Tsang",
+            "Kwok",
+            "Yang"
+        ],
+        "b40": [
+            "A survey on transfer learning",
+            "",
+            "",
+            "",
+            "Pan",
+            "Yang"
+        ],
+        "b41": [
+            "Weakly-and semi-supervised learning of a deep convolutional network for semantic image segmentation",
+            "",
+            "",
+            "",
+            "Papandreou",
+            "Chen",
+            "Murphy",
+            "Yuille"
+        ],
+        "b42": [
+            "Visual domain adaptation: A survey of recent advances",
+            "",
+            "",
+            "",
+            "Patel",
+            "Gopalan",
+            "Li",
+            "Chellappa"
+        ],
+        "b43": [
+            "Constrained convolutional neural networks for weakly supervised segmentation",
+            "",
+            "",
+            "",
+            "Pathak",
+            "Krahenbuhl",
+            "Darrell"
+        ],
+        "b44": [
+            "",
+            "",
+            "Synthetic to real adaptation with deep generative correlation alignment networks",
+            ""
+        ],
+        "b45": [
+            "From image-level to pixellevel labeling with convolutional networks",
+            "",
+            "",
+            "",
+            "Pinheiro",
+            "Collobert"
+        ],
+        "b46": [
+            "Playing for data: Ground truth from computer games",
+            "",
+            "",
+            "",
+            "Richter",
+            "Vineet",
+            "Roth",
+            "Koltun"
+        ],
+        "b47": [
+            "The synthia dataset: A large collection of synthetic images for semantic segmentation of urban scenes",
+            "",
+            "",
+            "",
+            "Ros",
+            "Sellart",
+            "Materzynska",
+            "Vazquez",
+            "Lopez"
+        ],
+        "b48": [
+            "",
+            "",
+            "Training constrained deconvolutional networks for road scene semantic segmentation",
+            ""
+        ],
+        "b49": [
+            "Adapting visual category models to new domains",
+            "",
+            "",
+            "",
+            "Saenko",
+            "Kulis",
+            "Fritz",
+            "Darrell"
+        ],
+        "b50": [
+            "",
+            "",
+            "Play and learn: using video Games to train computer vision models",
+            ""
+        ],
+        "b51": [
+            "Semantic texton forests for image categorization and segmentation",
+            "",
+            "",
+            "",
+            "Shotton",
+            "Johnson",
+            "Cipolla"
+        ],
+        "b52": [
+            "",
+            "",
+            "Learning from simulated and unsupervised images through adversarial training",
+            ""
+        ],
+        "b53": [
+            "Very deep convolutional networks for large-scale image recognition",
+            "",
+            "",
+            "",
+            "Simonyan",
+            "Zisserman"
+        ],
+        "b54": [
+            "Return of frustratingly easy domain adaptation",
+            "",
+            "",
+            "",
+            "Sun",
+            "Feng",
+            "Saenko"
+        ],
+        "b55": [
+            "From virtual to reality: Fast adaptation of virtual object detectors to real domains",
+            "",
+            "",
+            "",
+            "Sun",
+            "Saenko"
+        ],
+        "b56": [
+            "",
+            "",
+            "Inceptionv4, inception-resnet and the impact of residual connections on learning",
+            ""
+        ],
+        "b57": [
+            "Superparsing: scalable nonparametric image parsing with superpixels",
+            "",
+            "",
+            "",
+            "Tighe",
+            "Lazebnik"
+        ],
+        "b58": [
+            "",
+            "",
+            "A deeper look at dataset bias. CoRR",
+            ""
+        ],
+        "b59": [
+            "Unbiased look at dataset bias",
+            "",
+            "",
+            "",
+            "Torralba",
+            "Efros"
+        ],
+        "b60": [
+            "Simultaneous deep transfer across domains and tasks",
+            "",
+            "",
+            "",
+            "Tzeng",
+            "Hoffman",
+            "Darrell",
+            "Saenko"
+        ],
+        "b61": [
+            "Deep domain confusion: Maximizing for domain invariance",
+            "",
+            "",
+            "",
+            "Tzeng",
+            "Hoffman",
+            "Zhang",
+            "Saenko",
+            "Darrell"
+        ],
+        "b62": [
+            "Virtual and real world adaptation for pedestrian detection",
+            "",
+            "",
+            "",
+            "Vazquez",
+            "L\u00f3pez",
+            "Mar\u00edn",
+            "Ponsa",
+            "Ger\u00f3nimo"
+        ],
+        "b63": [
+            "",
+            "",
+            "Wider or Deeper: Revisiting the ResNet Model for Visual Recognition",
+            ""
+        ],
+        "b64": [
+            "Hierarchical adaptive structural svm for domain adaptation",
+            "",
+            "",
+            "",
+            "Xu",
+            "Ramos",
+            "Vazquez",
+            "L\u00f3pez"
+        ],
+        "b65": [
+            "Domain adaptation for structured regression",
+            "",
+            "",
+            "",
+            "Yamada",
+            "Sigal",
+            "Chang"
+        ],
+        "b66": [
+            "",
+            "",
+            "ADADELTA: an adaptive learning rate method",
+            ""
+        ],
+        "b67": [
+            "Semantic segmentation of urban scenes using dense depth maps",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Wang",
+            "Yang"
+        ],
+        "b68": [
+            "",
+            "",
+            "Pyramid Scene Parsing Network",
+            ""
+        ]
+    },
+    {
+        "tab_0": "Table 1 :1The \u03c7 2 distances between the groundtruth label distributions and those predicted by different methods.MethodUniform NoAdapt Src mean NNLR\u03c7 2 Distance1.130.650.440.33 0.27",
+        "tab_1": "Table 2 :2Comparison results for the semantic segmentation of the Cityscapes images[12] by adapting from SYNTHIA[48].Class-wise IoUMethod %IoUbikefencewallt-signpolembiket-lightskybusridervegbldgcarpersonsidewalkroadNoAdapt [27]17.40.00.01.27.215.1 0.10.066.83.91.530.329.747.351.117.76.4FCN Wld [27]20.20.60.04.4 11.7 20.3 0.20.168.73.23.842.330.854.051.219.611.5NoAdapt22.018.0 0.50.85.321.5 0.58.075.64.59.072.459.623.635.111.25.6Ours (I)25.516.7 0.82.36.421.7 1.09.959.612.17.970.267.532.029.318.151.9SP Lndmk23.00.00.00.00.00.00.00.083.126.10.073.167.741.15.810.660.8SP25.60.00.00.00.00.00.00.080.522.10.071.969.3 45.924.619.875.0Ours (SP)28.110.2 0.40.12.78.10.83.768.721.47.975.574.642.947.323.961.8Ours (I+SP)29.013.1 0.50.13.010.7 0.73.770.620.78.276.174.943.247.126.165.2"
+    }
+]

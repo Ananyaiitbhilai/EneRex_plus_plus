@@ -1,0 +1,567 @@
+[
+    {
+        "basename": "249b3b7421d3cdb932eecfe4b67203e0e46806b2.grobid",
+        "fulltext": 17,
+        "footnote_size": 4,
+        "footnote_max": 4,
+        "reference": 56,
+        "authors": [
+            "Choi",
+            "Kim",
+            "Lee",
+            "Suzuki"
+        ]
+    },
+    {
+        "title": "Cell-aware Stacked LSTMs for Modeling Sentences",
+        "abstract": "We propose a method of stacking multiple long short-term memory (LSTM) layers for modeling sentences. In contrast to the conventional stacked LSTMs where only hidden states are fed as input to the next layer, the suggested architecture accepts both hidden and memory cell states of the preceding layer and fuses information from the left and the lower context using the soft gating mechanism of LSTMs. Thus the architecture modulates the amount of information to be delivered not only in horizontal recurrence but also in vertical connections, from which useful features extracted from lower layers are effectively conveyed to upper layers. We dub this architecture Cellaware Stacked LSTM (CAS-LSTM) and show from experiments that our models bring significant performance gain over the standard LSTMs on benchmark datasets for natural language inference, paraphrase detection, sentiment classification, and machine translation. We also conduct extensive qualitative analysis to understand the internal behavior of the suggested approach.",
+        "Introduction": "In the field of natural language processing (NLP), one of the most prevalent neural approaches to obtaining sentence representations is to use recurrent neural networks (RNNs), where words in a sentence are processed in a sequential and recurrent manner. Along with their intuitive design, RNNs have shown outstanding performance across various NLP tasks e.g. language modeling  #b28  #b17 , machine translation  #b7  #b43 Bahdanau et al., 2015), text classification  #b54  #b45 , and parsing  #b24  #b11 .Among several variants of the original RNN  #b13 , gated recurrent architectures such as long short-term memory (LSTM)  #b21  and gated recurrent unit (GRU)  #b7  have been accepted as de-facto standard choices for RNNs due to their capability of addressing the vanishing and exploding gradient problem and considering long-term dependencies. Gated RNNs achieve these properties by introducing additional gating units that learn to control the amount of information to be transferred or forgotten  #b16 , and are proven to work well without relying on complex optimization algorithms or careful initialization  #b42 .Meanwhile, the common practice for further enhancing the expressiveness of RNNs is to stack multiple RNN layers, each of which has distinct parameter sets (stacked RNN)  #b35  #b12 . In stacked RNNs, the hidden states of a layer are fed as input to the subsequent layer, and they are shown to work well due to increased depth  #b31  orh l t-1 , c l t-1 h l-1 t (a) h l t-1 , c l t-1 h l-1 t , c l-1 t (b)Figure 1: Visualization of (a) plain stacked LSTM and (b) CAS-LSTM. The red nodes indicate the blocks whose cell states directly affect the cell state c l t .their ability to capture hierarchical time series  #b20  which are inherent to the nature of the problem being modeled. However this setting of stacking RNNs might hinder the possibility of more sophisticated structures since the information from lower layers is simply treated as input to the next layer, rather than as another class of state that participates in core RNN computations. Especially for gated RNNs such as LSTMs and GRUs, this means that the vertical layer-to-layer connections cannot fully benefit from the carefully constructed gating mechanism used in temporal transitions.In this paper, we study a method of constructing multi-layer LSTMs where memory cell states from the previous layer are used in controlling the vertical information flow. This system utilizes states from the left and the lower context equally in computation of the new state, thus the information from lower layers is elaborately filtered and reflected through a soft gating mechanism. Our method is easy-to-implement, effective, and can replace conventional stacked LSTMs without much modification of the overall architecture.We call this architecture Cell-aware Stacked LSTM, or CAS-LSTM, and evaluate our method on multiple benchmark tasks: natural language inference, paraphrase identification, sentiment classification, and machine translation. From experiments we show that the CAS-LSTMs consistently outperform typical stacked LSTMs, opening the possibility of performance improvement of architectures based on stacked LSTMs.Our contribution is summarized as follows. Firstly, we bring the idea of utilizing states coming from multiple directions to construction of stacked LSTM and apply the idea to the research of sentence representation learning. There is some prior work addressing the idea of incorporating more than one type of state  #b19  #b22  #b53 , however to the best of our knowledge there is little work on applying the idea to modeling sentences for better understanding of natural language text.Secondly, we conduct extensive evaluation of the proposed method and empirically prove its effectiveness. The CAS-LSTM architecture provides consistent performance gains over the stacked LSTM in all benchmark tasks: natural language inference, paraphrase identification, sentiment classification, and machine translation. Especially in SNLI, SST-2, and Quora Question Pairs datasets, our models outperform or at least are on par with the state-of-the-art models. We also conduct thorough qualitative analysis to understand the dynamics of the suggested approach.This paper is organized in the following way. We study prior work related to our objective in \u00a72, and \u00a73 gives a detailed description about the proposed method. Experimental results are given in \u00a74, and \u00a75 concludes this paper.",
+        "Related Work": "In this section, we summarize prior work related to the proposed method. We group the previous work that motivated our work into three classes: i) enhancing interaction between vertical layers, ii) RNN architectures that accepts latticed data, and iii) tree-structured RNNs.Stacked RNNs. There is some prior work on methods of stacking RNNs beyond the plain stacked RNNs  #b35  #b12 . Residual LSTMs  #b23  #b46  add residual connections between the hidden states computed at each LSTM layer, and shortcut-stacked LSTMs  #b30  concatenate hidden states from all previous layers to make the backpropagation path short. In our method, the lower context is aggregated via a gating mechanism, and we believe it modulates the amount of information to be transmitted in a more efficient and effective way than vector addition or concatenation. Also, compared to concatenation, our method does not significantly increase the number of parameters. 1Highway LSTMs  #b53  and depth-gated LSTMs  #b51  are similar to our proposed models in that they use cell states from the previous layer, and they are successfully applied to the field of automatic speech recognition and language modeling. However in contrast to CAS-LSTM, where the additional forget gate aggregates the previous layer states and thus contexts from the left and below participate in computation equitably, in Highway LSTMs and depth-gated LSTMs the states from the previous time step are not considered in computing vertical gates. The comparison of our method and this architecture is presented in \u00a74.6.Multidimensional RNNs. There is another line of research that aims to extend RNNs to operate with multidimensional inputs. Grid LSTMs  #b22  are a general n-dimensional LSTM architecture that accepts n sets of hidden and cell states as input and yields n sets of states as output, in contrast to our architecture, which emits a single set of states. In their work, the authors utilize 2D and 3D Grid LSTMs in character-level language modeling and machine translation respectively and achieve performance improvement. Multidimensional RNNs  #b19  #b18  have similar formulation to ours, except that they reflect cell states via simple summation and weights for all columns (vertical layers in our case) are tied. However they are only employed to model multidimensional data such as images of handwritten text with RNNs, rather than stacking RNN layers for modeling sequential data. From this view, CAS-LSTM could be interpreted as an extension of two-dimensional LSTM architecture that accepts a 2D input {h l t } T,L t=1,l=0 where h l t represents the hidden state at time t and layer l. Tree-structured RNNs. The idea of having multiple states is also related to tree-structured RNNs  #b15  #b39 . Among them, tree-structured LSTMs (tree-LSTMs)  #b44  #b55  #b25  are similar to ours in that they use both hidden and cell states of children nodes. In tree-LSTMs, states of children nodes are regarded as input, and they participate in computing the states of a parent node equally through weight-shared or weight-unshared projection. From this perspective, each CAS-LSTM layer can be seen as a binary tree-LSTM where the structures it operates on are fixed to right-branching trees.Indeed, our work is motivated by the recent analysis (Williams et al., 2018a; #b38  on latent tree learning models  #b52 Choi et al., 2018b) which has shown that tree-h l-1 t h l t-1 c l t-1 \u03c3 \u03c3 tanh \u03c3 c l-1 t \u03c3 tanh + + h l t c l t 1 -\u03bb \u03bb Figure 2: Schematic diagram of a CAS-LSTM block.LSTM models outperform the sequential LSTM models even when the resulting parsing strategy generates strictly left-or right-branching parses, where a tree-LSTM model should read words in the manner identical to a sequential LSTM model. We argue that the active use of cell state in computation could be one reason of these counter-intuitive results and empirically prove the hypothesis in this work.",
+        "Model Description": "In this section, we give the detailed formulation of architectures used in experiments.",
+        "Stacked LSTMs": "While there exist various versions of LSTM formulation, in this work we use the following, the most common variant:i l t = \u03c3(W l i h l-1 t + U l i h l t-1 + b l i )(1)f l t = \u03c3(W l f h l-1 t + U l f h l t-1 + b l f ) (2) cl t = tanh(W l c h l-1 t + U l c h l t-1 + b l c )(3)o l t = \u03c3(W l o h l-1 t + U l o h l t-1 + b l o )(4)c l t = i l t cl t + f l t c l t-1(5)h l t = o l t tanh(c l t ),(6)wheret \u2208 {1, \u2022 \u2022 \u2022 , T } and l \u2208 {1, \u2022 \u2022 \u2022 , L}. W l \u2022 \u2208 R d l \u00d7d l-1 , U l \u2022 \u2208 R d l \u00d7d l , b l \u2022 \u2208 R d lare trainable parameters, and \u03c3(\u2022) and tanh(\u2022) are the sigmoid and the hyperbolic tangent function respectively. Also we assume that h 0 t = x t \u2208 R d 0 where x t is the t-th element of an input sequence. The input gate i l t and the forget gate f l t control the amount of information transmitted from cl t and c l t-1 , the candidate cell state and the previous cell state, to the new cell state c l t . Similarly the output gate o l t soft-selects which portion of the cell state c l t is to be used in the final hidden state. We can clearly see that the cell states c l t-1 , cl t , c l t play a crucial role in forming horizontal recurrence. However the current formulation does not consider the cell state from (l -1)-th layer (c l-1 t ) in computation and thus the lower context is reflected only through the rudimentary way, hindering the possibility of controlling vertical information flow.c l-1 t o l-1 t h l-1 t i l t cl t g l t c l t Figure 3: Visualization of paths between c l-1 t and c l t .In CAS-LSTM, the direct connection between c l-1 t and c l t exists (denoted as red dashed lines).",
+        "Cell-aware Stacked LSTMs": "Now we extend the stacked LSTM formulation defined above to address the problem noted in the previous subsection. To enhance the interaction between layers in a way similar to how LSTMs keep and forget the information from the previous time step, we introduce the additional forget gate g l t that determines whether to accept or ignore the signals coming from the previous layer.The proposed Cell-aware Stacked LSTM (CAS-LSTM) architecture is defined as follows:i l t = \u03c3(W l i h l-1 t + U l i h l t-1 + b l i )(7)f l t = \u03c3(W l f h l-1 t + U l f h l t-1 + b l f )(8)g l t = \u03c3(W l g h l-1 t + U l g h l t-1 + b l g )(9)cl t = tanh(W l c h l-1 t + U l c h l t-1 + b l c )(10)o l t = \u03c3(W l o h l-1 t + U l o h l t-1 + b l o ) (11) c l t = i l t cl t + (1 -\u03bb) f l t c l t-1 + \u03bb g l t c l-1 t (12) h l t = o l t tanh(c l t ),(13)where l > 1 and d l = d l-1 . \u03bb can either be a vector of constants or parameters. When l = 1, the equations defined in the previous subsection are used. Therefore, it can be said that each non-bottom layer of CAS-LSTM accepts two sets of hidden and cell states-one from the left context and the other from the below context. The left and the below context participate in computation with the equivalent procedure so that the information from lower layers can be efficiently propagated. Fig. 1 compares CAS-LSTM to the conventional stacked LSTM architecture, and Fig. 2 depicts the computation flow of the CAS-LSTM. We argue that considering c l-1 t in computation is beneficial for the following reasons. First, contrary to h l-1 t , c l-1 t contains information which is not filtered by o l-1 t . Thus a model that directly uses c l-1 t does not rely solely on o l-1 t for extracting information, due to the fact that it has access to the raw information c l-1 t , as in temporal connections. In other words, o l-1 t no longer has to take all responsibility for selecting useful features for both horizontal and vertical transitions, and the burden of selecting information is shared with g l t . Another advantage of using the c l-1 t lies in the fact that it directly connects c l-1 t and c l t . This direct connection could help and stabilize training, since the terminal error signals can be easily backpropagated to the model parameters by the shortened propagation path. Fig. 3 illustrates paths between the two cell states.Regarding \u03bb, we find experimentally that there is little difference between having it be a constant and a trainable vector bounded in (0, 1), and we practically find that setting \u03bb i = 0.5 works well across multiple experiments. We also experimented with the architecture without \u03bb i.e. two cell states are combined by unweighted summation similar to multidimensional RNNs  #b18 , and found that it leads to performance degradation and unstable convergence, likely due to mismatch in the range of cell state values between layers ((-2, 2) for the first layer and (-3, 3) for the others). Experimental results on various \u03bb are presented in \u00a74.6.",
+        "Sentence Encoders": "For text classification tasks, a variable-length sentence should be represented as a fixed-length vector. We describe the sentence encoder architectures used in experiments in this subsection.First, we assume that a sequence of T one-hot word vectors is given as input:(w 1 , \u2022 \u2022 \u2022 , w T ), w t \u2208 R |V |where V is the vocabulary set. The words are projected to corresponding word representations:X = (x 1 , \u2022 \u2022 \u2022 , x T ) where x t = E w t \u2208 R d 0 , E \u2208 R |V |\u00d7d 0 . Then X is fed to a L-layer CAS-LSTM model, resulting in the representations H = (h L 1 , \u2022 \u2022 \u2022 , h L T ) \u2208 R T \u00d7d L .The encoded sentence representation s \u2208 R d L is computed by max-pooling H over time as in the work of  #b10 . Similar to their results, from preliminary experiments we found that the max-pooling performs consistently better than the mean-pooling and the last-pooling.For better modeling of semantics, a bidirectional CAS-LSTM network may also be used. In the bidirectional case, the representations obtained by left-to-right readingH = (h L 1 , \u2022 \u2022 \u2022 , h L T ) \u2208 R T \u00d7d L and those by right-to-left reading H = ( h L 1 , \u2022 \u2022 \u2022 , h L T ) \u2208 R T \u00d7d Lare concatenated and maxpooled to yield the sentence representation s \u2208 R 2d L . We call this bidirectional architecture Bi-CAS-LSTM in experiments.To predict the final task-specific label, we apply a task-specific feature extraction function \u03c6 to the sentence representation(s) and feed the extracted features to a classifier network. For the classifier network, a multi-layer perceptron (MLP) with the ReLU activation followed by the linear projection and the softmax function is used:P (y|X) = softmax(W c MLP(\u03c6(\u2022))),(14)where W c \u2208 R |L|\u00d7d h , |L| is the number of label classes, and d h the dimension of the MLP output.",
+        "Experiments": "We evaluate our method on three benchmark tasks on sentence encoding: natural language inference (NLI), paraphrase identification (PI), and sentiment classification. To further demonstrate the general applicability of our method on text generation, we also evaluate the proposed method on machine translation. In addition, we conduct analysis on gate values model variations for the understanding of the architecture. We refer readers to the supplemental material for detailed experimental settings. The code will be made public for reproduction.For the NLI and PI tasks, there exists architectures specializing in sentence pair classification. However in this work we confine our model to the architecture that encodes each sentence using a shared encoder without any inter-sentence interaction, in order to focus on the effectiveness of the architectures in extracting semantics. But note that the applicability of CAS-LSTM is not limited to sentence encoder-based approaches.Table 1: Results of the models on the SNLI dataset.",
+        "Model": "SST-2 (%) SST-5 (%) Recursive Neural Tensor Network  #b40  85.4 45.7 2-layer LSTM  #b44  86.3 46.0 2-layer BiLSTM  #b44  87.2 48.5 Constituency Tree-LSTM  #b44  88.0 51.0 Constituency Tree-LSTM with recurrent dropout  #b27  89.4 52.3 byte mLSTM (Radford et al., 2017)  * 91.8 52.9 Gumbel Tree-LSTM (Choi et al., 2018b) 90.7 53.7 BCN + Char + ELMo (Peters et al., ",
+        "Natural Language Inference": "For the evaluation of performance of the proposed method on the NLI task, SNLI (Bowman et al., 2015) and MultiNLI (Williams et al., 2018b) datasets are used. The objective of both datasets is to predict the relationship between a premise and a hypothesis sentence: entailment, contradiction, and neutral. SNLI and MultiNLI datasets are composed of about 570k and 430k premise-hypothesis pairs respectively. GloVe pretrained word embeddings2  #b32  are used and remain fixed during training. The dimension of encoder states (d l ) is set to 300 and a 1024D MLP with one or two hidden layers is used. We apply dropout  #b41  to the word embeddings and the MLP layers. The features used as input to the MLP classifier are extracted by the following",
+        "Paraphrase Identification": "We use Quora Question Pairs dataset  #b47  in evaluating the performance of our method on the PI task. The dataset consists of over 400k question pairs, and each pair is annotated with whether the two sentences are paraphrase of each other or not.Similarly to the NLI experiments, GloVe pretrained vectors, 300D encoders, and 1024D MLP are used. The number of CAS-LSTM layers is fixed to 2 in PI experiments. Two sentence vectors are aggregated using the following equation and fed as input to the classifier.\u03c6(s 1 , s 2 ) = |s 1 -s 2 | \u2295 (s 1 s 2 )(16)The results on the Quora Question Pairs dataset are summarized in Table 3. Again we can see that our models outperform other models, especially compared to conventional LSTM-based models. Also note that Multi-Perspective LSTM  #b47 , LSTM + ElBiS (Choi et al., 2018a), and REGMAPR (BASE+REG)  #b3  in Table 3 are approaches that focus on designing a more sophisticated function for aggregating two sentence vectors, and their aggregation functions could be also applied to our work for further improvement.",
+        "Sentiment Classification": "In evaluating sentiment classification performance, the Stanford Sentiment Treebank (SST)  #b40  is used. It consists of about 12,000 binary-parsed sentences where constituents (phrases) of each parse tree are annotated with a sentiment label (very positive, positive, neutral, negative, very negative). Following the convention of prior work, all phrases and their labels are used in training but only the sentence-level data are used in evaluation.In evaluation we consider two settings, namely SST-2 and SST-5, the two differing only in their level of granularity with regard to labels. In SST-2, data samples annotated with 'neutral' are ignored from training and evaluation. The two positive labels (very positive, positive) are considered as the same label, and similarly for the two negative labels. As a result 98,794/872/1,821 data samples are used in training/validation/test, and the task is considered as a binary classification problem. In SST-5, all 318,582/1,101/2,210 data samples are used and the task is a 5-class classification problem.Since the task is a single-sentence classification problem, we use the sentence representation itself as input to the classifier. We use 300D GloVe vectors, 2-layer 150D or 300D encoders, and a 300D MLP classifier for the models, however unlike previous experiments we tune the word embeddings during training. The results on SST are listed in Table 4. Our models clearly outperform plain LSTM-and BiLSTM-based models, and are competitive to other state-of-the-art models, without utilizing parse tree information.",
+        "Machine Translation": "We use the IWSLT 2014 machine evaluation campaign dataset  #b4  in machine translation experiments. We used the fairseq library3  #b14  for experiments. Moses tokenizer4 is used for word tokenization and the byte pair encoding  #b36  is applied to confine the size of the vocabulary set up to 10,000.Similar to  #b50 , a 2-layer 256D sequence-to-sequence LSTM model with the attentional decoder is used as baseline, and we replace the encoder and the decoder network with the proposed architecture for the evaluation of performance improvement. For decoding, beam search with B = 10 is used. For fair comparison, we tune hyperparameters for all models based on the performance on the validation dataset and train the same model for five times with different random seeds. Also, to cancel out the increased number of parameters, we experiment with the 247D CAS-LSTM model which has the roughly same number of parameters as the baseline model (8.2M).From Table 5, we can see that the CAS-LSTM models bring significant performance gains over the baseline model.",
+        "Forget Gate Analysis": "To inspect the effect of the additional forget gate, we investigate how the values of vertical forget gates are distributed. We sample 1,000 random sentences from the development set of the SNLI dataset, and use the 3-layer CAS-LSTM model trained on the SNLI dataset to compute gate values.If all values from a vertical forget gate g l t were to be 0, this would mean that the introduction of the additional forget gate is meaningless and the model would reduce to a plain stacked LSTM. On the contrary if all values were 1, meaning that the vertical forget gates were always open, it would be impossible to say that the information is modulated effectively.Fig. 4a and 4b represent histograms of the vertical forget gate values from the second and the third layer. From the figures we can validate that the trained model does not fall into the degenerate case where vertical forget gates are ignored. Also the figures show that the values are right-skewed, which we conjecture to be a result of focusing more on a strong interaction between adjacent layers.To further verify that the gate values are diverse enough within each time step, we compute the distribution of the range of values per time step, R(g l t ) = max i g l t,i -min i g l t,i , whereg l t = [g l t,1 , \u2022 \u2022 \u2022 , g l t,d l ]. We plot the histograms in Fig. 4c and4d. From the figures we see that the vertical forget gate controls the amount of information flow effectively, making diverse decisions of retaining or discarding signals across dimensions.Finally, to investigate the argument presented in \u00a73 that the additional forget gate helps the previous output gate with reducing the burden of extracting all needed information, we inspect the distribution of the values from |g l t -o l-1 t |. This distribution indicates how differently the vertical forget gate and the previous output gate select information from c l-1 t . From Fig. 4e and4f we can see that the two gates make fairly different decisions, from which we demonstrate that the direct path between c  f ) Figure 4: (a) g 2 i , (b) g 3 i , (c) R(g 2 \u2022 ), (d) R(g 3 \u2022 ), (e) |g 2 i -o 1 i |, (f ) |g 3 i -o 2 i |.(",
+        "Model Variations": "In this subsection, we see the influence of each component of a model on performance by removing or replacing its components. the SNLI dataset is used for experiments, and the best performing configuration is used as a baseline for modifications. We consider the following variants: (i) models with different \u03bb, (ii) models without \u03bb, and (iii) models that integrate lower contexts via peephole connections.Variant (iii) calculates and applies the forget gate g l t which takes charge of integrating lower contexts via the equations below, following the work of  #b53 :g l t = \u03c3(W l g h l-1 t + p l g 1 c l t-1 + p l g 2 c l-1 t + b l g )(17)c l t = i l t cl t + f l t c l t-1 + g l t c l-1 t ,(18)where p l \u2022 \u2208 R d l represent peephole weight vectors that take cell states into account. We can see that the computation formulae of f l t and g l t are not consistent, in that h l t-1 does not participate in computing g l t-1 , and that the left and the below context are reflected in g l t-1 only via element-wise multiplications which do not consider the interaction among dimensions. By contrast, ours uses the analogous formulae in calculating f l t and g l t , considers h l t-1 in calculating g l t , and introduces the scaling factor \u03bb.Table 6 summarizes the results of model variants. From the results of baseline and (i), we validate that the selection of \u03bb does not significantly affect performance but introducing \u03bb is beneficial (baseline vs. (ii)) possibly due to its effect on normalizing information from multiple sources, as mentioned in \u00a73. Also, from the comparison between baseline and (iii), we show that the proposed way of combining the left and the lower contexts leads to better modeling of sentence representations than that of  #b53 .",
+        "Conclusion": "In this paper, we proposed a method of stacking multiple LSTM layers for modeling sentences, dubbed CAS-LSTM. It uses not only hidden states but also cell states from the previous layer, for the purpose of controlling the vertical information flow in a more elaborate way. We evaluated the proposed method on various benchmark tasks: natural language inference, paraphrase identification, and sentiment classification. Our models outperformed plain LSTM-based models in all experiments and were competitive other state-of-the-art models. The proposed architecture can replace any stacked LSTM only under one weak restriction-the size of states should be identical across all layers.For future work we plan to apply the CAS-LSTM architecture beyond sentence modeling tasks. Various problems such as sequence labeling and language modeling might benefit from sophisticated modulation on context integration. Aggregating diverse contexts from sequential data, e.g. those from forward and backward reading of text, could also be an intriguing research direction."
+    },
+    {
+        "1": "The l-th layer of a typical stacked LSTM requires (d l-1 + d l + 1) \u00d7 4d l parameters, and the l-th layer of a shortcutstacked LSTM requires ( l-1 k=0 d k + d l + 1) \u00d7 4d l parameters. CAS-LSTM uses (d l-1 + d l + 1) \u00d7 5d l parameters at the l-th (l > 1) layer.",
+        "2": "https://nlp.stanford.edu/projects/glove/",
+        "3": "https://github.com/pytorch/fairseq",
+        "4": "https://github.com/moses-smt/mosesdecoder/blob/master/scripts/tokenizer/ tokenizer.perl"
+    },
+    {
+        "b0": [
+            "Neural machine translation by jointly learning to align and translate",
+            "",
+            "",
+            "",
+            "Acc",
+            "Bowman"
+        ],
+        "b1": [
+            "A large annotated corpus for learning natural language inference",
+            "",
+            "",
+            "",
+            "Samuel",
+            "Bowman",
+            "Angeli",
+            "Potts",
+            "Manning"
+        ],
+        "b2": [
+            "A fast unified model for parsing and sentence understanding",
+            "",
+            "",
+            "",
+            "Samuel",
+            "Bowman",
+            "Gauthier",
+            "Rastogi",
+            "Gupta",
+            "Manning",
+            "Potts"
+        ],
+        "b3": [
+            "",
+            "",
+            "REGMAPR -A recipe for textual matching",
+            ""
+        ],
+        "b4": [
+            "Report on the 11th IWSLT evaluation campaign",
+            "",
+            "",
+            "",
+            "Cettolo",
+            "Niehues",
+            "St\u00fcker",
+            "Bentivogli",
+            "Federico"
+        ],
+        "b5": [
+            "Recurrent neural network-based sentence encoder with gated attention for natural language inference",
+            "",
+            "",
+            "",
+            "Chen",
+            "Zhu",
+            "Ling",
+            "Wei",
+            "Jiang",
+            "Inkpen"
+        ],
+        "b6": [
+            "Enhancing sentence embedding with generalized pooling",
+            "",
+            "",
+            "",
+            "Chen",
+            "Ling",
+            "Zhu"
+        ],
+        "b7": [
+            "Learning phrase representations using RNN encoder-decoder for statistical machine translation",
+            "",
+            "",
+            "",
+            "Cho",
+            "Van Merrienboer",
+            "Gulcehre",
+            "Bahdanau",
+            "Bougares",
+            "Schwenk",
+            "Bengio"
+        ],
+        "b8": [
+            "",
+            "",
+            "Element-wise bilinear interaction for sentence matching",
+            ""
+        ],
+        "b9": [
+            "Learning to compose task-specific tree structures",
+            "",
+            "",
+            "",
+            "Choi",
+            "Kang",
+            "Yoo",
+            "Lee"
+        ],
+        "b10": [
+            "Supervised learning of universal sentence representations from natural language inference data",
+            "",
+            "",
+            "",
+            "Conneau",
+            "Kiela",
+            "Schwenk",
+            "Barrault",
+            "Bordes"
+        ],
+        "b11": [
+            "Recurrent neural network grammars",
+            "",
+            "",
+            "",
+            "Dyer",
+            "Kuncoro",
+            "Ballesteros",
+            "Smith"
+        ],
+        "b12": [
+            "Hierarchical recurrent neural networks for long-term dependencies",
+            "",
+            "",
+            "",
+            "El",
+            "Bengio"
+        ],
+        "b13": [
+            "Finding structure in time",
+            "",
+            "",
+            "",
+            "Elman"
+        ],
+        "b14": [
+            "Convolutional sequence to sequence learning",
+            "",
+            "",
+            "",
+            "Gehring",
+            "Auli",
+            "Grangier",
+            "Yarats",
+            "Dauphin"
+        ],
+        "b15": [
+            "Learning task-dependent distributed representations by backpropagation through structure",
+            "",
+            "",
+            "",
+            "Goller",
+            "Kuchler"
+        ],
+        "b16": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "b17": [
+            "Generating sequences with recurrent neural networks",
+            "",
+            "",
+            "",
+            "Graves"
+        ],
+        "b18": [
+            "Offline handwriting recognition with multidimensional recurrent neural networks",
+            "",
+            "",
+            "",
+            "Graves",
+            "Schmidhuber"
+        ],
+        "b19": [
+            "Multi-dimensional recurrent neural networks",
+            "",
+            "",
+            "",
+            "Graves",
+            "Fern\u00e1ndez",
+            "Schmidhuber"
+        ],
+        "b20": [
+            "Training and analysing deep recurrent neural networks",
+            "",
+            "",
+            "",
+            "Hermans",
+            "Schrauwen"
+        ],
+        "b21": [
+            "Long short-term memory",
+            "",
+            "",
+            "",
+            "Hochreiter",
+            "Schmidhuber"
+        ],
+        "b22": [
+            "Grid long short-term memory",
+            "",
+            "",
+            "",
+            "Kalchbrenner",
+            "Danihelka",
+            "Graves"
+        ],
+        "b23": [
+            "Residual LSTM: Design of a deep recurrent architecture for distant speech recognition",
+            "",
+            "",
+            "",
+            "Kim",
+            "El-Khamy",
+            "Lee"
+        ],
+        "b24": [
+            "Simple and accurate dependency parsing using bidirectional LSTM feature representations",
+            "",
+            "",
+            "",
+            "Kiperwasser",
+            "Goldberg"
+        ],
+        "b25": [
+            "",
+            "",
+            "Compositional distributional semantics with long short term memory",
+            ""
+        ],
+        "b26": [
+            "",
+            "",
+            "Learning natural language inference using bidirectional LSTM model and inner-attention",
+            ""
+        ],
+        "b27": [
+            "Deep learning with dynamic computation graphs",
+            "",
+            "",
+            "",
+            "Looks",
+            "Herreshoff",
+            "Hutchins",
+            "Norvig"
+        ],
+        "b28": [
+            "Recurrent neural network based language model",
+            "",
+            "",
+            "",
+            "Mikolov",
+            "Karafi\u00e1t",
+            "Burget",
+            "\u010cernock\u1ef3",
+            "Khudanpur"
+        ],
+        "b29": [
+            "Natural language inference by tree-based convolution and heuristic matching",
+            "",
+            "",
+            "",
+            "Mou",
+            "Men",
+            "Li",
+            "Xu",
+            "Zhang",
+            "Yan",
+            "Jin"
+        ],
+        "b30": [
+            "Shortcut-stacked sentence encoders for multi-domain inference",
+            "",
+            "",
+            "",
+            "Nie",
+            "Bansal"
+        ],
+        "b31": [
+            "How to construct deep recurrent neural networks",
+            "",
+            "",
+            "",
+            "Pascanu",
+            "Gulcehre",
+            "Cho",
+            "Bengio"
+        ],
+        "b32": [
+            "GloVe: Global vectors for word representation",
+            "",
+            "",
+            "",
+            "Pennington",
+            "Socher",
+            "Manning"
+        ],
+        "b33": [
+            "Deep contextualized word representations",
+            "",
+            "",
+            "",
+            "Peters",
+            "Neumann",
+            "Iyyer",
+            "Gardner",
+            "Clark",
+            "Lee",
+            "Zettlemoyer"
+        ],
+        "b34": [
+            "Learning to generate reviews and discovering sentiment",
+            "",
+            "",
+            "",
+            "Radford",
+            "Jozefowicz",
+            "Sutskever"
+        ],
+        "b35": [
+            "Learning complex, extended sequences using the principle of history compression",
+            "",
+            "",
+            "",
+            "Schmidhuber"
+        ],
+        "b36": [
+            "Neural machine translation of rare words with subword units",
+            "",
+            "",
+            "",
+            "Sennrich",
+            "Haddow",
+            "Birch"
+        ],
+        "b37": [
+            "Reinforced self-attention network: A hybrid of hard and soft attention for sequence modeling",
+            "",
+            "",
+            "",
+            "Shen",
+            "Zhou",
+            "Long",
+            "Jiang",
+            "Wang",
+            "Zhang"
+        ],
+        "b38": [
+            "On tree-based neural sentence modeling",
+            "",
+            "",
+            "",
+            "Shi",
+            "Zhou",
+            "Chen",
+            "Li"
+        ],
+        "b39": [
+            "Parsing natural scenes and natural language with recursive neural networks",
+            "",
+            "",
+            "",
+            "Socher",
+            "Chiung-Yu Lin",
+            "Ng",
+            "Manning"
+        ],
+        "b40": [
+            "Recursive deep models for semantic compositionality over a sentiment treebank",
+            "",
+            "",
+            "",
+            "Socher",
+            "Perelygin",
+            "Wu",
+            "Chuang",
+            "Manning",
+            "Ng",
+            "Potts"
+        ],
+        "b41": [
+            "Dropout: A simple way to prevent neural networks from overfitting",
+            "",
+            "",
+            "",
+            "Srivastava",
+            "Hinton",
+            "Krizhevsky",
+            "Sutskever",
+            "Salakhutdinov"
+        ],
+        "b42": [
+            "",
+            "",
+            "Training recurrent neural networks",
+            ""
+        ],
+        "b43": [
+            "Sequence to sequence learning with neural networks",
+            "",
+            "",
+            "",
+            "Sutskever",
+            "Vinyals",
+            "Quoc",
+            "Le"
+        ],
+        "b44": [
+            "Improved semantic representations from tree-structured long short-term memory networks",
+            "",
+            "",
+            "",
+            "Sheng",
+            "Socher",
+            "Manning"
+        ],
+        "b45": [
+            "Document modeling with gated recurrent neural network for sentiment classification",
+            "",
+            "",
+            "",
+            "Tang",
+            "Qin",
+            "Liu"
+        ],
+        "b46": [
+            "Named entity recognition with stack residual LSTM and trainable bias decoding",
+            "",
+            "",
+            "",
+            "Tran",
+            "Mackinlay",
+            "Jimeno"
+        ],
+        "b47": [
+            "Bilateral multi-perspective matching for natural language sentences",
+            "",
+            "",
+            "",
+            "Wang",
+            "Hamza",
+            "Florian"
+        ],
+        "b48": [
+            "Do latent tree learning models identify meaningful structure in sentences?",
+            "",
+            "",
+            "",
+            "Williams",
+            "Drozdov",
+            "Bowman"
+        ],
+        "b49": [
+            "A broad-coverage challenge corpus for sentence understanding through inference",
+            "",
+            "",
+            "",
+            "Williams",
+            "Nangia",
+            "Bowman"
+        ],
+        "b50": [
+            "Sequence-to-sequence learning as beam-search optimization",
+            "",
+            "",
+            "",
+            "Wiseman",
+            "Rush"
+        ],
+        "b51": [
+            "Depth-gated LSTM",
+            "",
+            "",
+            "",
+            "Yao",
+            "Cohn",
+            "Vylomova",
+            "Duh",
+            "Dyer"
+        ],
+        "b52": [
+            "Learning to compose words into sentences with reinforcement learning",
+            "",
+            "",
+            "",
+            "Yogatama",
+            "Blunsom",
+            "Dyer",
+            "Grefenstette",
+            "Ling"
+        ],
+        "b53": [
+            "Highway long short-term memory RNNs for distant speech recognition",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Chen",
+            "Yu",
+            "Yao",
+            "Khudanpur",
+            "Glass"
+        ],
+        "b54": [
+            "",
+            "",
+            "A C-LSTM neural network for text classification",
+            ""
+        ],
+        "b55": [
+            "Long short-term memory over recursive structures",
+            "",
+            "",
+            "",
+            "Zhu",
+            "Sobihani",
+            "Guo"
+        ]
+    },
+    {
+        "tab_0": "Table 2 :2Results of the models on the MultiNLI dataset. 'In' and 'Cross' represent accuracy calculated from the matched and mismatched test set respectively.Bansal, 2017)  *74.673.6140MBiLSTM with gated pooling (Chen et al., 2017)73.573.612MBiLSTM with generalized pooling (Chen et al., 2018)73.874.018M  *  *2-layer CAS-LSTM (ours)74.073.32.9M2-layer Bi-CAS-LSTM (ours)74.673.76.8M3-layer CAS-LSTM (ours)73.873.14.8M3-layer Bi-CAS-LSTM (ours)74.273.48.6M* : SNLI dataset is used as additional training data. * * : computed from hyperparameters provided by the authors.",
+        "tab_1": "Table 4 :4Results of the models on the SST dataset. * : models pretrained on large external corpora are used.2018)  *-54.72-layer CAS-LSTM (ours)91.153.02-layer Bi-CAS-LSTM (ours)91.353.6ModelBLEU256D LSTM28.1 \u00b1 0.22256D CAS-LSTM 28.8 \u00b1 0.04  *247D CAS-LSTM 28.7 \u00b1 0.07  *",
+        "tab_2": "Table 5 :5Results of the models on the IWSLT 2014 de-en dataset.* : p < 0.0005 (one-tailed paired t-test)."
+    }
+]

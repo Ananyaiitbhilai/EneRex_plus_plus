@@ -1,0 +1,481 @@
+[
+    {
+        "basename": "193b518bc3025804c6d587c74cbc154d91478417.grobid",
+        "fulltext": 18,
+        "footnote_size": 0,
+        "reference": 44,
+        "authors": [
+            "Tsai",
+            "Hung",
+            "Schulter",
+            "Sohn",
+            "Yang",
+            "Chandraker"
+        ]
+    },
+    {
+        "title": "Learning to Adapt Structured Output Space for Semantic Segmentation",
+        "abstract": "Convolutional neural network-based approaches for semantic segmentation rely on supervision with pixel-level ground truth, but may not generalize well to unseen image domains. As the labeling process is tedious and labor intensive, developing algorithms that can adapt source ground truth labels to the target domain is of great interest. In this paper, we propose an adversarial learning method for domain adaptation in the context of semantic segmentation. Considering semantic segmentations as structured outputs that contain spatial similarities between the source and target domains, we adopt adversarial learning in the output space. To further enhance the adapted model, we construct a multi-level adversarial network to effectively perform output space domain adaptation at different feature levels. Extensive experiments and ablation study are conducted under various domain adaptation settings, including synthetic-to-real and cross-city scenarios. We show that the proposed method performs favorably against the stateof-the-art methods in terms of accuracy and visual quality.",
+        "Introduction": "Semantic segmentation aims to assign each pixel a semantic label, e.g., person, car, road or tree, in an image. Recently, methods based on convolutional neural networks (CNNs) have achieved significant progress in semantic segmentation  #b1  #b20  #b22  #b23  #b39  #b41  #b42  with applications for autonomous driving  #b8  and image editing  #b35 . The crux of CNN-based approaches is to annotate a large number of images that cover possible scene variations. However, this trained model may not generalize well to unseen images, especially when there is a domain gap between the training (source) and test (target) images. For instance, the distribution of appearance for objects and scenes may vary in different cities, and even weather and lighting conditions can change significantly in the same city. In such cases, rely- ing only on the supervised model that requires re-annotating per-pixel ground truths in different scenarios would entail prohibitively high labor cost.To address this issue, knowledge transfer or domain adaptation techniques have been proposed to close the gap between source and target domains, where annotations are not available in the target domain. For image classification, one effective approach is to align features across two domains  #b7  #b24  such that the adapted features can generalize to both domains. Similar efforts have been made for semantic segmentation via adversarial learning in the feature space  #b2  #b12 . However, different from the image classification task, feature adaptation for semantic segmentation may suffer from the complexity of high-dimensional features that needs to encode diverse visual cues, including appearance, shape and context. This motivates us to develop an effective method for adapting pixel-level prediction tasks rather than using feature adaptation. In semantic segmentation, we note that the output space contains rich information, both spatially and locally. For instance, even if images from two domains are very different in appearance, their segmentation outputs share a significant amount of similarities, e.g., spatial layout and local context (see Figure 1). Based on this observation, we address the pixellevel domain adaptation problem in the output (segmentation) space.In this paper, we propose an end-to-end CNN-based domain adaptation algorithm for semantic segmentation. Our formulation is based on adversarial learning in the output space, where the intuition is to directly make the predicted label distributions close to each other across source and target domains. Based on the generative adversarial network (GAN)  #b9  #b30  #b21 , the proposed model consists of two parts: 1) a segmentation model to predict output results, and 2) a discriminator to distinguish whether the input is from the source or target segmentation output. With an adversarial loss, the proposed segmentation model aims to fool the discriminator, with the goal of generating similar distributions in the output space for either source or target images.The proposed method also adapts features as the errors are back-propagated to the feature level from the output labels. However, one concern is that lower-level features may not be adapted well as they are far away from the high-level output labels. To address this issue, we develop a multilevel strategy by incorporating adversarial learning at different feature levels of the segmentation model. For instance, we can use both conv5 and conv4 features to predict segmentation results in the output space. Then two discriminators can be connected to each of the predicted output for multi-level adversarial learning. We perform one-stage endto-end training for the segmentation model and discriminators jointly, without using any prior knowledge of the data in the target domain. In the testing phase, we can simply discard discriminators and use the adapted segmentation model on target images, with no extra computational requirements.Due to the high labor cost of annotating segmentation ground truth, there has been great interest in large-scale synthetic datasets with annotations, e.g., GTA5  #b31  and SYN-THIA  #b32 . As a result, one critical setting is to adapt the model trained on synthetic data to real-world datasets, such as Cityscapes  #b3 . We follow this setting and conduct extensive experiments to validate the proposed domain adaptation method. First, we use a strong baseline model that is able to generalize to different domains. We note that a strong baseline facilitates real-world applications and can evaluate the limitation of the proposed adaptation approach. Based on this baseline model, we show comparisons using adversarial adaptation in the feature and output spaces. Furthermore, we show that the multi-level adversarial learning improves the results over single-level adaptation. In addition to the synthetic-to-real setting, we show experimental results on the Cross-City dataset  #b2 , where annotations are provided in one city (source), while testing the model on another unseen city (target). Overall, our method performs favorably against state-of-the-art algorithms on numerous benchmark datasets under different settings.The contributions of this work are as follows. First, we propose a domain adaptation method for pixel-level semantic segmentation via adversarial learning. Second, we demonstrate that adaptation in the output (segmentation) space can effectively align scene layout and local context between source and target images. Third, a multi-level adversarial learning scheme is developed to adapt features at different levels of the segmentation model, which leads to improved performance.",
+        "Related Work": "Semantic Segmentation. State-of-the-art semantic segmentation methods are mainly based on the recent advances of deep neural networks. As proposed by Long et al.  #b23 , one can transform a classification CNN (e.g., AlexNet  #b18 , VGG  #b33 , or ResNet  #b10 ) to a fully-convolutional network (FCN) for semantic segmentation. Numerous methods have since been developed to improve this model by utilizing context information  #b14  #b41  or enlarging receptive fields  #b1  #b39 . To train these advanced networks, a substantial amount of dense pixel annotations must be collected in order to match the model capacity of deep CNNs. As a result, weakly and semi-supervised approaches  #b4  #b13  #b16  #b28  #b29  are proposed in recent years to reduce the heavy labeling cost of collecting segmentation ground truths. However, in most real-world applications, it is difficult to obtain weak annotations and the trained model may not generalize well to unseen image domains.Another approach to tackle the annotation problem is to construct synthetic datasets based on rendering, e.g., GTA5  #b31  and SYNTHIA  #b32 . While the data collection is less costly since the pixel-level annotation can be done with a partially automated process, these datasets are usually used in conjunction with real-world datasets for joint learning to improve the performance. However, when training solely on the synthetic dataset, the model does not generalize well to real-world data, mainly due to the large domain shift between synthetic images and real-world images, i.e., appearance differences are still significant with current rendering techniques. Although synthesizing more realistic images can decrease the domain shift, it is necessary to use domain adaptation to narrow the performance gap. Domain Adaptation. Domain adaptation methods for image classification have been developed to address the domain-shift problem between the source and target domains. Numerous methods  #b6  #b7  #b24  #b25  #b34  #b36  #b37  are developed based on CNN classifiers due to performance gain. The main insight behind these approaches is to tackle the problem by aligning the feature distribution between source and target images. Ganin et al.  #b6  #b7  propose the Domain-Adversarial Neural Network (DANN) to transfer the feature distribution. A number of variants have since been proposed with different loss functions  #b24  #b36  #b37  or classifiers  #b25 . Recently, the PixelDA method  #b0  addresses domain adaptation for image classification by transferring the source im-Figure 2. Algorithmic overview. Given images with the size H by W in source and target domains, we pass them through the segmentation network to obtain output predictions. For source predictions with C categories, a segmentation loss is computed based on the source ground truth. To make target predictions closer to the source ones, we utilize a discriminator to distinguish whether the input is from the source or target domain. Then an adversarial loss is calculated on the target prediction and is back-propagated to the segmentation network. We call this process as one adaptation module, and we illustrate our proposed multi-level adversarial learning by adopting two adaptation modules at two different levels here. ages to target domain, thereby obtaining a simulated training set for target images.We note that domain adaptation for pixel-level prediction tasks have not been explored widely. Hoffman et al.  #b12  introduce the task of domain adaptation on semantic segmentation by applying adversarial learning (i.e., DANN) in a fully-convolutional way on feature representations and additional category constraints similar to the constrained CNN  #b29 . Other methods focus on adapting synthetic-toreal or cross-city images by adopting class-wise adversarial learning  #b2  or label transfer  #b2 . Similar to the PixelDA method  #b0 , one concurrent work, CyCADA  #b11  uses the CycleGAN  #b43  and transfers source domain images to the target domain with pixel alignment, thus generating extra training data combined with feature space adversarial learning  #b12 .Although feature space adaptation has been successfully applied to image classification, pixel-level tasks such as semantic segmentation remains challenging based on feature adaptation-based approaches. In this paper, we use the property that pixel-level predictions are structured outputs that contain information spatially and locally, to propose an efficient domain adaptation algorithm through adversarial learning in the output space.",
+        "Algorithmic Overview": "",
+        "Overview of the Proposed Model": "Our domain adaptation algorithm consists of two modules: a segmentation network G and the discriminator D i , where i indicates the level of a discriminator in the multilevel adversarial learning. Two sets of images \u2208 R H\u00d7W \u00d73 from source and target domains are denoted as {I S } and {I T }. We first forward the source image I s (with annotations) to the segmentation network for optimizing G. Then we predict the segmentation softmax output P t for the target image I t (without annotations). Since our goal is to make segmentation predictions P of source and target images (i.e., P s and P t ) close to each other, we use these two predictions as the input to the discriminator D i to distinguish whether the input is from the source or target domain. With an adversarial loss on the target prediction, the network propagates gradients from D i to G, which would encourage G to generate similar segmentation distributions in the target domain to the source prediction. Figure 2 shows the overview of the proposed algorithm.",
+        "Objective Function for Domain Adaptation": "With the proposed network, we formulate the adaptation task containing two loss functions from both modules:L(I s , I t ) = L seg (I s ) + \u03bb adv L adv (I t ),(1)where L seg is the cross-entropy loss using ground truth annotations in the source domain, and L adv is the adversarial loss that adapts predicted segmentations of target images to the distribution of source predictions (see Section 4). In (1), \u03bb adv is the weight used to balance the two losses.",
+        "Output Space Adaptation": "Different from image classification based on features  #b7  #b24  that describe the global visual information of the image, high-dimensional features learned for semantic segmentation encodes complex representations. As a result, adaptation in the feature space may not be the best choice for semantic segmentation. On the other hand, although segmentation outputs are in the low-dimensional space, they contain rich information, e.g., scene layout and context. Our intuition is that no matter images are from the source or target domain, their segmentations should share strong similarities, spatially and locally. Thus, we utilize this property to adapt low-dimensional softmax outputs of segmentation predictions via an adversarial learning scheme.",
+        "Single-level Adversarial Learning": "Discriminator Training. Before introducing how to adapt the segmentation network via adversarial learning, we first describe the training objective for the discriminator. Given the segmentation softmax output P = G(I) \u2208 R H\u00d7W \u00d7C , where C is the number of categories, we forward P to a fully-convolutional discriminator D using a cross-entropy loss L d for the two classes (i.e., source and target). The loss can be written as:L d (P ) = - h,w (1 -z) log(D(P ) (h,w,0) )(2)+z log(D(P ) (h,w,1) ),where z = 0 if the sample is drawn from the target domain, and z = 1 for the sample from the source domain. Segmentation Network Training. First, we define the segmentation loss in (1) as the cross-entropy loss for images from the source domain:L seg (I s ) = - h,w c\u2208C Y (h,w,c) s log(P (h,w,c) s ),(3)where Y s is the ground truth annotations for source images and P s = G(I s ) is the segmentation output. Second, for images in the target domain, we forward them to G and obtain the prediction P t = G(I t ). To make the distribution of P t closer to P s , we use an adversarial loss L adv in (1) as:L adv (I t ) = - h,w log(D(P t ) (h,w,1) ). (4)This loss is designed to train the segmentation network and fool the discriminator by maximizing the probability of the target prediction being considered as the source prediction.",
+        "Multi-level Adversarial Learning": "Although performing adversarial learning in the output space directly adapts predictions, low-level features may not be adapted well as they are far away from the output. Similar to the deep supervision method  #b19  that uses auxiliary loss for semantic segmentation  #b41 , we incorporate additional adversarial module in the low-level feature space to enhance the adaptation. The training objective for the segmentation network can be extended from (1) as:L(I s , I t ) = i \u03bb i seg L i seg (I s ) + i \u03bb i adv L i adv (I t ),(5)where i indicates the level used for predicting the segmentation output. We note that, the segmentation output is still predicted in each feature space, before passing through individual discriminators for adversarial learning. Hence, L i seg (I s ) and L i adv (I t ) remain in the same form as in ( 3) and ( 4), respectively. Based on (5), we optimize the following min-max criterion:max D min G L(I s , I t ).(6)The ultimate goal is to minimize the segmentation loss in G for source images, while maximizing the probability of target predictions being considered as source predictions.",
+        "Network Architecture and Training": "Discriminator. For the discriminator, we use an architecture similar to  #b30  but utilize all fully-convolutional layers to retain the spatial information. The network consists of 5 convolution layers with kernel 4 \u00d7 4 and stride of 2, where the channel number is {64, 128, 256, 512, 1}, respectively. Except for the last layer, each convolution layer is followed by a leaky ReLU  #b26  parameterized by 0.2. We do not use any batch-normalization layers  #b15  as we jointly train the discriminator with the segmentation network using a small batch size. Segmentation Network. It is essential to build upon a good baseline model to achieve high-quality segmentation results  #b1  #b39  #b41 . We adopt the DeepLab-v2  #b1  framework with ResNet-101  #b10  model pre-trained on ImageNet  #b5  as our segmentation baseline network. However, we do not use the multi-scale fusion strategy  #b1  due to the memory issue. Similar to the recent work on semantic segmentation  #b1  #b39 , we remove the last classification layer and modify the stride of the last two convolution layers from 2 to 1, making the resolution of the output feature maps effectively 1/8 times the input image size. To enlarge the receptive field, we apply dilated convolution layers  #b39  in conv4 and conv5 layers with a stride of 2 and 4, respectively. After the last layer, we use the Atrous Spatial Pyramid Pooling (ASPP)  #b1  as the final classifier. Finally, we apply an up-sampling layer along with the softmax output to match the size of the input image. Based on this architecture, our segmentation model achieves 65.1% mean intersection-over-union (IoU) when trained on the Cityscapes  #b3  training set and tested on the Cityscapes validation set. Multi-level Adaptation Model. We construct the abovementioned discriminator and segmentation network as our single-level adaptation model. For the multi-level structure, we extract feature maps from the conv4 layer and add an ASPP module as the auxiliary classifier. Similarly, a discriminator with the same architecture is added for adversarial learning. Figure 2 shows the proposed multi-level adaptation model. In this paper, we use two levels due to the balance of its efficiency and accuracy.Network Training. To train the proposed single/multi-level adaptation model, we find that jointly training the segmentation network and discriminators in one stage is effective.In each training batch, we first forward the source image I s to optimize the segmentation network for L seg in (3) and generate the output P s . For the target image I t , we obtain the segmentation output P t , and pass it along with P s to the discriminator for optimizing L d in (2). In addition, we compute the adversarial loss L adv in (4) for the target prediction P t . For the multi-level training objective in (5), we simply repeat the same procedure for each adaptation module.We implement our network using the PyTorch toolbox on a single Titan X GPU with 12 GB memory. To train the segmentation network, we use the Stochastic Gradient Descent (SGD) optimizer with Nesterov acceleration where the momentum is 0.9 and the weight decay is 5 \u00d7 10 -4 . The initial learning rate is set as 2.5 \u00d7 10 -4 and is decreased using the polynomial decay with power of 0.9 as mentioned in  #b1 . For training the discriminator, we use the Adam optimizer  #b17  with the learning rate as 10 -4 and the same polynomial decay as the segmentation network. The momentum is set as 0.9 and 0.99. ",
+        "Experimental Results": "In this section, we present experimental results to validate the proposed domain adaptation method for semantic segmentation under different settings. First, we show evaluations of the model trained on synthetic datasets (i.e., GTA5  #b31  and SYNTHIA  #b32 ) and test the adapted model on real-world images from the Cityscapes  #b3  dataset. Extensive experiments including comparisons to the state-ofthe-art methods and ablation study are also conducted, e.g., adaptation in the feature/output spaces and single/multilevel adversarial learning. Second, we carry out experiments on the Cross-City dataset  #b2 , where the model is trained on one city and adapted to another city without using annotations. In all the experiments, the IoU metric is used. The code and model are available at https: //github.com/wasidennis/AdaptSegNet.",
+        "GTA5": "The GTA5 dataset  #b31  consists of 24966 images with the resolution of 1914 \u00d7 1052 synthesized from the video game based on the city of Los Angeles. The ground truth annotations are compatible with the Cityscapes dataset  #b3  that contains 19 categories. Following  #b12 , we use the full set of GTA5 and adapt the model to the Cityscapes training set with 2975 images. During testing, we evaluate on the Cityscapes validation set with 500 images.Overall Results. We present adaptation results in Table 1 with comparisons to the state-of-the-art domain adaptation methods  #b11  #b12  #b40 . For these approaches, the baseline model is trained using VGG-based architectures  #b23  #b39 . To fairly evaluate our method, we first use the same baseline architecture (VGG-16) and train our model with the proposed single-level adaptation module. Table 1 shows that our method performs favorably against the other algorithms. While these methods all have feature adaptation modules, our results show that adapting the model in the output space achieves better performance. We note that CyCADA  #b11  has a pixel adaptation module by transforming source domain images to the target domain and hence obtains additional training samples. Although this strategy achieves a similar performance as ours, can always apply pixel transformation combined with our output space adaptation to improve the results.On the other hand, we argue that utilizing a stronger baseline model is critical for understanding the importance of different adaptation components as well as for enhancing the performance to enable real-world applications. Thus, we use the ResNet-101 based network introduced in Section 5 and train the proposed adaptation model. Table 1 shows the baseline results only trained on source images without adaptation, with comparisons to our adapted models under different settings, including feature adaptation and single/multi-level adversarial learning in the output space. Figure 3 presents some example results for adapted segmentation. We note that for small objects such as poles and traffic signs, they are harder to adapt since they easily get merged with background classes.In addition, another factor to evaluate the adaptation performance is to measure how much gap is narrowed between the adaptation model and the fully-supervised model. Hence, we train the model using annotated ground truths in the Cityscapes dataset as the oracle results. Table 2 shows the gap under different baseline models. We observe that, although the oracle result does not differ a lot between VGG-16 and ResNet-101 based models, the gap is larger for the VGG one. It suggests us that to narrow the gap, using a deeper model with larger capacity is more practical. Parameter Analysis. During optimizing the segmentation network G, it is essential to balance the weight between segmentation and adversarial losses. We first consider the single-level case in  #b0  and conduct experiments to observe the impact of changing \u03bb adv . Table 3 shows that a smaller \u03bb adv may not facilitate the training process significantly, Table 3. Sensitivity analysis of \u03bb adv for feature/output space domain adaptation in the proposed method. We show that output space adaptation can tolerate a wide range of \u03bb adv , while it is sensitive to change \u03bb adv for feature adaptation. while a larger \u03bb adv may propagate incorrect gradients to the network. We empirically choose \u03bb adv as 0.001 in the single-level setting. Feature Level v.s. Output Space Adaptation. In the single-level setting in (1), we compare results by using feature-level or output space adaptation via adversarial learning. For feature-level adaptation, we adopt a similar strategy as used in  #b12  #b2  and train our model accordingly. Table 1 shows that the proposed adaptation method in the output space performs better than the one in the feature level.In addition, Table 3 shows that adaptation in the feature space is more sensitive to \u03bb adv , which causes the training process more difficult, while output space adaptation allows for a wider range of \u03bb adv . One reason is that as feature adaptation is performed in the high-dimensional space, the problem for the discriminator becomes easier. Thus, such an adapted model cannot effectively match distributions between source and target domains via adversarial learning.Single-level v.s. Multi-level Adversarial Learning. We have shown the merits of adopting adversarial learning in the output space. In addition, we present the results of using multi-level adversarial learning in Table 1. Here, we utilize an additional adversarial module (see Figure 2) and jointly optimize  #b4  for two levels. To properly balance \u03bb i seg and \u03bb i adv , we use the same weight as in the single-level setting for the high-level output space (i.e., \u03bb 1 seg = 1 and \u03bb 1 adv = 0.001). Since the low-level output carries less information to predict the segmentation, we use smaller weights for both the segmentation and adversarial loss (i.e., \u03bb 2 seg = 0.1 and \u03bb 2 adv = 0.0002). Evaluation results show that our multilevel adversarial adaptation further improves the segmentation accuracy. More results and analysis are presented in the supplementary material.",
+        "SYNTHIA": "To adapt from the SYNTHIA to Cityscapes datasets, we use the SYNTHIA-RAND-CITYSCAPES  #b32  set as the source domain which contains 9400 images compatible with the cityscapes annotated classes. Similar to  #b2 , we evaluate images on the Cityscapes validation set with 13 classes. For the weight in (1) and ( 5), we use the same ones as in the case of GTA5 dataset. Table 4 shows evaluation results of the proposed algorithm against the state-of-the-art methods  #b2  #b12  #b40  that use feature adaptation. Similar to the experiments with the GTA5 dataset, we first utilize the same VGG-based model and train our single-level adaptation model for fair comparisons. The experimental results suggest that adapting the model in the output space performs better. Second, we compare results using different components of the proposed method with the ResNet based model. We show that the multi-level adaptation module improves the results over the baseline, feature space adaptation and single-level adaptation models. In addition, we present comparisons of mean IoU gap between adapted and oracle results in Table 5. Our method achieves the smallest gap and is the only one that can minimize the gap below 30%.",
+        "Cross-City Dataset": "In addition to the synthetic-to-real adaptation for a larger domain gap, we conduct experiment on the Cross-City dataset  #b2  with smaller domain gaps between cities. The dataset contains four different cities: Rio, Rome, Tokyo and Taipei, in which each city has 3200 images without annotations and 100 images with pixel-level ground truths for 13 classes. Similar to  #b2 , we use the Cityscapes training set as the source domain and adapt it to each target city using 3200 images, while 100 annotated images are used for evaluation. Since a smaller domain gap results in smaller output differences, we use smaller weights for the adversarial loss (i.e., \u03bb i adv = 0.0005) when training our models, while the weights for segmentation remain the same as previous experiments.We show our results in Table 6 with comparisons to  #b2  and our baseline models under different settings. Again, our final multi-level model achieves consistent improvement for different cities, which demonstrates the advantages of the proposed adaptation method in the output space. Note that the state-of-the-art method  #b2  uses a different baseline model, and we present it as a reference to analyze how much the proposed algorithm can improve.",
+        "Concluding Remarks": "In this paper, we exploit the fact that segmentations are structured outputs and share many similarities between source and target domains. We tackle the domain adaptation problem for semantic segmentation via adversarial learning in the output space. To further enhance the adapted model, we construct a multi-level adversarial network to effectively perform output space domain adaptation at different feature levels. Experimental results show that the proposed method performs favorably against numerous baseline models and the state-of-the-art algorithms. We hope that our proposed method can be a generic adaptation model for a wide range of pixel-level prediction tasks.   periments using LS-GAN and the Synscapes dataset, as in the appendix.",
+        "A. Least Squares Objective": "To analyze the impact of different type of GANs in our framework, we adopt the least-squares loss function in  #b27  that claims to generate higher-quality results and perform more stably during GAN training. The loss for discriminator training, similar to (2), can be written as:L LS d (P ) = h,wz D(P ) (h,w,1) -1 2+(1 -z) D(P ) (h,w,0) 2 ,where z = 0 if the sample is drawn from the target domain, and z = 1 for the sample from the source domain. Similar to (4), the adversarial loss can be written as:L LS adv (I t ) = h,w D(P t ) (h,w,1) -1 2 . (8)We use the single-level adaptation network and the ResNet-101 backbone as in the main paper, and all the other details are the same. Results on Cityscapes using GTA5 and SYN-THIA as the source domain are presented in Table 7 and Table 8, respectively. We compare the performance of the vanilla GAN (as in the main paper) and the least-squares (LS) GAN. Both tables show that using the LS-GAN objective achieves a higher mean IoU.",
+        "B. Synscapes": "The Synscapes dataset  #b38  is a photorealistic synthetic dataset for street scene parsing. It consists of 25, 000 RGB images at 1440 \u00d7 720 resolution. The ground truth annotation adopts the Cityscapes convention that contains 19 categories. To adapt from Synscapes to Cityscapes, we use the entire Synsacpes dataset as the source domain. In Table 9, we show results without adaptation, with vanilla GAN, and LS-GAN, using the single-level adaptation network and the ResNet-101 backbone.Since the domain gap between Cityscapes and Synscapes is smaller than the case using either GTA5 or SYNTHIA as the source domain, the performance without adaptation already achieves a mean IoU of 45.3%. By further using output space adaptation, the vanilla and LS GAN objectives improve the results and perform competitively."
+    },
+    {},
+    {
+        "b0": [
+            "Unsupervised pixel-level domain adaptation with generative adversarial networks",
+            "",
+            "",
+            "",
+            "Bousmalis",
+            "Silberman",
+            "Dohan",
+            "Erhan",
+            "Krishnan"
+        ],
+        "b1": [
+            "",
+            "",
+            "Deeplab: Semantic image segmentation with deep convolutional nets, atrous convolution, and fully connected crfs",
+            ""
+        ],
+        "b2": [
+            "No more discrimination: Cross city adaptation of road scene segmenters",
+            "",
+            "",
+            "",
+            "Chen",
+            "Chen",
+            "Chen",
+            "Tsai",
+            "Wang",
+            "Sun"
+        ],
+        "b3": [
+            "The cityscapes dataset for semantic urban scene understanding",
+            "",
+            "",
+            "",
+            "Cordts",
+            "Omran",
+            "Ramos",
+            "Rehfeld",
+            "Enzweiler",
+            "Benenson",
+            "Franke",
+            "Roth",
+            "Schiele"
+        ],
+        "b4": [
+            "Exploiting bounding boxes to supervise convolutional networks for semantic segmentation",
+            "",
+            "",
+            "",
+            "Dai",
+            "He",
+            "Sun",
+            "Boxsup"
+        ],
+        "b5": [
+            "Imagenet: A large-scale hierarchical image database",
+            "",
+            "",
+            "",
+            "Deng",
+            "Dong",
+            "Socher",
+            "Li",
+            "Li",
+            "Fei-Fei"
+        ],
+        "b6": [
+            "Unsupervised domain adaptation by backpropagation",
+            "",
+            "",
+            "",
+            "Ganin",
+            "Lempitsky"
+        ],
+        "b7": [
+            "Domainadversarial training of neural networks",
+            "",
+            "",
+            "",
+            "Ganin",
+            "Ustinova",
+            "Ajakan",
+            "Germain",
+            "Larochelle",
+            "Laviolette",
+            "Marchand",
+            "Lempitsky"
+        ],
+        "b8": [
+            "Are we ready for autonomous driving? the kitti vision benchmark suite",
+            "",
+            "",
+            "",
+            "Geiger",
+            "Lenz",
+            "Urtasun"
+        ],
+        "b9": [
+            "Generative adversarial nets",
+            "",
+            "",
+            "",
+            "Goodfellow",
+            "Pouget-Abadie",
+            "Mirza",
+            "Xu",
+            "Warde-Farley",
+            "Ozair",
+            "Courville",
+            "Bengio"
+        ],
+        "b10": [
+            "Deep residual learning for image recognition",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b11": [
+            "",
+            "",
+            "Cycada: Cycle-consistent adversarial domain adaptation",
+            ""
+        ],
+        "b12": [
+            "",
+            "",
+            "Fcns in the wild: Pixel-level adversarial and constraint-based adaptation",
+            ""
+        ],
+        "b13": [
+            "Decoupled deep neural network for semi-supervised semantic segmentation",
+            "",
+            "",
+            "",
+            "Hong",
+            "Noh",
+            "Han"
+        ],
+        "b14": [
+            "Scene parsing with global context embedding",
+            "",
+            "",
+            "",
+            "Hung",
+            "Tsai",
+            "Shen",
+            "Lin",
+            "Sunkavalli",
+            "Lu",
+            "Yang"
+        ],
+        "b15": [
+            "Batch normalization: Accelerating deep network training by reducing internal covariate shift",
+            "",
+            "",
+            "",
+            "Ioffe",
+            "Szegedy"
+        ],
+        "b16": [
+            "Simple does it: Weakly supervised instance and semantic segmentation",
+            "",
+            "",
+            "",
+            "Khoreva",
+            "Benenson",
+            "Hosang",
+            "Hein",
+            "Schiele"
+        ],
+        "b17": [
+            "Adam: A method for stochastic optimization",
+            "",
+            "",
+            "",
+            "Kingma",
+            "Ba"
+        ],
+        "b18": [
+            "Imagenet classification with deep convolutional neural networks",
+            "",
+            "",
+            "",
+            "Krizhevsky",
+            "Sutskever",
+            "Hinton"
+        ],
+        "b19": [
+            "Deeplysupervised nets",
+            "",
+            "",
+            "",
+            "Lee",
+            "Xie",
+            "Gallagher",
+            "Zhang",
+            "Tu"
+        ],
+        "b20": [
+            "Efficient piecewise training of deep structured models for semantic segmentation",
+            "",
+            "",
+            "",
+            "Lin",
+            "Shen",
+            "Van Dan Hengel",
+            "Reid"
+        ],
+        "b21": [
+            "Coupled generative adversarial networks",
+            "",
+            "",
+            "",
+            "Liu",
+            "Tuzel"
+        ],
+        "b22": [
+            "Semantic image segmentation via deep parsing network",
+            "",
+            "",
+            "",
+            "Liu",
+            "Li",
+            "Luo",
+            "Loy",
+            "Tang"
+        ],
+        "b23": [
+            "Fully convolutional networks for semantic segmentation",
+            "",
+            "",
+            "",
+            "Long",
+            "Shelhamer",
+            "Darrell"
+        ],
+        "b24": [
+            "Learning transferable features with deep adaptation networks",
+            "",
+            "",
+            "",
+            "Long",
+            "Cao",
+            "Wang",
+            "Jordan"
+        ],
+        "b25": [
+            "Unsupervised domain adaptation with residual transfer networks",
+            "",
+            "",
+            "",
+            "Long",
+            "Zhu",
+            "Wang",
+            "Jordan"
+        ],
+        "b26": [
+            "Rectifier nonlinearities improve neural network acoustic models",
+            "",
+            "",
+            "",
+            "Maas",
+            "Hannun",
+            "Ng"
+        ],
+        "b27": [
+            "Least squares generative adversarial networks",
+            "",
+            "",
+            "",
+            "Mao",
+            "Li",
+            "Xie",
+            "Lau",
+            "Wang",
+            "Smolley"
+        ],
+        "b28": [
+            "Weakly-and semi-supervised learning of a dcnn for semantic image segmentation",
+            "",
+            "",
+            "",
+            "Papandreou",
+            "Chen",
+            "Murphy",
+            "Yuille"
+        ],
+        "b29": [
+            "Constrained convolutional neural networks for weakly supervised segmentation",
+            "",
+            "",
+            "",
+            "Pathak",
+            "Krahenbuhl",
+            "Darrell"
+        ],
+        "b30": [
+            "Unsupervised representation learning with deep convolutional generative adversarial networks",
+            "",
+            "",
+            "",
+            "Radford",
+            "Metz",
+            "Chintala"
+        ],
+        "b31": [
+            "Playing for data: Ground truth from computer games",
+            "",
+            "",
+            "",
+            "Richter",
+            "Vineet",
+            "Roth",
+            "Koltun"
+        ],
+        "b32": [
+            "The SYNTHIA Dataset: A large collection of synthetic images for semantic segmentation of urban scenes",
+            "",
+            "",
+            "",
+            "Ros",
+            "Sellart",
+            "Materzynska",
+            "Vazquez",
+            "Lopez"
+        ],
+        "b33": [
+            "Very deep convolutional networks for large-scale image recognition",
+            "",
+            "",
+            "",
+            "Simonyan",
+            "Zisserman"
+        ],
+        "b34": [
+            "Unsupervised domain adaptation for face recognition in unlabeled videos",
+            "",
+            "",
+            "",
+            "Sohn",
+            "Liu",
+            "Zhong",
+            "Yu",
+            "Yang",
+            "Chandraker"
+        ],
+        "b35": [
+            "Deep image harmonization",
+            "",
+            "",
+            "",
+            "Tsai",
+            "Shen",
+            "Lin",
+            "Sunkavalli",
+            "Lu",
+            "Yang"
+        ],
+        "b36": [
+            "Simultaneous deep transfer across domains and tasks",
+            "",
+            "",
+            "",
+            "Tzeng",
+            "Hoffman",
+            "Darrell",
+            "Saenko"
+        ],
+        "b37": [
+            "Adversarial discriminative domain adaptation",
+            "",
+            "",
+            "",
+            "Tzeng",
+            "Hoffman",
+            "Saenko",
+            "Darrell"
+        ],
+        "b38": [
+            "",
+            "",
+            "Synscapes: A photorealistic synthetic dataset for street scene parsing",
+            ""
+        ],
+        "b39": [
+            "Multi-scale context aggregation by dilated convolutions",
+            "",
+            "",
+            "",
+            "Yu",
+            "Koltun"
+        ],
+        "b40": [
+            "Curriculum domain adaptation for semantic segmentation of urban scenes",
+            "",
+            "",
+            "",
+            "Zhang",
+            "David",
+            "Gong"
+        ],
+        "b41": [
+            "Pyramid scene parsing network",
+            "",
+            "",
+            "",
+            "Zhao",
+            "Shi",
+            "Qi",
+            "Wang",
+            "Jia"
+        ],
+        "b42": [
+            "",
+            "",
+            "Conditional random fields as recurrent neural networks. In ICCV",
+            ""
+        ],
+        "b43": [
+            "Unpaired imageto-image translation using cycle-consistent adversarial networks",
+            "",
+            "",
+            "",
+            "Zhu",
+            "Park",
+            "Isola",
+            "Efros"
+        ]
+    },
+    {
+        "tab_0": "Table 1 .1Results of adapting GTA5 to Cityscapes. We first compare our results using single-level adversarial learning in the output space with other state-of-the-art algorithms with the VGG-16 based model. Then we adopt the ResNet-101 based model and present ablation study on different components of our proposed method. CyCADA (feature)[12] 85.6 30.7 74.7 14.4 13.0 17.6 13.7 5.8 74.6 15.8 69.9 38.2 3.5 72.3 16.0 5.0 0.1 3.6 0.0 29.2 CyCADA (pixel) [12] 83.5 38.3 76.4 20.6 16.5 22.2 26.2 21.9 80.4 28.7 65.7 49.4 4.2 74.6 16.0 26.6 2.0 8.0 0.0 34.8 Ours (singel-level) 87.3 29.8 78.6 21.1 18.2 22.5 21.5 11.0 79.7 29.6 71.3 46.8 6.5 80.1 23.0 26.9 0.0 10.6 0.3 35.0 Baseline (ResNet) 75.8 16.8 77.2 12.5 21.0 25.5 30.1 20.1 81.3 24.6 70.3 53.8 26.4 49.9 17.2 25.9 6.5 25.3 36.0 36.6 Ours (feature) 83.7 27.6 75.5 20.3 19.9 27.4 28.3 27.4 79.0 28.4 70.1 55.1 20.2 72.9 22.5 35.7 8.3 20.6 23.0 39.3 Ours (single-level) 86.5 25.9 79.8 22.1 20.0 23.6 33.1 21.8 81.8 25.9 75.9 57.3 26.2 76.3 29.8 32.1 7.2 29.5 32.5 41.4 Ours (multi-level) 86.5 36.0 79.9 23.4 23.3 23.9 35.2 14.8 83.4 33.3 75.6 58.5 27.6 73.7 32.5 35.4 3.9 30.1 28.1 42.4GTA5 \u2192 Cityscapes",
+        "tab_1": "Table 2 .2Performance gap between the adapted model and the fully-supervised (oracle) model. We first compare results with state-of-the-art methods using the VGG based model, and then show our result using the ResNet one.GTA5 \u2192 CityscapesmethodBaseline Adapt Oracle mIoU GapFCNs in the Wild [13]27.1 64.6-37.5CDA [41]28.9 60.3-31.4CyCADA (feature) [12]VGG-1629.2 60.3-30.5CyCADA (pixel) [12]34.8 60.3-24.9Ours (single-level)35.0 61.8-25.2Ours (multi-level)ResNet-101 42.4 65.1-22.7",
+        "tab_2": "Table 4 .4Results of adapting SYNTHIA to Cityscapes. We first compare our results using single-level adversarial learning in the output space with other state-of-the-art algorithms with the VGG-16 based model. Then we adopt the ResNet-101 based model and present ablation study on different components of our proposed method.SYNTHIA \u2192 Cityscapes",
+        "tab_3": "Table 5 .5Performance gap between the adapted model and the fully-supervised (oracle) model. We first compare results with state-of-the-art methods using the VGG based model, and then show our result using the ResNet one.SYNTHIA \u2192 CityscapesMethodBaseline Adapt Oracle mIoU GapFCNs in the Wild [13]22.9 73.8-50.9CDA [41] Cross-City [3]VGG-1634.8 69.6 35.7 73.8-34.8 -38.1Ours (single-level)37.6 68.4-30.8Ours (multi-level)ResNet-101 46.7 71.7-25.0",
+        "tab_4": "Table 6 .6Results of adapting Cityscapes to the Cross-City dataset. We construct our baseline model using the ResNet-101 architecture, and compare results between feature adaptation and our multi-level adaptation method in the output space. 83.4 35.4 72.8 12.3 12.7 77.4 64.3 42.7 21.5 64.1 20.8 8.9 40.3 42.8 Our Baseline 82.9 31.3 78.7 14.2 24.5 81.6 89.2 48.6 33.3 70.5 7.7 11.5 45.9 47.7 Ours (feature) 81.5 30.8 76.6 15.3 20.2 82.0 84.0 49.4 33.3 70.5 4.5 24.3 51.6 48.0 Ours (output space) 81.5 26.0 77.8 17.8 26.8 82.7 90.9 55.8 38.0 72.1 4.2 24.5 50.8 49.9 Ours (output space) 81.7 29.5 85.2 26.4 15.6 76.7 91.7 31.0 12.5 71.5 41.1 47.3 27.7 49.1Cityscapes \u2192 Cross-CityCross-City[3] 78.6 28.6 80.0 13.1 7.6 68.2 82.1 16.8 9.4 60.4 34.0 26.5 9.9 39.6 Our Baseline 83.5 33.4 86.6 12.7 16.4 77.0 92.1 17.6 13.7 70.7 37.7 44.4 18.5 46.5 Ours (feature) 82.1 31.9 84.1 25.7 13.2 77.2 81.2 28.1 12.0 67.0 35.8 43.5 20.9 46.6",
+        "tab_5": "Table 7 .7Results of adapting GTA5 to Cityscapes. 21.8 81.8 25.9 75.9 57.3 26.2 76.3 29.8 32.1 7.2 29.5 32.5 41.4 LS-GAN 91.4 48.4 81.2 27.4 21.2 31.2 35.3 16.1 84.1 32.5 78.2 57.7 28.2 85.9 33.8 43.5 0.2 23.9 16.9 44.1GTA5 \u2192 Cityscapes",
+        "tab_6": "Table 8 .8Results of adapting SYNTHIA to Cityscapes. mIoU and mIoU * are averaged over 16 and 13 categories, respectively. Vanilla-GAN 79.2 37.2 78.8 10.5 0.3 25.1 9.9 10.5 78.2 80.5 53.5 19.6 67.0 29.5 21.6 31.3 39.5 45.9 LS-GAN 84.0 40.5 79.3 10.4 0.2 22.7 6.5 8.0 78.3 82.7 56.3 22.4 74.0 33.2 18.9 34.9 40.8 47.6SYNTHIA \u2192 Cityscapes",
+        "tab_7": "Table 9 .9Results of adapting Synscapes to Cityscapes. Without Adaptation 81.8 40.6 76.1 23.3 16.8 36.9 36.8 40.1 83.0 34.8 84.9 59.9 37.7 78.5 20.4 20.5 7.8 27.3 52.5 45.3 Vanilla-GAN 94.2 60.9 85.1 29.1 25.2 38.6 43.9 40.8 85.2 29.7 88.2 64.4 40.6 85.8 31.5 43.0 28.3 30.5 56.7 52.7 LS-GAN 94.2 60.5 85.0 29.2 25.6 39.8 43.4 43.8 85.2 35.9 88.3 63.2 41.1 87.2 30.8 44.2 29.8 28.5 53.7 53.1Synscapes \u2192 Cityscapes"
+    }
+]

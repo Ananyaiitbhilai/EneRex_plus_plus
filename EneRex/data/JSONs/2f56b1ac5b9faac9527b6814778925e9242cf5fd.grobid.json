@@ -1,0 +1,342 @@
+[
+    {
+        "basename": "2f56b1ac5b9faac9527b6814778925e9242cf5fd.grobid",
+        "fulltext": 22,
+        "footnote_size": 1,
+        "footnote_max": 1,
+        "reference": 34,
+        "authors": [
+            "Shrivastava",
+            "Gupta",
+            "Girshick"
+        ]
+    },
+    {
+        "title": "Training Region-based Object Detectors with Online Hard Example Mining",
+        "abstract": "The field of object detection has made significant advances riding on the wave of region-based ConvNets, but their training procedure still includes many heuristics and hyperparameters that are costly to tune. We present a simple yet surprisingly effective online hard example mining (OHEM) algorithm for training region-based ConvNet detectors. Our motivation is the same as it has always beendetection datasets contain an overwhelming number of easy examples and a small number of hard examples. Automatic selection of these hard examples can make training more effective and efficient. OHEM is a simple and intuitive algorithm that eliminates several heuristics and hyperparameters in common use. But more importantly, it yields consistent and significant boosts in detection performance on benchmarks like PASCAL VOC 2007 and 2012. Its effectiveness increases as datasets become larger and more difficult, as demonstrated by the results on the MS COCO dataset. Moreover, combined with complementary advances in the field, OHEM leads to state-of-the-art results of 78.9% and 76.3% mAP on PASCAL VOC 2007 and 2012 respectively.",
+        "Introduction": "Image classification and object detection are two fundamental computer vision tasks. Object detectors are often trained through a reduction that converts object detection into an image classification problem. This reduction introduces a new challenge that is not found in natural image classification tasks: the training set is distinguished by a large imbalance between the number of annotated objects and the number of background examples (image regions not belonging to any object class of interest). In the case of sliding-window object detectors, such as the deformable parts model (DPM)  #b11 , this imbalance may be as extreme as 100,000 background examples to every one object. The recent trend towards object-proposal-based detectors  #b14  #b31  mitigates this issue to an extent, but the imbalance ratio may still be high (e.g., 70:1). This challenge opens space for learning techniques that cope with imbal-ance and yield faster training, higher accuracy, or both. Unsurprisingly, this is not a new challenge and a standard solution, originally called bootstrapping (and now often called hard negative mining), has existed for at least 20 years. Bootstrapping was introduced in the work of Sung and Poggio  #b29  in the mid-1990's (if not earlier) for training face detection models. Their key idea was to gradually grow, or bootstrap, the set of background examples by selecting those examples for which the detector triggers a false alarm. This strategy leads to an iterative training algorithm that alternates between updating the detection model given the current set of examples, and then using the updated model to find new false positives to add to the bootstrapped training set. The process typically commences with a training set consisting of all object examples and a small, random set of background examples.Bootstrapping has seen widespread use in the intervening decades of object detection research. Dalal and Triggs  #b6  used it when training SVMs for pedestrian detection. Felzenszwalb et al.  #b11  later proved that a form of bootstrapping for SVMs converges to the global optimal solution defined on the entire dataset. Their algorithm is often referred to as hard negative mining and is frequently used when training SVMs for object detection  #b14  #b15  #b31 . Bootstrapping was also successfully applied to a variety of other learning models, including shallow neural networks  #b24  and boosted decision trees  #b8 . Even modern detection methods based on deep convolutional neural networks (ConvNets)  #b18  #b19 , such as R-CNN  #b14  and SPPnet  #b15 , still employ SVMs trained with hard negative mining.It may seem odd then that the current state-of-the-art object detectors, embodied by Fast R-CNN  #b13  and its descendants  #b23 , do not use bootstrapping. The underlying reason is a technical difficulty brought on by the shift towards purely online learning algorithms, particularly in the context of deep ConvNets trained with stochastic gradient descent (SGD) on millions of examples. Bootstrapping, and its variants in the literature, rely on the aforementioned alternation template: (a) for some period of time a fixed model is used to find new examples to add to the active training set; (b) then, for some period of time the model is trained on the fixed active training set. Training deep ConvNet detectors with SGD typically requires hundreds of thousands of SGD steps and freezing the model for even a few iterations at a time would dramatically slow progress. What is needed, instead, is a purely online form of hard example selection.In this paper, we propose a novel bootstrapping technique called online hard example mining1 (OHEM) for training state-of-the-art detection models based on deep ConvNets. The algorithm is a simple modification to SGD in which training examples are sampled according to a non-uniform, non-stationary distribution that depends on the current loss of each example under consideration. The method takes advantage of detection-specific problem structure in which each SGD mini-batch consists of only one or two images, but thousands of candidate examples. The candidate examples are subsampled according to a distribution that favors diverse, high loss instances. Gradient computation (backpropagation) is still efficient because it only uses a small subset of all candidates. We apply OHEM to the standard Fast R-CNN detection method and show three benefits compared to the baseline training algorithm:\u2022 It removes the need for several heuristics and hyperparameters commonly used in region-based ConvNets.\u2022 It yields a consistent and significant boosts in mean average precision.\u2022 Its effectiveness increases as the training set becomes larger and more difficult, as demonstrated by results on the MS COCO dataset.Moreover, the gains from OHEM are complementary to recent improvements in object detection, such as multiscale testing  #b15  and iterative bounding-box regression  #b12 . Combined with these tricks, OHEM gives state-ofthe-art results of 78.9% and 76.3% mAP on PASCAL VOC 2007 and 2012, respectively.",
+        "Related work": "Object detection is one of the oldest and most fundamental problems in computer vision. The idea of dataset bootstrapping  #b24  #b29 , typically called hard negative mining in recent work  #b11 , appears in the training of most successful object detectors  #b6  #b8  #b11  #b12  #b14  #b15  #b22  #b24  #b28 . Many of these approaches use SVMs as the detection scoring function, even after training a deep convolutional neural network (ConvNet)  #b18  #b19  for feature extraction. One notable exception is the Fast R-CNN detector  #b13  and its descendants, such as Faster R-CNN  #b23 . Since these models do not use SVMs, and are trained purely online with SGD, existing hard example mining techniques cannot be immediately applied. This work addresses that problem by introducing an online hard example mining algorithm that improves optimization and detection accuracy. We briefly review hard example mining, modern ConvNet-based object detection, and relationships to concurrent works using hard example selection for training deep networks.Hard example mining. There are two hard example mining algorithms in common use. The first is used when optimizing SVMs. In this case, the training algorithm maintains a working set of examples and alternates between training an SVM to convergence on the working set, and updating the working set by removing some examples and adding others according to a specific rule  #b11 . The rule removes examples that are \"easy\" in the sense that they are correctly classified beyond the current model's margin. Conversely, the rule adds new examples that are hard in the sense that they violate the current model's margin. Applying this rule leads to the global SVM solution. Importantly, the working set is usually a small subset of the entire training set.The second method is used for non-SVMs and has been applied to a variety of models including shallow neural networks  #b24  and boosted decision trees  #b8 . This algorithm usually starts with a dataset of positive examples and a random set of negative examples. The machine learning model is then trained to convergence on that dataset and subsequently applied to a larger dataset to harvest false positives. The false positives are then added to the training set and then the model is trained again. This process is usually iterated only once and does not have any convergence proofs.ConvNet-based object detection. In the last three years significant gains have been made in object detection. These improvements were made possible by the successful application of deep ConvNets  #b18  to ImageNet classification  #b7 . The R-CNN  #b14  and OverFeat  #b25  detectors lead this wave with impressive results on PASCAL VOC  #b10  and Ima-geNet detection. OverFeat is based on the sliding-window detection method, which is perhaps the most intuitive and oldest search method for detection. R-CNN, in contrast, uses region proposals  #b0  #b1  #b2  #b3  #b5  #b9  #b17  #b31  #b33 , a method that was made popular by the selective search algorithm  #b31 . Since R-CNN, there has been rapid progress in regionbased ConvNets, including SPPnet  #b15 , MR-CNN  #b12 , and Fast R-CNN  #b13 , which our work builds on.",
+        "Hard example selection in deep learning.": "There is recent work  #b21  #b26  #b32  concurrent to our own that selects hard examples for training deep networks. Similar to our approach, all these methods base their selection on the current loss for each datapoint.  #b26  independently selects hard positive and negative example from a larger set of random examples based on their loss to learn image descriptors.  Given a positive pair of patches,  #b32  finds hard negative patches from a large set using triplet loss. Akin to our approach,  #b21  investigates online selection of hard examples for mini-batch SGD methods. Their selection is also based on loss, but the focus is on ConvNets for image classification. Complementary to  #b21 , we focus on online hard example selection strategy for region-based object detectors.",
+        "Overview of Fast R-CNN": "We first summarize the Fast R-CNN  #b13  (FRCN) framework. FRCN takes as input an image and a set of object proposal regions of interest (RoIs). The FRCN network itself can be divided into two sequential parts: a convolutional (conv) network with several convolution and max-pooling layers (Figure 1, \"Convolutional Network\"); and an RoI network with an RoI-pooling layer, several fully-connected (fc) layers and two loss layers (Figure 1, \"RoI Network\").During inference, the conv network is applied to the given image to produce a conv feature map, size of which depends on the input image dimensions. Then, for each object proposal, the RoI-pooling layer projects the proposal onto the conv feature map and extracts a fixed-length feature vector. Each feature vector is fed into the fc layers, which finally give two outputs: (1) a softmax probability distribution over the object classes and background; and (2) regressed coordinates for bounding-box relocalization.There are several reasons for choosing FRCN as our base object detector, apart from it being a fast end-to-end system. Firstly, the basic two network setup (conv and RoI) is also used by other recent detectors like SPPnet and MR-CNN; therefore, our proposed algorithm is more broadly applicable. Secondly, though the basic setup is similar, FRCN also allows for training the entire conv network, as opposed to both SPPnet and MR-CNN which keep the conv network fixed. And finally, both SPPnet and MR-CNN require features from the RoI network to be cached for training a separate SVM classifier (using hard negative mining). FRCN uses the RoI network itself to train the desired classifiers. In fact,  #b13  shows that in the unified system using the SVM classifiers at later stages was unnecessary.",
+        "Training": "Like most deep networks, FRCN is trained using stochastic gradient descent (SGD). The loss per example RoI is the sum of a classification log loss that encourages predicting the correct object (or background) label and a localization loss that encourages predicting an accurate bounding box (see  #b13  for details).To share conv network computation between RoIs, SGD mini-batches are created hierarchically. For each minibatch, N images are first sampled from the dataset, and then B/N RoIs are sampled from each image. Setting N = 2 and B = 128 works well in practice  #b13 . The RoI sampling procedure uses several heuristics, which we describe briefly below. One contribution of this paper is to eliminate some of these heuristics and their hyperparameters.Foreground RoIs. For an example RoI to be labeled as foreground (fg), its intersection over union (IoU) overlap with a ground-truth bounding box should be at least 0.5. This is a fairly standard design choice, in part inspired by the evaluation protocol of the PASCAL VOC object detection benchmark. The same criterion is used in the SVM hard mining procedures of R-CNN, SPPnet, and MR-CNN. We use the same setting. Background RoIs. A region is labeled background (bg) if its maximum IoU with ground truth is in the interval [bg lo, 0.5). A lower threshold of bg lo = 0.1 is used by both FRCN and SPPnet, and is hypothesized in  #b13  to crudely approximate hard negative mining; the assumption is that regions with some overlap with the ground truth are more likely to be the confusing or hard ones. We show in Section 5.4 that although this heuristic helps convergence and detection accuracy, it is suboptimal because it ignores some infrequent, but important, difficult background regions. Our method removes the bg lo threshold.Balancing fg-bg RoIs: To handle the data imbalance described in Section 1,  #b13  designed heuristics to rebalance the foreground-to-background ratio in each mini-batch to a target of 1 : 3 by undersampling the background patches at random, thus ensuring that 25% of a mini-batch is fg RoIs. We found that this is an important design decision for the training FRCN. Removing this ratio (i.e. randomly sampling RoIs), or increasing it, decreases accuracy by \u223c3 points mAP. With our proposed method, we can remove this ratio hyperparameter with no ill effect.",
+        "Our approach": "We propose a simple yet effective online hard example mining algorithm for training Fast R-CNN (or any Fast R-CNN style object detector). We argue that the current way of creating mini-batches for SGD (Section 3.1) is inefficient and suboptimal, and we demonstrate that our approach leads to better training (lower training loss) and higher testing performance (mAP). Our main observation is that these alternating steps can be combined with how FRCN is trained using online SGD.",
+        "Online hard example mining": "The key is that although each SGD iteration samples only a small number of images, each image contains thousands of example RoIs from which we can select the hard examples rather than a heuristically sampled subset. This strategy fits the alternation template to SGD by \"freezing\" the model for only one mini-batch. Thus the model is updated exactly as frequently as with the baseline SGD approach and therefore learning is not delayed.More specifically, the online hard example mining algorithm (OHEM) proceeds as follows. For an input image at SGD iteration t, we first compute a conv feature map using the conv network. Then the RoI network uses this feature map and the all the input RoIs (R), instead of a sampled mini-batch  #b13 , to do a forward pass. Recall that this step only involves RoI pooling, a few fc layers, and loss computation for each RoI. The loss represents how well the current network performs on each RoI. Hard examples are selected by sorting the input RoIs by loss and taking the B/N examples for which the current network performs worst. Most of the forward computation is shared between RoIs via the conv feature map, so the extra computation needed to for-ward all RoIs is relatively small. Moreover, because only a small number of RoIs are selected for updating the model, the backward pass is no more expensive than before.However, there is a small caveat: co-located RoIs with high overlap are likely to have correlated losses. Moreover, these overlapping RoIs can project onto the same region in the conv feature map, because of resolution disparity, thus leading to loss double counting. To deal with these redundant and correlated regions, we use standard non-maximum suppression (NMS) to perform deduplication (the implementation from  #b13 ). Given a list of RoIs and their losses, NMS works by iteratively selecting the RoI with the highest loss, and then removing all lower loss RoIs that have high overlap with the selected region. We use a relaxed IoU threshold of 0.7 to suppress only highly overlapping RoIs.We note that the procedure described above does not need a fg-bg ratio for data balancing. If any class were neglected, its loss would increase until it has a high probability of being sampled. There can be images where the fg RoIs are easy (e.g. canonical view of a car), so the network is free to use only bg regions in a mini-batch; and viceversa when bg is trivial (e.g. sky, grass etc.), the mini-batch can be entirely fg regions.",
+        "Implementation details": "There are many ways to implement OHEM in the FRCN detector, each with different trade-offs. An obvious way is to modify the loss layers to do the hard example selection. The loss layer can compute loss for all RoIs, sort them based on this loss to select hard RoIs, and finally set the loss of all non-hard RoIs to 0. Though straightforward, this implementation is inefficient as the RoI network still allocates memory and performs backward pass for all RoIs, even though most RoIs have 0 loss and hence no gradient updates (a limitation of current deep learning toolboxes).To overcome this, we propose the architecture presented in Figure 2. Our implementation maintains two copies of the RoI network, one of which is readonly. This implies that the readonly RoI network (Figure 2(a)) allocates memory only for forward pass of all RoIs as opposed to the standard RoI network, which allocates memory for both forward and backward passes. For an SGD iteration, given the conv feature map, the readonly RoI network performs a forward pass and computes loss for all input RoIs (R) (Figure 2, green arrows). Then the hard RoI sampling module uses the procedure described in Section 4.1 to select hard examples (R hard-sel ), which are input to the regular RoI network (Figure 2(b), red arrows)). This network computes forward and backward passes only for R hard-sel , accumulates the gradients and passes them to the conv network. In practice, we use all RoIs from all N images as R, therefore the effective batch size for the readonly RoI network is |R| and for the regular RoI network is the standard B from Section 3.1. We implement both options described above using the Caffe  #b16  framework (see  #b13 ). Our implementation uses gradient accumulation with N forward-backward passes of single image mini-batches. Following FRCN  #b13 , we use N = 2 (which results in |R| \u2248 4000) and B = 128. Under these settings, the proposed architecture (Figure 2) has similar memory footprint as the first option, but is > 2\u00d7 faster. Unless specified otherwise, the architecture and settings described above will be used throughout this paper.",
+        "Analyzing online hard example mining": "This section compares FRCN training with online hard example mining (OHEM) to the baseline heuristic sampling approach. We also compare FRCN with OHEM to a less efficient approach that uses all available example RoIs in each mini-batch, not just the B hardest examples.",
+        "Experimental setup": "We conduct experiments with two standard ConvNet architectures: VGG CNN M 1024 (VGGM, for short) from  #b4 , which is a wider version of AlexNet  #b18 , and VGG16 from  #b27 . All experiments in this section are performed on the PASCAL VOC07 dataset. Training is done on the trainval set and testing on the test set. Unless specified otherwise, we will use the default settings from FRCN  #b13 . We train all methods with SGD for 80k minibatch iterations, with an initial learning rate of 0.001 and we decay the learning rate by 0.1 every 30k iterations. The baseline numbers reported in Table 1 (row 1-2) were reproduced using our training schedule and are slightly higher than the ones reported in  #b13 .",
+        "OHEM vs. heuristic sampling": "Standard FRCN, reported in Table 1 (rows 1 -2), uses bg lo = 0.1 as a heuristic for hard mining (Section 3.1). To test the importance of this heuristic, we ran FRCN with bg lo = 0. Table 1 (rows 3 -4) shows that for VGGM, mAP drops by 2.4 points, whereas for VGG16 it remains roughly the same. Now compare this to training FRCN with OHEM (rows 11 -13). OHEM improves mAP by 2.4 points compared to FRCN with the bg lo = 0.1 heuristic for VGGM, and 4.8 points without the heuristic. This result demonstrates the sub-optimality of these heuristics and the effectiveness of our hard mining approach.",
+        "Robust gradient estimates": "One concern over using only N = 2 images per batch is that it may cause unstable gradients and slow convergence because RoIs from an image may be highly correlated  #b30 . FRCN  #b13  reports that this was not a practical issue for their training. But this detail might raise concerns over our training procedure because we use examples with high loss from the same image and as a result they may be more highly correlated. To address this concern, we experiment with N = 1 in order to increase correlation in an effort to break our method. As seen in Table 1 (rows 5 -6, 11), performance of the original FRCN drops by \u223c1 point with N = 1, but when using our training procedure, mAP remains approximately the same. This shows that OHEM is robust in case one needs fewer images per batch in order to reduce GPU memory usage. The easy examples will have low loss, and won't contribute much to the gradient; training will automatically focus on the hard examples. To compare this option, we ran standard FRCN training with a large mini-batch size of B = 2048, using bg lo = 0, N \u2208 {1, 2} and with other hyperparameters fixed. Because this experiment uses a large mini-batch, it's important to tune the learning rate to adjust for this change. We found optimal results by increasing it to 0.003 for VGG16 and 0.004 for VGGM. The outcomes are reported in Table 1 (rows 7 -10). Using these settings, mAP of both VGG16 and VGGM increased by \u223c1 point compared to B = 128, but the improvement from our approach is still > 1 points over using all RoIs. Moreover, because we compute gradients with a smaller mini-batch size training is faster.",
+        "Better optimization": "Finally, we analyze the training loss for the various FRCN training methods discussed above. It's important to measure training loss in a way that does not depend on the sampling procedure and thus results in a valid comparison between methods. To achieve this goal, we take model snapshots from each method every 20k steps of optimization and run them over the entire VOC07 trainval set to compute the average loss over all RoIs. This measures the training set loss in a way that does not depend on the example sampling scheme.Figure 3 shows the average loss per RoI for VGG16 with the various hyperparameter settings discussed above and presented in Table 1. We see that bg lo = 0 results in the highest training loss, while using the heuristic bg lo = 0.1 results in a much lower training loss. Increasing the minibatch size to B = 2048 and increasing the learning rate  ",
+        "Computational cost": "OHEM adds reasonable computational and memory overhead, as reported in Table 2. OHEM costs 0.09s per training iteration for VGGM network (0.43s for VGG16) and requires 1G more memory (2.3G for VGG16). Given that FRCN  #b13  is a fast detector to train, the increase in training time is likely acceptable to most users.",
+        "PASCAL VOC and MS COCO results": "In this section, we evaluate our method on VOC 2012  #b10  as well as the more challenging MS COCO  #b20  dataset. We demonstrate consistent and significant improvement in FRCN performance when using the proposed OHEM approach. Per-class results are also presented on VOC 2007 for comparison with prior work.Experimental setup. We use VGG16 for all experiments. When training on VOC07 trainval, we use the SGD parameters as in Section 5 and when using extra data (07+12 and 07++12, see Table 3 and4), we use 200k mini-batch iterations, with an initial learning rate of 0.001 and decay step size of 40k. When training on MS COCO  #b20 , we use 240k ",
+        "VOC 2007 and 2012 results": "We report the results on VOC benchmarks in Table 3 and 4. On VOC07, FRCN with the above mentioned additions achieves 72.4% mAP and OHEM improves it to 75.1%, which is currently the highest reported score under this setting (07 data). When using extra data (07+12), OHEM achieves 78.9% mAP, surpassing the current stateof-the-art MR-CNN (78.2% mAP). We note that MR-CNN uses selective search and edge boxes during training, whereas we only use selective search boxes. Our multiscale implementation is also different, using fewer scales than MR-CNN. On VOC12 (Table 4), we consistently perform better than MR-CNN. When using extra data, we achieve state-of-the-art mAP of 76.3% (vs. 73.9% mAP of MR-CNN).Ablation analysis. We now study in detail the impact of these two additions and whether OHEM is complementary to them, and report the analysis in Table 6. Baseline FRCN mAP improves from 67.2% to 68.6% when using multiscale during both training and testing (we refer to this as M). However, note that there is only a marginal benefit of using it at training time. Iterative bbox regression (B) further improves the FRCN mAP to 72.4%. But more importantly, using OHEM improves it to 75.1% mAP, which is state-ofthe-art for methods trained on VOC07 data (see Table 3). In fact, using OHEM consistently results in higher mAP for all variants of these two additions (see Table 6). ",
+        "MS COCO results": "MS COCO  #b20  test-dev 2015 evaluation server results are reported in Table 5. Using multi-scale improves the performance of our method to 24.4% AP on the standard COCO metric and to 44.4% AP 50 on the VOC metric. This again shows the complementary nature of using multi-scale and OHEM. Finally, we train our method using the entire MS COCO trainval set, which further improves performance to 25.5% AP (and 45.9% AP 50 ). In the 2015 MS COCO Detection Challenge, a variant of this approach finished 4 th place overall.",
+        "Adding bells and whistles": "We've demonstrated consistent gains in detection accuracy by applying OHEM to FRCN training. In this section, we show that these improvements are orthogonal to recent bells and whistles that enhance object detection accuracy. OHEM with the following two additions yields state-of-theart results on VOC and competitive results on MS COCO.",
+        "Multi-scale (M).": "We adopt the multi-scale strategy from SPPnet  #b15  (and used by both FRCN  #b13  and MR-CNN  #b12 ). Scale is defined as the size of the shortest side (s) of an image. During training, one scale is chosen at random, whereas at test time inference is run on all scales. For VGG16 networks, we use s \u2208 {480, 576, 688, 864, 900} for training, and s \u2208 {480, 576, 688, 864, 1000} during testing, with the max dimension capped at 1000. The scales and caps were chosen because of GPU memory constraints. is obtained using NMS on R F with an IoU threshold of 0.3 and weighted voting is performed on each box r i in R NMS F using boxes in R F with an IoU of \u22650.5 with r i (see  #b12  for details).",
+        "Conclusion": "We presented an online hard example mining (OHEM) algorithm, a simple and effective method to train regionbased ConvNet detectors. OHEM eliminates several heuristics and hyperparameters in common use by automatically selecting hard examples, thus simplifying training. We conducted extensive experimental analysis to demonstrate the effectiveness of the proposed algorithm, which leads to better training convergence and consistent improvements in detection accuracy on standard benchmarks. We also reported state-of-the-art results on PASCAL VOC 2007 and 2012 when using OHEM with other orthogonal additions. Though we used Fast R-CNN throughout this paper, OHEM can be used for training any region-based ConvNet detector.Our experimental analysis was based on the overall detection accuracy, however it will be an interesting future direction to study the impact of various training methodologies on individual category performance."
+    },
+    {
+        "1": "We use the term hard example mining, rather than hard negative mining, because our method is applied in a multi-class setting to all classes, not just a \"negative\" class."
+    },
+    {
+        "b0": [
+            "What is an object?",
+            "",
+            "",
+            "",
+            "Alexe",
+            "Deselaers",
+            "Ferrari"
+        ],
+        "b1": [
+            "Measuring the objectness of image windows",
+            "",
+            "",
+            "",
+            "Alexe",
+            "Deselaers",
+            "Ferrari"
+        ],
+        "b2": [
+            "Multiscale combinatorial grouping",
+            "",
+            "",
+            "",
+            "Arbel\u00e1ez",
+            "Pont-Tuset",
+            "Barron",
+            "Marques",
+            "Malik"
+        ],
+        "b3": [
+            "Constrained parametric min-cuts for automatic object segmentation",
+            "",
+            "",
+            "",
+            "Carreira",
+            "Sminchisescu"
+        ],
+        "b4": [
+            "Return of the devil in the details: Delving deep into convolutional nets",
+            "",
+            "",
+            "",
+            "Chatfield",
+            "Simonyan",
+            "Vedaldi",
+            "Zisserman"
+        ],
+        "b5": [
+            "BING: Binarized normed gradients for objectness estimation at 300fps",
+            "",
+            "",
+            "",
+            "Cheng",
+            "Zhang",
+            "Lin",
+            "Torr"
+        ],
+        "b6": [
+            "Histograms of oriented gradients for human detection",
+            "",
+            "",
+            "",
+            "Dalal",
+            "Triggs"
+        ],
+        "b7": [
+            "Imagenet: A large-scale hierarchical image database",
+            "",
+            "",
+            "",
+            "Deng",
+            "Dong",
+            "Socher",
+            "Li",
+            "Li",
+            "Fei-Fei"
+        ],
+        "b8": [
+            "Integral channel features",
+            "",
+            "",
+            "",
+            "Doll\u00e1r",
+            "Tu",
+            "Perona",
+            "Belongie"
+        ],
+        "b9": [
+            "Category independent object proposals",
+            "",
+            "",
+            "",
+            "Endres",
+            "Hoiem"
+        ],
+        "b10": [
+            "The pascal visual object classes (voc) challenge",
+            "",
+            "",
+            "",
+            "Everingham",
+            "Van Gool",
+            "Williams",
+            "Winn",
+            "Zisserman"
+        ],
+        "b11": [
+            "Object detection with discriminatively trained part-based models",
+            "",
+            "",
+            "",
+            "Felzenszwalb",
+            "Girshick",
+            "Mcallester",
+            "Ramanan"
+        ],
+        "b12": [
+            "Object detection via a multi-region & semantic segmentation-aware cnn model",
+            "",
+            "",
+            "",
+            "Gidaris",
+            "Komodakis"
+        ],
+        "b13": [
+            "Fast R-CNN",
+            "",
+            "",
+            "",
+            "Girshick"
+        ],
+        "b14": [
+            "Rich feature hierarchies for accurate object detection and semantic segmentation",
+            "",
+            "",
+            "",
+            "Girshick",
+            "Donahue",
+            "Darrell",
+            "Malik"
+        ],
+        "b15": [
+            "Spatial pyramid pooling in deep convolutional networks for visual recognition",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b16": [
+            "",
+            "",
+            "Convolutional architecture for fast feature embedding",
+            ""
+        ],
+        "b17": [
+            "Geodesic object proposals",
+            "",
+            "",
+            "",
+            "Kr\u00e4henb\u00fchl",
+            "Koltun"
+        ],
+        "b18": [
+            "Imagenet classification with deep convolutional neural networks",
+            "",
+            "",
+            "",
+            "Krizhevsky",
+            "Sutskever",
+            "Hinton"
+        ],
+        "b19": [
+            "Backpropagation applied to handwritten zip code recognition",
+            "",
+            "",
+            "",
+            "Lecun",
+            "Boser",
+            "Denker",
+            "Henderson",
+            "Howard",
+            "Hubbard",
+            "Jackel"
+        ],
+        "b20": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "b21": [
+            "",
+            "",
+            "Online batch selection for faster training of neural networks",
+            ""
+        ],
+        "b22": [
+            "Ensemble of exemplar-svms for object detection and beyond",
+            "",
+            "",
+            "",
+            "Malisiewicz",
+            "Gupta",
+            "Efros"
+        ],
+        "b23": [
+            "Faster R-CNN: Towards real-time object detection with region proposal networks",
+            "",
+            "",
+            "",
+            "Ren",
+            "He",
+            "Girshick",
+            "Sun"
+        ],
+        "b24": [
+            "",
+            "",
+            "Neural networkbased face detection",
+            ""
+        ],
+        "b25": [
+            "",
+            "",
+            "Overfeat: Integrated recognition, localization and detection using convolutional networks",
+            ""
+        ],
+        "b26": [
+            "",
+            "",
+            "Fracking deep convolutional image descriptors",
+            ""
+        ],
+        "b27": [
+            "",
+            "",
+            "Very deep convolutional networks for large-scale image recognition",
+            ""
+        ],
+        "b28": [
+            "Unsupervised discovery of mid-level discriminative patches",
+            "",
+            "",
+            "",
+            "Singh",
+            "Gupta",
+            "Efros"
+        ],
+        "b29": [
+            "Learning and Example Selection for Object and Pattern Detection",
+            "",
+            "",
+            "",
+            "Sung",
+            "Poggio"
+        ],
+        "b30": [
+            "",
+            "",
+            "Mini-batch primal and dual methods for svms",
+            ""
+        ],
+        "b31": [
+            "Smeulders. Selective search for object recognition",
+            "",
+            "",
+            "",
+            "Uijlings",
+            "Van De Sande",
+            "Gevers"
+        ],
+        "b32": [
+            "Unsupervised learning of visual representations using videos",
+            "",
+            "",
+            "",
+            "Wang",
+            "Gupta"
+        ],
+        "b33": [
+            "Edge boxes: Locating object proposals from edges",
+            "",
+            "",
+            "",
+            "Zitnick",
+            "Dollar"
+        ]
+    },
+    {
+        "tab_0": "For each R \ud835\udc2c\ud835\udc1e\ud835\udc25 Convolutional Network RoI NetworkConvolution Feature MapsRoI Pooling LayerFullySoftmaxConnectedClassificationLast Conv.LayersLossFeature Map\ud835\udc56 R selSoft-L1 Bbox Reg.LossSelective-Search RoIs (R)Mini-batch|R| \u2248 2000Sampler|R sel | = Batch Size",
+        "tab_1": "Table 1 :1Impact of hyperparameters on FRCN training. Online hard example mining is based on the hypothesis that it is important to consider all RoIs in an image and then select hard examples for training. But what if we train with all the RoIs, not just the hard ones?ExperimentModel NLRBbg lo 07 mAP1 2Fast R-CNN [14]VGGM VGG162 0.001 1280.159.6 67.23 4Removing hard mining heuristic (Section 5.2)VGGM VGG162 0.001 128057.2 67.55 6Fewer images per batch (Section 5.3)VGG16 1 0.001 1280.1 066.3 66.37 8Bigger batch, High LRVGGM1 0.004 2048 2057.7 60.49 10(Section 5.4)VGG161 0.003 2048 2067.5 68.711VGG16 1 0.001 128069.712 13Our ApproachVGGM VGG162 0.001 128062.0 69.95.4. Why just hard examples, when you can use all?",
+        "tab_2": "Table 2 :2Computational statistics of training FRCN[14] and FRCN with OHEM (using an Nvidia Titan X GPU). : uses gradient accumulation over two forward/backward passes lowers the training loss below the bg lo = 0.1 heuristic. Our proposed online hard example mining method achieves the lowest training loss of all methods, validating our claims that OHEM leads to better training for FRCN.VGGMVGG16FRCN Ours FRCN FRCN* Ours*time (sec/iter)0.130.220.600.571.00max. memory (G)2.63.611.26.48.7*",
+        "tab_3": "Table 3 :3VOC 2007 test detection average precision (%). All methods use VGG16. Training set key: 07: VOC07 trainval, 07+12: union of 07 and VOC12 trainval. All methods use bounding-box regression. Legend: M: using multi-scale for training and testing, B: multi-stage bbox regression. FRCN refers to FRCN [14] with our training schedule. method M B train set mAP aero bike bird boat bottle bus car cat chair cow table dog horse mbike persn plant sheep sofa train tvFRCN [14]0766.9 74.5 78.3 69.2 53.2 36.6 77.3 78.2 82.0 40.7 72.7 67.9 79.6 79.2 73.0 69.0 30.1 65.4 70.2 75.8 65.8FRCN0767.2 74.6 76.8 67.6 52.9 37.8 78.7 78.8 81.6 42.2 73.6 67.0 79.4 79.6 74.1 68.3 33.4 65.9 68.7 75.4 68.1Ours0769.9 71.2 78.3 69.2 57.9 46.5 81.8 79.1 83.2 47.9 76.2 68.9 83.2 80.8 75.8 72.7 39.9 67.5 66.2 75.6 75.9FRCN0772.4 77.8 81.3 71.4 60.4 48.3 85.0 84.6 86.2 49.4 80.7 68.1 84.1 86.7 80.2 75.3 38.7 71.9 71.5 77.9 67.8MR-CNN [13]0774.9 78.7 81.8 76.7 66.6 61.8 81.7 85.3 82.7 57.0 81.9 73.2 84.6 86.0 80.5 74.9 44.9 71.7 69.7 78.7 79.9Ours0775.1 77.7 81.9 76.0 64.9 55.8 86.3 86.0 86.8 53.2 82.9 70.3 85.0 86.3 78.7 78.0 46.8 76.1 72.7 80.9 75.5FRCN [14]07+12 70.0 77.0 78.1 69.3 59.4 38.3 81.6 78.6 86.7 42.8 78.8 68.9 84.7 82.0 76.6 69.9 31.8 70.1 74.8 80.4 70.4Ours07+12 74.6 77.7 81.2 64.2 50.2 86.2 83.8 88.1 55.2 80.9 73.8 85.1 82.6 77.8 74.9 43.7 76.1 74.2 82.3 79.6MR-CNN [13]07+12 78.2 80.3 84.1 78.5 70.8 68.5 88.0 85.9 87.8 60.3 85.2 73.7 87.2 86.5 85.0 76.4 48.5 76.3 75.5 85.0 81.0Ours07+12 78.9 80.6 85.7 79.8 69.9 60.8 88.3 87.9 89.6 59.7 85.1 76.5 87.1 87.3 82.4 78.8 53.7 80.5 78.7 84.5 80.7",
+        "tab_4": "Table 4 :4VOC 2012 test detection average precision (%). All methods use VGG16. Training set key: 12: VOC12 trainval, 07++12: union of VOC07 trainval, VOC07 test, and VOC12 trainval. Legend: M: using multi-scale for training and testing, B: iterative bbox regression. method M B train set mAP aero bike bird boat bottle bus car cat chair cow table dog horse mbike persn plant sheep sofa train tv http://host.robots.ox.ac.uk:8080/anonymous/XNDVK7.html, 2 http://host.robots.ox.ac.uk:8080/anonymous/H49PTT.html, 3 http://host.robots.ox.ac.uk:8080/anonymous/LSANTB.html, 4 http://host.robots.ox.ac.uk:8080/anonymous/R7EAMX.htmlFRCN [14]1265.7 80.3 74.7 66.9 46.9 37.7 73.9 68.6 87.7 41.7 71.1 51.1 86.0 77.8 79.8 69.8 32.1 65.5 63.8 76.4 61.7Ours 11269.8 81.5 78.9 69.6 52.3 46.5 77.4 72.1 88.2 48.8 73.8 58.3 86.9 79.7 81.4 75.0 43.0 69.5 64.8 78.5 68.9MR-CNN [13]1270.7 85.0 79.6 71.5 55.3 57.7 76.0 73.9 84.6 50.5 74.3 61.7 85.5 79.9 81.7 76.4 41.0 69.0 61.2 77.7 72.1Ours 21272.9 85.8 82.3 74.1 55.8 55.1 79.5 77.7 90.4 52.1 75.5 58.4 88.6 82.4 83.1 78.3 47.0 77.2 65.1 79.3 70.4FRCN [14]07++12 68.4 82.3 78.4 70.8 52.3 38.7 77.8 71.6 89.3 44.2 73.0 55.0 87.5 80.5 80.8 72.0 35.1 68.3 65.7 80.4 64.2Ours 307++12 71.9 83.0 81.3 72.5 55.6 49.0 78.9 74.7 89.5 52.3 75.0 61.0 87.9 80.9 82.4 76.3 47.1 72.5 67.3 80.6 71.2MR-CNN [13]07++12 73.9 85.5 82.9 76.6 57.8 62.7 79.4 77.2 86.6 55.0 79.1 62.2 87.0 83.4 84.7 78.9 45.3 73.4 65.8 80.3 74.0Ours 407++12 76.3 86.3 85.0 77.0 60.9 59.3 81.9 81.1 91.9 55.8 80.6 63.0 90.8 85.1 85.3 80.7 54.9 78.3 70.8 82.8 74.9mini-batch iterations, with an initial learning rate of 0.001and decay step size of 160k, owing to a larger epoch size.1 ",
+        "tab_5": "Table 5 :5MS COCO 2015 test-dev detection average precision (%). All methods use VGG16. Legend: M: using multi-scale for training and testing. The network evaluates each proposal RoI to get scores and relocalized boxes R 1 . High-scoring R 1 boxes are the rescored and relocalized, yielding boxes R 2 . Union of R 1 and R 2 is used as the final set R F for postprocessing, where R NMS FAP@IoUarea FRCN  \u2020 Ours Ours [+M] Ours* [+M][0.50 : 0.95]all 19.722.624.425.50.50all 35.942.544.445.90.75all 19.922.224.826.1[0.50 : 0.95] small3.55.07.17.4[0.50 : 0.95]med. 18.823.726.427.7[0.50 : 0.95]large 34.637.938.540.3\u2020 from the leaderboard, *trained on trainval setIterative bounding-box regression (B). We adopt theiterative localization and bounding-box (bbox) votingscheme from [13].",
+        "tab_6": "Table 6 :6Impact of multi-scale and iterative bbox reg.Multi-scale (M)Iterative bboxVOC07 mAPTrainTestreg. (B)FRCNOurs67.269.968.471.170.872.771.974.167.770.768.671.971.272.972.475.1"
+    }
+]

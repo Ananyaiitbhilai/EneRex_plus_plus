@@ -1,0 +1,919 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Under review as a conference paper at ICLR 2015 Deep Fried Convnets</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+				<date type="published" when="2015-02-27">27 Feb 2015</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Zichao</forename><surname>Yang</surname></persName>
+							<email>zichaoy@cs.cmu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Carnegie Mellon University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Marcin</forename><surname>Moczulski</surname></persName>
+							<email>marcin.moczulski@stcatz.ox.ac.uk</email>
+							<affiliation key="aff1">
+								<orgName type="institution">University of Oxford</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Misha</forename><surname>Denil</surname></persName>
+							<email>misha.denil@cs.ox.ac.uk</email>
+							<affiliation key="aff1">
+								<orgName type="institution">University of Oxford</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Nando</forename><surname>De Freitas</surname></persName>
+							<email>nandodefreitas@google.com</email>
+							<affiliation key="aff1">
+								<orgName type="institution">University of Oxford</orgName>
+							</affiliation>
+							<affiliation key="aff3">
+								<orgName type="institution">Canadian Institute for Advanced Research</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Alex</forename><surname>Smola</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">Carnegie Mellon University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Le</forename><surname>Song</surname></persName>
+							<email>lsong@cc.gatech.edu</email>
+							<affiliation key="aff2">
+								<orgName type="institution">Georgia Institute of Technology</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Ziyu</forename><surname>Wang</surname></persName>
+							<email>ziyu.wang@cs.ox.ac.uk</email>
+							<affiliation key="aff1">
+								<orgName type="institution">University of Oxford</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><surname>Google</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Google</forename><surname>Deepmind</surname></persName>
+						</author>
+						<title level="a" type="main">Under review as a conference paper at ICLR 2015 Deep Fried Convnets</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2015-02-27">27 Feb 2015</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">50401F8733B0C82837F31580E1174C6C</idno>
+					<idno type="arXiv">arXiv:1412.7149v2[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.7.3" ident="GROBID" when="2023-11-21T16:03+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>The fully connected layers of a deep convolutional neural network typically contain over 90% of the network parameters, and consume the majority of the memory required to store the network. Reducing the number of parameters while preserving predictive performance is critically important for deploying deep neural networks in memory constrained environments such as GPUs or embedded devices. In this paper we show how kernel methods, in particular a single Fastfood layer, can be used to replace the fully connected layers in a deep convolutional neural network. This deep fried network is end-to-end trainable in conjunction with convolutional layers. Our new architecture substantially reduces the memory footprint of convolutional networks trained on MNIST and ImageNet with no drop in predictive performance.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>A standard convolutional network is composed of two types of layers, each with very different properties. Convolutional layers, which contain a small fraction of the network parameters, represent most of the computational effort. In contrast, fully connected layers contain the vast majority of the parameters but are comparatively cheap to evaluate <ref type="bibr" target="#b10">(Krizhevsky, 2014)</ref>. This imbalance between memory and computation suggests that the efficiency of these two types of layers should be addressed in different ways. <ref type="bibr" target="#b5">Denton et al. (2014)</ref> and <ref type="bibr" target="#b8">Jaderberg et al. (2014)</ref> both describe methods for minimizing computational cost of evaluating a network at test time by replacing the dense convolutional filters with separable approximations. These approaches realize speed gains at test time but do not address the issue of training, since the approximations are made after the network has been fully trained. Additionally, neither approach addresses the issue of memory usage, since they both work with approximations of the convolutional layers, which represent only a small portion of the total storage required. Many other works have addressed the computational efficiency of convolutional networks in more specialized settings (eg., <ref type="bibr" target="#b6">Farabet et al., 2010;</ref><ref type="bibr" target="#b13">Li et al., 2014)</ref>.</p><p>In contrast to the above approaches, <ref type="bibr" target="#b4">Denil et al. (2013)</ref> demonstrate that there is significant redundancy in the parameterization of several deep learning models, and exploit this to reduce the number of parameters required. More specifically, their method represents the parameter matrix as a product of two low rank factors, and the training algorithm fixes one factor (called static parameters) and only updates the other factor (called dynamic parameters). However, the static parameters are not jointly trained with the dynamic parameters. <ref type="bibr" target="#b19">Sainath et al. (2013)</ref>; <ref type="bibr" target="#b21">Xue et al. (2013)</ref> are similar to <ref type="bibr" target="#b4">Denil et al. (2013)</ref> in that they use SVD to decompose the matrix to reduce the memory footprint. However, they only applied SVD to the trained model and SVD is a post processing step. In contrast with it, we are able to train the deep fried network from scratch.</p><p>In this paper we show how the total memory required to represent a deep convolutional neural network can be substantially reduced without sacrificing predictive performance.</p><p>Our approach works by replacing the fully connected layers of the network with a kernel machine, in particular the Fastfood method of <ref type="bibr" target="#b12">Le et al. (2013)</ref>. Previous nonlinear kernel machines have not been able to scale to large datasets such as ImageNet (millions of data points and many classes), since their memory requirements are typically quadratic in the number of data points. Using Fastfood to represent a nonlinear kernel, we are able to retain essentially the full representation power of a kernel machine, while at the same time being much more efficient in computation and memory.</p><p>Another innovation of our current work is a novel adaptive variant of Fastfood which allows us to jointly learn the kernel function along with the rest of the convolution parameters of the network. As a result, this novel network architecture, which we call a deep fried convolutional network, is able to achieve the same predictive performance as a standard convolutional network on ImageNet using approximately half the number of parameters. Further reduction in memory use is also possible with a marginal loss of performance.</p><p>Our work is in line with recent interest in combining kernels with deep neural networks <ref type="bibr" target="#b7">(Huang et al., 2014;</ref><ref type="bibr" target="#b0">Cho &amp; Saul, 2009;</ref><ref type="bibr" target="#b2">Dai et al., 2014;</ref><ref type="bibr" target="#b15">Mairal et al., 2014)</ref>. However, our proposed method presents significant advances over previous attempts, allowing us to gain in term of both accuracy and memory.</p><p>The Doubly Stochastic Gradients method of <ref type="bibr" target="#b2">Dai et al. (2014)</ref> showed that effective use of randomization can allow kernel methods to scale to extremely large data sets, approaching the performance of deep learning methods on ImageNet using convolutional features. However, this approach operates on fixed convolution features and it can not jointly learn the kernel classifier and convolution filters. <ref type="bibr" target="#b15">Mairal et al. (2014)</ref> showed how to learn a kernel function in an unsupervised manner which can take into account hierarchical convolution features. Unlike <ref type="bibr" target="#b15">Mairal et al. (2014)</ref> we learn our kernel representation in a supervised way.</p><p>There have been other attempts in replacing the fully connected layers from the neural network literature. The Network in Network architecture of <ref type="bibr" target="#b14">Lin et al. (2014)</ref> achieves state of the art results on several deep learning benchmarks by replacing the fully connected layers with global average pooling. A similar approach was used by <ref type="bibr" target="#b20">Szegedy et al. (2014)</ref> to win the ILSVRC 2014 object detection competition <ref type="bibr" target="#b18">(Russakovsky et al., 2014)</ref>.</p><p>Although the global average pooling approach achieves impressive results, it has two significant drawbacks. First, feature transfer is more difficult with this approach. It is very common in practice to take a convolutional network trained on ImageNet and re-train the top layer on a different data set, re-using the features learned from ImageNet for the new task (potentially with fine-tuning), and this is difficult with global average pooling. This deficiency is noted by <ref type="bibr" target="#b20">Szegedy et al. (2014)</ref>, and motivates them to add an extra linear layer to the top of their network to enable them to more easily adapt and fine tune their network to other label sets. The second drawback of global average pooling is computation. Convolutional layers are much more expensive to evaluate than fully connected layers, so replacing fully connected layers with more convolutions can decrease model size but comes at the cost of increased evaluation time. In contrast, our approach decreases both model size and computational complexity.</p><p>Recently <ref type="bibr" target="#b1">Collins &amp; Kohli (2014)</ref> have also targeted memory usage of the the fully connected layers of convolutional networks. Their approach is based on applying a sparsity inducing regularizer during optimization which introduces many zero-weight connections that can be removed at test time. Although they achieve a substantial reduction in the total number of parameters, the reduction in memory usage is less dramatic since realizing memory gains requires them to maintain sparse data structures which introduce significant memory overhead. Moreover, their approach reduces memory consumption only at test time, whereas our memory reduction is also realized during training.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Random features for kernels</head><p>The main bottleneck in scaling up kernel methods is the storage and computation of the kernel matrix, K, which is usually dense. Storing the matrix requires O(m 2 ) space, and computing it takes O(m 2 d) operations, where m is the number of data points and d is the dimension. An important insight, noted by <ref type="bibr" target="#b17">Rahimi &amp; Recht (2007)</ref>, is that the infinite kernel expansion can be approximated in an unbiased manner using a randomly drawn basis function. For shift-invariant kernels this relies on a classical result from harmonic analysis, Theorem 1 (Bochner). A continuous, shift-invariant kernel k(x, x ) = k(x -x ) on R d is positive definite if and only if k is the Fourier transform of a non-negative measure µ(w).</p><p>This measure, known as the spectral density, in turn implies the existence of a probability measure p(w) = µ(w)/α such that</p><formula xml:id="formula_0">k(x, x ) = αe -iw (x-x ) p(dw) = αE w [cos(w x) cos(w x ) + sin(w x) sin(w x )],</formula><p>where the imaginary part is dropped since both the kernel and distribution are real. Finally, by sampling n vectors i.i.d. from p and collecting them in a matrix W = (w 1 , . . . w n ) , this kernel can then be approximated as the inner-product of random features</p><formula xml:id="formula_1">φ(x) = α/n (cos(Wx), sin(Wx)) ,<label>(1)</label></formula><p>where the cos and sin functions are applied element-wise to the vector Wx. Then approximating a kernel function with random features becomes a matter of deriving the correct distribution for w. Such distributions have been derived for many commonly used kernels such as</p><formula xml:id="formula_2">Squared exponential kernel: exp - x -x 2 2 2 w SE ∼ N (0, diag( 2 ) -1 ) (2)</formula><p>In fact, the random feature representation of a kernel function is generally applicable to any positive definite kernel function, and not just limited to shift-invariant kernels. For instance, if W is a random Gaussian matrix and we use Rectified Linear units (ReLU's), </p><formula xml:id="formula_3">φ(x) = 1/n max(0, Wx),<label>(3)</label></formula><formula xml:id="formula_4">k(x, x ) = E w [φ(x) φ(x )] = 1 2π ||x||||y||(sin(θ) + (π -θ) cos(θ)), (<label>4</label></formula><formula xml:id="formula_5">)</formula><p>where θ is the angle between x and x .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Deep Fried Convolutional Networks</head><p>A convolutional network is typically composed of a cascade of alternating convolution and pooling layers, followed by several fully connected layers at the top of the network <ref type="bibr" target="#b11">(Krizhevsky et al., 2012)</ref>. Compared to a standard multilayer perceptron, convolutional networks use much fewer parameters by tying connection weights over space; however, the fully connected layers at the top of the network do not achieve this savings. The fully connected layers typically account for more than 95% of the network parameters <ref type="bibr" target="#b10">(Krizhevsky, 2014)</ref>. The parameters in these layers are often extremely redundant <ref type="bibr" target="#b4">(Denil et al., 2013)</ref>. We propose to greatly reduce the memory footprint of the fully connected layers by replacing them with kernel random feature approach, called Fastfood <ref type="bibr" target="#b12">(Le et al., 2013)</ref>. We call this new architecture with Fastfood layer replacing the multilayer perceptron in convolutional neural network a deep fried convolutional network. An illustration of the new architecture can be found in Figure <ref type="figure">1</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Fastfood Layer</head><p>Despite the simplicity of the random feature approach to kernel approximation, the matrix W still requires O(nd) storage and computation. To further reduce the amount of storage and computation required, <ref type="bibr" target="#b12">Le et al. (2013)</ref>  of constructing the W matrix directly, Fastfood introduces an approximation of W as a product W = SHGΠHB.</p><p>(5) Here S, G, B are diagonal matrices and Π is a permutation. Notice S, G, B, and Π only require O(n) storage. H, in the above equation, is the Walsh-Hadamard matrix and is defined recursively as</p><formula xml:id="formula_6">H 2 := 1 1 1 -1 and H 2d := H d H d H d -H d .</formula><p>The  <ref type="formula">2013</ref>), if we construct our random features with W in the same way as detailed in Equation <ref type="formula" target="#formula_1">1</ref>, we can recover the Gaussian kernel in expectation and if we construct features using Equation 3 then we recover the arc-cosine kernel as described above.</p><p>Each of the S, G and B parameters plays a different role in the Fastfood approximation <ref type="bibr" target="#b22">(Yang et al., 2014</ref>):</p><p>• B is the rescaling parameter of different input dimensions. By adapting B, we are using Automatic Relevance Determination on features. • G controls the bandwidth of the kernel and its spectral incoherence.</p><p>• S represents different radical kernel types. For example, for the RBF kernel S follows Chi-squared distribution. By adapting S, we learn the correct kernel type.</p><p>Standard Fastfood is essentially a fast random matrix matrix computation method, where the matrix W in Equation 5 is constructed to approximately behave like a matrix of iid Gaussian entries in a memory efficient way. In the standard Fastfood method the diagonal matrices S, G and B are drawn randomly from distributions chosen so as to approximate a specific kernel; however, as we show below, we can instead treat them as free parameters and optimize their values using backpropagation. This operation is equivalent to learning the kernel function.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Back propagation</head><p>When the diagonal matrices S, G and B need to be learned from data, we can view Fastfood as a composite layer with three parametrized layers and additional fixed components. In this section we show how to use backpropagation to optimize the parameters in S, G and B in the Fastfood layer. Furthermore we will show that the O(n log d) computational advantage that Fastfood enjoys in the forward pass is preserved in the backward pass.</p><p>Let Fastfood be the l-th layer of the network, then h l+1 = Wh l = SHGΠHBh l , where h l and h l+1 are the input and output respectively. For simplicity, we assume W is a d × d matrix and h l ∈ R d×m , where m is the data batch size. Using backpropagation, assume we already have ∂E ∂h l+1 , where E is the objective function, then</p><formula xml:id="formula_7">∂E ∂S = diag ∂E ∂h l+1 (HGΠHBh l ) (6)</formula><p>Since S is a diagonal matrix, we only need to calculate the derivative w.r.t the diagonal entries and this step requires only O(md) operations for a data batch of size m.</p><p>Denote the partial products by h S = HGΠHBh l , h H1 = GΠHBh l , h G = ΠHBh l , h Π = HBh l and h H2 = Bh l . Then the gradients with respect to different parameters in the Fastfood layer can be computed recursively as</p><formula xml:id="formula_8">∂E ∂h S = S ∂E ∂h l+1 ∂E ∂h H1 = H ∂E ∂h S ∂E ∂G = diag ∂E ∂h H1 h G ∂E ∂h G = G ∂E ∂h H1 ∂E ∂h Π = Π ∂E ∂h G ∂E ∂h H2 = H ∂E ∂h Π , ∂E ∂B = diag ∂E ∂h H2 h l ∂E ∂h l = B ∂E ∂h H2</formula><p>Note that the operations in ∂E ∂h H1 and ∂E ∂h H2 are simply applications of the Hadamard transform, since H = H, and consequently can be computed in O(md log d) time. The operation in ∂E ∂hΠ is an application of a permutation (the transpose of permutation matrix is a permutation matrix) and can be computed in O(md) time. All other operations are diagonal matrix multiplications. The back propagation algorithm can also push the gradients further down to the convolutional layers, allowing us to jointly train the Fastfood layers and convolutional layers.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Capacity Control via Dropout</head><p>A key problem in deep networks is to regularize the layers. In particular, overfitting in the fully connected layers will greatly affect the performance of the overall system. One of the problems is that overfitting in one layer will prevent the previous layer from extracting useful features. This also affects the composite Fastfood layer, since a considerable amount of capacity can be stored in the scaling matrices G and S. In particular, we found in experiments that simple weight decay on the parameters S, G and B can be insufficient to control capacity in several cases.</p><p>The composite Fastfood layer can be thought of as several individual cascaded layers. Only the layers with diagonal matrices are parameterised. It is possible to apply any complexity control technique to these individual layers, including dropout. This understanding provides us with a powerful intuition for adapting Fastfood while being able to control its complexity. This observation might seem trivial, however complexity control within the Fastfood layer is essential to achieve good performance.</p><p>When replacing multiple fully connected layers with a single Fastfood layer, we find that one dropout layer does not suffice. Instead, we use dropout within the Fastfood. Applying dropout within the Fastfood layer is not different from using dropout in a fully connected layer, as </p><formula xml:id="formula_9">h l+1 = SHGΠHBh l decomposes into h l+2 =</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">MNIST Experiments</head><p>We begin our experiments by studying a classic problem -optical character recognition using MNIST. To assess the efficacy of Fastfood, we need to consider two different scenarios.</p><p>Firstly as a drop in replacement for the fully connected layer of a previously trained network; and second, when integrated into a joint training pipeline. Both aspects are reflected in Table <ref type="table" target="#tab_2">1</ref>.</p><p>As a reference model we use the Caffe implementation of the LeNet convolutional network.<ref type="foot" target="#foot_0">1</ref> It achieves an error rate of 0.87% on the MNIST dataset.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Fixed convolution layers</head><p>We take the trained reference network and extract features from just after the final pooling layer to use as the new training data. Using these features we train a deep fried network consisting of a single Fastfood layer followed by a logistic regression. We use the rectified linear (ReLU) function for the Fastfood layer (corresponding to the arc-cosine kernel).</p><p>We search the standard deviation of the random Gaussian matrix used in Fastfood within the set {0.001, 0.005, 0.01, 0.05} and vary the number of features that Fastfood uses among {1024, 2048}. We also train an MLP which mirrors the top layer structure of the original network using the same features, similar to the experiments of <ref type="bibr" target="#b2">Dai et al. (2014)</ref>.</p><p>The results of this experiment can be seen in Table <ref type="table" target="#tab_2">1</ref>  <ref type="bibr">(left)</ref>. From this table we can see that the performance of the deep fried network is very similar to the original, but the number of parameters is significantly less. Somewhat paradoxically, the MLP trained on convolutional features actually achieves slightly better performance than the original network; however, we did not investigate this further, preferring to focus our efforts on more realistic experiments.</p><p>Jointly trained layers In this experiment we jointly train all layers of the deep fried network, including the convolutional layers, which were held fixed in the previous experiment. Again we used the ReLu activation function and experimented with {1024, 2048} features in the Fastfood transform. These jointly trained deep fried networks are directly comparable to the original reference model.</p><p>The results of this experiment can be seen in Table <ref type="table" target="#tab_2">1</ref> (right). Using only a tiny portion of the parameters of the reference model we are able to improve on its performance using a deep fried network. Looking at the results, we also observed that in spite of their good performance, the deep fried networks were actually overfitting the training data. This happens as a result of increasing the number of features in the final softmax layer (500 in the original model, and 1024 or 2048 in the deep fried networks). To combat this we experimented with adding dropout between the Fastfood and softmax layers, which improves results across the board (lower part of the table ).</p><p>The main message from these experiments is that the deep fried networks are able to obtain good performance but require only a small fraction of the number of parameters of the original network. The best deep fried result is obtained after an 11x reduction in the number of parameters as compared to the original network.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Imagenet Experiments</head><p>We now examine how deep fried networks behave in a more realistic setting with a much larger dataset and many more classes. Specifically, we use the ImageNet ILSVRC-2012 dataset which has 1.2M training examples and 50k validation examples distributed across 1000 classes.</p><p>We use the the Caffe ImageNet model<ref type="foot" target="#foot_1">2</ref> as the reference model in these experiments <ref type="bibr" target="#b9">(Jia et al., 2014)</ref>. This model is a modified version of AlexNet <ref type="bibr" target="#b11">(Krizhevsky et al., 2012)</ref> Fixed convolutional layers Following our MNIST experiment, we first train a simple deep fried network on features extracted from the final pooling layer of the reference model. This setting mirrors the common use case for convolutional networks where they are first trained on ImageNet and then the lower layers are frozen and the top layers are re-trained on a different task.</p><p>Although the reference model uses two fully connected layers, we use investigate replacing the two fully connected layers with a single layer of Fastfood. As in our previous experiments we also train an MLP with the same structure as the top layers of the reference model on the same data.</p><p>We use dropout in all experiments in this section since it is used in the reference model and our earlier experiments found it to uniformly improve performance. We also observed that training on activations still leads to overfitting with the adaptive Fastfood layers. We found that moving dropout to the input of the deep fried network provided sufficient additional regularisation in this case, and our results incorporate this change.</p><p>The results of this experiment are shown in Table <ref type="table" target="#tab_3">2</ref> (left). Following <ref type="bibr" target="#b23">Yosinski et al. (2014)</ref> and <ref type="bibr" target="#b2">Dai et al. (2014)</ref> we observe that training on ImageNet activations results in significantly lower performance than the original network. Nonetheless we see that the deep fried networks are able to obtain comparable performance to an MLP trained on activations, but with a significant reduction in the number of parameters. The results of <ref type="bibr" target="#b2">Dai et al. (2014)</ref> surpass both the deep fried networks an the MLP on this experiment; however, their result uses nearly two orders of magnitude more parameters than their largest deep fried competitor.</p><p>From this experiment we can see that the performance of the deep fried network is significantly improved by adapting the parameters of the Fastfood layer. This effect was not visible with MNIST, but adapting improves top-1 performance on ImageNet by more than 4%.</p><p>Jointly trained layers Finally we train a deep fried network jointly with the convolutional layers of the reference model. With 16,384 features in the Fastfood layer we lose less than 0.3% top-1 validation performance, but the number of parameters in the network is reduced from 58.7M to 16.4M which corresponds to a factor of 3.6x. By further increasing the number of features to 32,768, and with careful application of capacity control within the Fastfood layer, we are able to perform 0.6% better than the reference model while using approximately half as many parameters. We note that the use of dropout regularization within the Fastfood layer is critical for achieving this performance.</p><p>Nearly all of the parameters of the deep fried network reside in the final logistic regression layer, which still uses a dense linear transformation, and accounts for more than 99% of the parameters of the network. This is a side effect of the large number of classes in ImageNet.</p><p>For a data set with fewer classes the advantage of deep fried convolutional networks would be even greater. Moreover, as shown by <ref type="bibr" target="#b4">Denil et al. (2013)</ref>, the last layer often contains considerable redundancy. We also note that the technique of <ref type="bibr" target="#b1">Collins &amp; Kohli (2014)</ref> could be applied to the final layer of a deep fried network to further reduce memory consumption at test time.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Conclusion</head><p>In this paper we proposed a new learning architecture called the deep fried convolutional network that can achieve a substantial reduction in memory footprint without sacrificing predictive performance in large scale image classification problems such as ImageNet. Further reductions in memory usage can also be achieved in exchange for &lt;1% reduction in top-1 performance.</p><p>Our approach is based on kernel methods, in particular the Fastfood method for kernel approximation. The deep fried convolutional network is derived by replacing the fully connected layers of a standard deep convolutional network with a single adaptive Fastfood transformation. We have also shown how the parameters of the Fastfood layer can be learned jointly with the convolutional layers of the network. We have shown that we can match accuracy of conventional fully connected layers at lower computational cost and a smaller number of parameters. This makes deep fried networks applicable to a large family of applications.</p><p>Unlike previous works, our approach is computationally efficient and preserves the flexibility of fully connected layers for feature transfer (cf. <ref type="bibr" target="#b14">Lin et al., 2014;</ref><ref type="bibr" target="#b20">Szegedy et al., 2014)</ref>, it realizes memory savings both during training and a test time (cf. <ref type="bibr" target="#b1">Collins &amp; Kohli, 2014)</ref>, and does not require layerwise pretraining (cf. <ref type="bibr" target="#b3">Denil et al., 2012)</ref>.</p><p>A natural avenue for future work is to investigate the effects of multiple stacked Fastfood layers which could potentially improve performance even further. Moreover, applying the sparsity regularisation of <ref type="bibr" target="#b1">Collins &amp; Kohli (2014)</ref> to the final logistic regression layer in our deep fried networks could result in even further memory savings than either technique in isolation. We also observed in our experiments that careful application of capacity control is essential to achieve good performance with deep fried networks, and a more thorough investigation of how to introduce this control would be very useful.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head></head><label></label><figDesc>we obtain the rotationally invariant arc-cosine kernel introduced in<ref type="bibr" target="#b0">Cho &amp; Saul (2009)</ref>;<ref type="bibr" target="#b16">Pandey &amp; Dukkipati (2014)</ref> </figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head></head><label></label><figDesc>The structure of a deep fried convolutional network. The convolution and pooling layers are identical to those in a standard convnet. However, the fully connected layers at the top are replaced by a Fastfood layer that performs a randomized non-linear mapping into a high-dimensional feature space approximating the arccos kernel from Section 2.</figDesc><table><row><cell>Represent as a vector</cell><cell></cell></row><row><cell></cell><cell>Softmax</cell></row><row><cell>Convolutional and pooling layers</cell><cell>FastFood</cell></row><row><cell>Figure 1:</cell><cell></cell></row></table><note><p>introduced a method named Fastfood which reduces computation and storage to O(n log d) and O(n) respectively. Specifically, instead</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 1 :</head><label>1</label><figDesc>SHGh l+1 and h l+1 = ΠHBh l Comparison between a reference convolutional network with one fully connected layer and two deep fried networks on the MNIST dataset. Left: We trained a convolutional network (the reference model), discarded the fully connected layer, and retrained it using a new fully connected layer (MLP) and two different deep fried networks. Right: Joint training of a deep fried network. The difference of 25,500 parameters amounts to the number of coefficients used in the convolutional layer. Suffixes differentiate between different configurations. A indicates that the parameters of the Fastfood layer are adapted, and D indicates that dropout is used during training.</figDesc><table><row><cell>(7)</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 2 :</head><label>2</label><figDesc>, and achieves 42.6% top-1 error on the ILSVRC-2012 validation set. The initial layers of this model are a cascade of convolution and pooling layers with interspersed normalization. The last several layers of the network take the form of an MLP and follow a 9216-4096-4096-1000 architecture. The final layer is a logistic regression layer with 1000 output classes. All layers of this network use the ReLU nonlinearity, and dropout is used in the fully connected layers to prevent overfitting.There are total of 58,649,184 parameters in the reference model, of which 58,621,952 are in the fully connected layers and only 27,232 are in the convolutional layers. The parameters of fully connected layer take up 99.9% of the total parameters. We show that our deep fried architecture can greatly reduce the memory footprint of this model. Performance on ILSVRC 2012. MLP indicates that we re-train the same 9216-4096-4096-1000 MLP as in the original network with the convolutional weights fixed. Our method is Fastfood-16 and Fastfood-32, using 16,384 and 32,768 Fastfood features respectively. Reference Model shows the accuracy of the jointly trained Caffe reference model.<ref type="bibr" target="#b2">Dai et al. (2014)</ref> report results of max-voting with an ensemble of 10 models. The result of<ref type="bibr" target="#b1">Collins &amp; Kohli (2014)</ref> is based on the the Caffe AlexNet model (similar but not identical to the Caffe reference model) and achieves ∼4x reduction in memory usage, slightly smaller than Fastfood-16 but with inferior performance.</figDesc><table><row><cell>ImageNet (fixed) Dai et al. (2014) MLP Fastfood-16-D Fastfood-32-D Fastfood-16-AD Fastfood-32-AD Reference Model 42.59% Error 44.50% 10x163M Params 47.76% 58.6M 50.09% 16.4M 50.53% 32.8M 45.30% 16.4M 43.77% 32.8M 58.7M</cell><cell>ImageNet (joint) Collins &amp; Kohli (2014) Fastfood-16-D Fastfood-32-D Fastfood-16-AD Fastfood-32-AD Reference Model</cell><cell>Error Params 44.40% -46.88% 16.4M 46.63% 32.8M 42.90% 16.4M 41.93% 32.8M 42.59% 58.7M</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>https://github.com/BVLC/caffe/blob/master/examples/mnist/lenet.prototxt</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>https://github.com/BVLC/caffe/tree/master/models/bvlc_reference_caffenet</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Acknowledgments</head><p>This paper is supported in part by Samsung, Google and the National Science Foundation under awards CNS-1042537 and CNS-1042543 (PRObE). http://www.nmc-probe.org/</p></div>
+			</div>
+
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Kernel methods for deep learning</title>
+		<author>
+			<persName><forename type="first">Youngmin</forename><surname>Cho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lawrence</forename><forename type="middle">K</forename><surname>Saul</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems 22: 23rd Annual Conference on Neural Information Processing Systems 2009. Proceedings of a meeting held</title>
+		<meeting><address><addrLine>Vancouver, British Columbia, Canada</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2009-12-10">10 December 2009. 2009</date>
+			<biblScope unit="page" from="342" to="350" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Memory bounded deep convolutional networks</title>
+		<author>
+			<persName><forename type="first">Maxwell</forename><forename type="middle">D</forename><surname>Collins</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pushmeet</forename><surname>Kohli</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+		<respStmt>
+			<orgName>University of Wisconsin-Madison</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">Technical report</note>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Scalable kernel methods via doubly stochastic gradients</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Dai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Raj</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Balcan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Song</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Learning where to attend with deep architectures for image tracking</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Denil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Bazzani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Larochelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>De Freitas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="2151" to="2184" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Predicting parameters in deep learning</title>
+		<author>
+			<persName><forename type="first">Misha</forename><surname>Denil</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Shakibi</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Babak</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Dinh</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Laurent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marc</forename><forename type="middle">'</forename><surname>Ranzato</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Aurelio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nando</forename><surname>Freitas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems 26: 27th Annual Conference on Neural Information Processing Systems 2013. Proceedings of a meeting</title>
+		<meeting><address><addrLine>Lake Tahoe, Nevada</addrLine></address></meeting>
+		<imprint>
+			<publisher>United States</publisher>
+			<date type="published" when="2013">December 5-8, 2013. 2013</date>
+			<biblScope unit="page" from="2148" to="2156" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Exploiting linear structure within convolutional networks for efficient evaluation</title>
+		<author>
+			<persName><forename type="first">Emily</forename><forename type="middle">L</forename><surname>Denton</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Zaremba</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Wojciech</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joan</forename><surname>Bruna</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yann</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rob</forename><surname>Fergus</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">Z</forename><surname>Ghahramani</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">N</forename><forename type="middle">D</forename><surname>Lawrence</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page" from="1269" to="1277" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Hardware accelerated convolutional neural networks for synthetic vision systems</title>
+		<author>
+			<persName><forename type="first">Clément</forename><surname>Farabet</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Martini</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Berin</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Akselrod</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Polina</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Talay</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Selçuk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yann</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eugenio</forename><surname>Culurciello</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Circuits and Systems (ISCAS)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="257" to="260" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Kernel methods match deep neural networks on timit</title>
+		<author>
+			<persName><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Po-Sen</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Avron</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Haim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tara</forename><forename type="middle">N</forename><surname>Sainath</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sindhwani</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Vikas</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ramabhadran</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bhuvana</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE International Conference on Acoustics, Speech, and Signal Processing</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page">6</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Speeding up convolutional neural networks with low rank expansions</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Jaderberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vedaldi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Zisserman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">British Machine Vision Conference</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<author>
+			<persName><forename type="first">Yangqing</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Evan</forename><surname>Shelhamer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jeff</forename><surname>Donahue</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Karayev</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sergey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Long</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Girshick</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sergio</forename><surname>Guadarrama</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Trevor</forename><surname>Darrell</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Caffe</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1408.5093</idno>
+		<title level="m">Convolutional architecture for fast feature embedding</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">One weird trick for parallelizing convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">Alex</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<publisher>Google</publisher>
+		</imprint>
+	</monogr>
+	<note type="report_type">Technical report</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Imagenet classification with deep convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">Alex</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ilya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Geoffrey</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems 25: 26th Annual Conference on Neural Information Processing Systems 2012. Proceedings of a meeting held</title>
+		<meeting><address><addrLine>Lake Tahoe, Nevada</addrLine></address></meeting>
+		<imprint>
+			<publisher>United States</publisher>
+			<date type="published" when="2012">December 3-6, 2012. 2012</date>
+			<biblScope unit="page" from="1106" to="1114" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Fastfood -approximating kernel expansions in loglinear time</title>
+		<author>
+			<persName><forename type="first">Quoc</forename><surname>Le</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sarlós</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Tamás</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alex</forename><surname>Smola</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Highly efficient forward and backward propagation of convolutional neural networks for pixelwise classification</title>
+		<author>
+			<persName><forename type="first">Hongsheng</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rui</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaogang</forename><surname>Wang</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+		<respStmt>
+			<orgName>Chinese University of Hong Kong</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">Technical report</note>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Kernel methods match deep neural networks on timit</title>
+		<author>
+			<persName><forename type="first">Min</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chen</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Qiang</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shuicheng</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Convolutional kernel networks</title>
+		<author>
+			<persName><forename type="first">Julien</forename><surname>Mairal</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Koniusz</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Piotr</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Harchaoui</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Zaid</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cordelia</forename><surname>Schmid</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">Z</forename><surname>Ghahramani</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">N</forename><forename type="middle">D</forename><surname>Lawrence</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page" from="2627" to="2635" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Learning by stretching deep networks</title>
+		<author>
+			<persName><forename type="first">Gaurav</forename><surname>Pandey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ambedkar</forename><surname>Dukkipati</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 31th International Conference on Machine Learning, ICML 2014</title>
+		<meeting>the 31th International Conference on Machine Learning, ICML 2014<address><addrLine>Beijing, China</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2014-06">June 2014. 2014</date>
+			<biblScope unit="page" from="1719" to="1727" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Random features for large-scale kernel machines</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rahimi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Recht</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="page" from="1177" to="1184" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">Olga</forename><surname>Russakovsky</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Hao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Krause</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Satheesh</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sanjeev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sean</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Zhiheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrej</forename><surname>Karpathy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aditya</forename><surname>Khosla</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bernstein</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Michael</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><forename type="middle">C</forename><surname>Berg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Li</forename><surname>Fei-Fei</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note>ImageNet Large Scale Visual Recognition Challenge</note>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Low-rank matrix factorization for deep neural network training with high-dimensional output targets</title>
+		<author>
+			<persName><forename type="first">Tara</forename><forename type="middle">N</forename><surname>Sainath</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brian</forename><surname>Kingsbury</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sindhwani</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Vikas</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Arisoy</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ebru</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ramabhadran</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bhuvana</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE International Conference on Acoustics, Speech and Signal Processing</title>
+		<meeting><address><addrLine>Vancouver, BC, Canada</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2013-05-26">2013. May 26-31, 2013. 2013</date>
+			<biblScope unit="page" from="6655" to="6659" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Going deeper with convolutions</title>
+		<author>
+			<persName><forename type="first">Christian</forename><surname>Szegedy</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Yangqing</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sermanet</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Pierre</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Reed</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Scott</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Anguelov</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Dragomir</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Erhan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Dumitru</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Vanhoucke</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Vincent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Rabinovich</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<publisher>Google</publisher>
+		</imprint>
+	</monogr>
+	<note type="report_type">Technical report</note>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Restructuring of deep neural network acoustic models with singular value decomposition</title>
+		<author>
+			<persName><forename type="first">Jian</forename><surname>Xue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jinyu</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yifan</forename><surname>Gong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">INTERSPEECH 2013, 14th Annual Conference of the International Speech Communication Association</title>
+		<meeting><address><addrLine>Lyon, France</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2013">August 25-29, 2013. 2013</date>
+			<biblScope unit="page" from="2365" to="2369" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">A la carte-learning fast kernels</title>
+		<author>
+			<persName><forename type="first">Zichao</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><forename type="middle">J</forename><surname>Smola</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Le</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Wilson</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Gordon</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note>In submission</note>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">How transferable are features in deep neural networks?</title>
+		<author>
+			<persName><forename type="first">Jason</forename><surname>Yosinski</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Clune</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Jeff</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Yoshua</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hod</forename><surname>Lipson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">Z</forename><surname>Ghahramani</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">N</forename><forename type="middle">D</forename><surname>Lawrence</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page" from="3320" to="3328" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

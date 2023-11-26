@@ -1,0 +1,632 @@
+[
+    {
+        "basename": "107010b7f2abe3c0c9df62bcef35eb77f6fc76df.grobid",
+        "fulltext": 26,
+        "footnote_size": 4,
+        "footnote_max": 5,
+        "reference": 62,
+        "authors": [
+            "Ganin",
+            "Ajakan",
+            "Germain",
+            "Larochelle",
+            "Laviolette",
+            "Marchand",
+            "Lempitsky",
+            "Dogan",
+            "Kloft",
+            "Orabona",
+            "Tommasi"
+        ]
+    },
+    {
+        "title": "Domain-Adversarial Training of Neural Networks",
+        "abstract": "We introduce a new representation learning approach for domain adaptation, in which data at training and test time come from similar but different distributions. Our approach is directly inspired by the theory on domain adaptation suggesting that, for effective domain transfer to be achieved, predictions must be made based on features that cannot discriminate between the training (source) and test (target) domains. The approach implements this idea in the context of neural network architectures that are trained on labeled data from the source domain and unlabeled data from the target domain (no labeled target-domain data is necessary). As the training progresses, the approach promotes the emergence of features that are (i) discriminative for the main learning task on the source domain and (ii) indiscriminate with respect to the shift between the domains. We show that this adaptation behaviour can be achieved in almost any feed-forward model by augmenting it with few standard layers and a new gradient reversal layer. The resulting augmented architecture can be trained using standard backpropagation and stochastic gradient descent, and can thus be implemented with little effort using any of the deep learning packages. We demonstrate the success of our approach for two distinct classification problems (document sentiment analysis and image classification), where state-of-the-art domain adaptation performance on standard benchmarks is achieved. We also validate the approach for descriptor learning task in the context of person re-identification application.",
+        "Introduction": "The cost of generating labeled data for a new machine learning task is often an obstacle for applying machine learning methods. In particular, this is a limiting factor for the further progress of deep neural network architectures, that have already brought impressive advances to the state-of-the-art across a wide variety of machine-learning tasks and applications. For problems lacking labeled data, it may be still possible to obtain training sets that are big enough for training large-scale deep models, but that suffer from the shift in data distribution from the actual data encountered at \"test time\". One important example is training an image classifier on synthetic or semi-synthetic images, which may come in abundance and be fully labeled, but which inevitably have a distribution that is different from real images  #b38  #b50  #b54  #b51 . Another example is in the context of sentiment analysis in written reviews, where one might have labeled data for reviews of one type of product (e.g., movies), while having the need to classify reviews of other products (e.g., books).Learning a discriminative classifier or other predictor in the presence of a shift between training and test distributions is known as domain adaptation (DA). The proposed approaches build mappings between the source (training-time) and the target (test-time) domains, so that the classifier learned for the source domain can also be applied to the target domain, when composed with the learned mapping between domains. The appeal of the domain adaptation approaches is the ability to learn a mapping between domains in the situation when the target domain data are either fully unlabeled (unsupervised domain annotation) or have few labeled samples (semi-supervised domain adaptation). Below, we focus on the harder unsupervised case, although the proposed approach (domain-adversarial learning) can be generalized to the semi-supervised case rather straightforwardly.Unlike many previous papers on domain adaptation that worked with fixed feature representations, we focus on combining domain adaptation and deep feature learning within one training process. Our goal is to embed domain adaptation into the process of learning representation, so that the final classification decisions are made based on features that are both discriminative and invariant to the change of domains, i.e., have the same or very similar distributions in the source and the target domains. In this way, the obtained feed-forward network can be applicable to the target domain without being hindered by the shift between the two domains. Our approach is motivated by the theory on domain adaptation  #b4 , 2010), that suggests that a good representation for cross-domain transfer is one for which an algorithm cannot learn to identify the domain of origin of the input observation.We thus focus on learning features that combine (i) discriminativeness and (ii) domaininvariance. This is achieved by jointly optimizing the underlying features as well as two discriminative classifiers operating on these features: (i) the label predictor that predicts class labels and is used both during training and at test time and (ii) the domain classifier that discriminates between the source and the target domains during training. While the parameters of the classifiers are optimized in order to minimize their error on the training set, the parameters of the underlying deep feature mapping are optimized in order to minimize the loss of the label classifier and to maximize the loss of the domain classifier. The latter update thus works adversarially to the domain classifier, and it encourages domain-invariant features to emerge in the course of the optimization.Crucially, we show that all three training processes can be embedded into an appropriately composed deep feed-forward network, called domain-adversarial neural network (DANN) (illustrated by Figure 1, page 12) that uses standard layers and loss functions, and can be trained using standard backpropagation algorithms based on stochastic gradient descent or its modifications (e.g., SGD with momentum). The approach is generic as a DANN version can be created for almost any existing feed-forward architecture that is trainable by backpropagation. In practice, the only non-standard component of the proposed architecture is a rather trivial gradient reversal layer that leaves the input unchanged during forward propagation and reverses the gradient by multiplying it by a negative scalar during the backpropagation.We provide an experimental evaluation of the proposed domain-adversarial learning idea over a range of deep architectures and applications. We first consider the simplest DANN architecture where the three parts (label predictor, domain classifier and feature extractor) are linear, and demonstrate the success of domain-adversarial learning for such architecture. The evaluation is performed for synthetic data as well as for the sentiment analysis problem in natural language processing, where DANN improves the state-of-the-art marginalized Stacked Autoencoders (mSDA) of  #b9  on the common Amazon reviews benchmark.We further evaluate the approach extensively for an image classification task, and present results on traditional deep learning image data sets-such as MNIST (LeCun et al., 1998) and SVHN  #b44 -as well as on Office benchmarks  #b48 , where domain-adversarial learning allows obtaining a deep architecture that considerably improves over previous state-of-the-art accuracy.Finally, we evaluate domain-adversarial descriptor learning in the context of person re-identification application  #b23 , where the task is to obtain good pedestrian image descriptors that are suitable for retrieval and verification. We apply domainadversarial learning, as we consider a descriptor predictor trained with a Siamese-like loss instead of the label predictor trained with a classification loss. In a series of experiments, we demonstrate that domain-adversarial learning can improve cross-data-set re-identification considerably.",
+        "Related work": "The general approach of achieving domain adaptation explored under many facets. Over the years, a large part of the literature has focused mainly on linear hypothesis (see for instance  #b6  #b8  #b19  #b3  #b13 . More recently, non-linear representations have become increasingly studied, including neural network representations  #b20  #b37  and most notably the state-of-the-art mSDA  #b9 . That literature has mostly focused on exploiting the principle of robust representations, based on the denoising autoencoder paradigm  #b55 .Concurrently, multiple methods of matching the feature distributions in the source and the target domains have been proposed for unsupervised domain adaptation. Some ap-proaches perform this by reweighing or selecting samples from the source domain  #b7  #b30  #b22 , while others seek an explicit feature space transformation that would map source distribution into the target one  #b47  #b25  #b3 . An important aspect of the distribution matching approach is the way the (dis)similarity between distributions is measured. Here, one popular choice is matching the distribution means in the kernelreproducing Hilbert space  #b7  #b30 , whereas  #b21  and  #b17  map the principal axes associated with each of the distributions.Our approach also attempts to match feature space distributions, however this is accomplished by modifying the feature representation itself rather than by reweighing or geometric transformation. Also, our method uses a rather different way to measure the disparity between distributions based on their separability by a deep discriminatively-trained classifier. Note also that several approaches perform transition from the source to the target domain  #b25  #b21  by changing gradually the training distribution. Among these methods,  #b11  does this in a \"deep\" way by the layerwise training of a sequence of deep autoencoders, while gradually replacing source-domain samples with target-domain samples. This improves over a similar approach of  #b20  that simply trains a single deep autoencoder for both domains. In both approaches, the actual classifier/predictor is learned in a separate step using the feature representation learned by autoencoder(s). In contrast to  #b20 ;  #b11 , our approach performs feature learning, domain adaptation and classifier learning jointly, in a unified architecture, and using a single learning algorithm (backpropagation). We therefore argue that our approach is simpler (both conceptually and in terms of its implementation). Our method also achieves considerably better results on the popular Office benchmark.While the above approaches perform unsupervised domain adaptation, there are approaches that perform supervised domain adaptation by exploiting labeled data from the target domain. In the context of deep feed-forward architectures, such data can be used to \"fine-tune\" the network trained on the source domain  #b58  #b45  #b2 . Our approach does not require labeled target-domain data. At the same time, it can easily incorporate such data when they are available.An idea related to ours is described in  #b24 . While their goal is quite different (building generative deep networks that can synthesize samples), the way they measure and minimize the discrepancy between the distribution of the training data and the distribution of the synthesized data is very similar to the way our architecture measures and minimizes the discrepancy between feature distributions for the two domains. Moreover, the authors mention the problem of saturating sigmoids which may arise at the early stages of training due to the significant dissimilarity of the domains. The technique they use to circumvent this issue (the \"adversarial\" part of the gradient is replaced by a gradient computed with respect to a suitable cost) is directly applicable to our method.Also, recent and concurrent reports by  #b52 ;  #b40  focus on domain adaptation in feed-forward networks. Their set of techniques measures and minimizes the distance between the data distribution means across domains (potentially, after embedding distributions into RKHS). Their approach is thus different from our idea of matching distributions by making them indistinguishable for a discriminative classifier.Below, we compare our approach to  #b52 ;  #b40  on the Office benchmark. Another approach to deep domain adaptation, which is arguably more different from ours, has been developed in parallel by  #b10 .From a theoretical standpoint, our approach is directly derived from the seminal theoretical works of  #b4 , 2010). Indeed, DANN directly optimizes the notion of H-divergence. We do note the work of  #b29 , in which HMM representations are learned for word tagging using a posterior regularizer that is also inspired by Ben-David et al.'s work. In addition to the tasks being different-  #b29  focus on word tagging problems-, we would argue that DANN learning objective more closely optimizes the H-divergence, with  #b29  relying on cruder approximations for efficiency reasons.A part of this paper has been published as a conference paper  #b18 . This version extends  #b18  very considerably by incorporating the report  #b0  (presented as part of the Second Workshop on Transfer and Multi-Task Learning), which brings in new terminology, in-depth theoretical analysis and justification of the approach, extensive experiments with the shallow DANN case on synthetic data as well as on a natural language processing task (sentiment analysis). Furthermore, in this version we go beyond classification and evaluate domain-adversarial learning for descriptor learning setting within the person re-identification application.",
+        "Domain Adaptation": "We consider classification tasks where X is the input space and Y = {0, 1, . . . , L-1} is the set of L possible labels. Moreover, we have two different distributions over X\u00d7Y , called the source domain D S and the target domain D T . An unsupervised domain adaptation learning algorithm is then provided with a labeled source sample S drawn i.i.d. from D S , and an unlabeled target sample T drawn i.i.d. from D X T , whereD X T is the marginal distribution of D T over X. S = {(x i , y i )} n i=1 \u223c (D S ) n ; T = {x i } N i=n+1 \u223c (D X T) n , with N = n + n being the total number of samples. The goal of the learning algorithm is to build a classifier \u03b7 : X \u2192 Y with a low target riskR D T (\u03b7) = Pr (x,y)\u223cD T \u03b7(x) = y ,while having no information about the labels of D T .",
+        "Domain Divergence": "To tackle the challenging domain adaptation task, many approaches bound the target error by the sum of the source error and a notion of distance between the source and the target distributions. These methods are intuitively justified by a simple assumption: the source risk is expected to be a good indicator of the target risk when both distributions are similar. Several notions of distance have been proposed for domain adaptation  #b4 , 2010;Mansour et al., 2009a,b; #b19 . In this paper, we focus on the H-divergence used by  #b4 , 2010), and based on the earlier work of  #b32 . Note that we assume in definition 1 below that the hypothesis class H is a (discrete or continuous) set of binary classifiers \u03b7 : X \u2192 {0, 1}.1 Definition 1  #b4 , 2010; #b32  Given two domain distributions D X S and D X T over X, and a hypothesis class H, the H-divergence between D X S andD X T is d H (D X S , D X T ) = 2 sup \u03b7\u2208H Pr x\u223cD X S \u03b7(x) = 1 -Pr x\u223cD X T \u03b7(x) = 1 .That is, the H-divergence relies on the capacity of the hypothesis class H to distinguish between examples generated by D XS from examples generated by D X T .  #b4 , 2010) proved that, for a symmetric hypothesis class H, one can compute the empirical H-divergence between two samples S \u223c (D X S ) n and T \u223c (D X T ) n by computingdH (S, T ) = 2 1 -min \u03b7\u2208H 1 n n i=1 I[\u03b7(x i ) = 0] + 1 n N i=n+1 I[\u03b7(x i ) = 1] ,(1)where I[a] is the indicator function which is 1 if predicate a is true, and 0 otherwise.",
+        "Proxy Distance": "The theoretical foundation of the DANN algorithm is the domain adaptation theory of  #b4 , 2010). We claimed that DANN finds a representation in which the source and the target example are hardly distinguishable. Our toy experiment of Section 5.1.1 already points out some evidence for that and here we provide analysis on real data. To do so, we compare the Proxy A-distance (PAD) on various representations of the Amazon Reviews data set; these representations are obtained by running either NN, DANN, mSDA,  or mSDA and DANN combined. Recall that PAD, as described in Section 3.2, is a metric estimating the similarity of the source and the target representations. More precisely, to obtain a PAD value, we use the following procedure: (1) we construct the data set U of Equation ( 2) using both source and target representations of the training samples;(2) we randomly split U in two subsets of equal size;(3) we train linear SVMs on the first subset of U using a large range of C values; (4) we compute the error of all obtained classifiers on the second subset of U ; and (5) we use the lowest error to compute the PAD value of Equation (3).Firstly, Figure 3a compares the PAD of DANN representations obtained in the experiments of Section 5.1.3 (using the hyper-parameters values leading to the results of Table 1) to the PAD computed on raw data. As expected, the PAD values are driven down by the DANN representations.Secondly, Figure 3b compares the PAD of DANN representations to the PAD of standard NN representations. As the PAD is influenced by the hidden layer size (the discriminating power tends to increase with the representation length), we fix here the size to 100 neurons for both algorithms. We also fix the adaptation parameter of DANN to \u03bb 0.31; it was the value that has been selected most of the time during our preceding experiments on the Amazon Reviews data set. Again, DANN is clearly leading to the lowest PAD values.Lastly, Figure 3c presents two sets of results related to Section 5.1.4 experiments. On one hand, we reproduce the results of  #b9 , which noticed that the mSDA representations have greater PAD values than original (raw) data. Although the mSDA approach clearly helps to adapt to the target task, it seems to contradict the theory of Ben-David et al.. On the other hand, we observe that, when running DANN on top of mSDA (using the hyper-parameters values leading to the results of Table 1), the obtained representations have much lower PAD values. These observations might explain the improvements provided by DANN when combined with the mSDA procedure.",
+        "Generalization Bound on the Target Risk": "The work of  #b4 , 2010) also showed that the H-divergence d H (D X S , D X T ) is upper bounded by its empirical estimate dH (S, T ) plus a constant complexity term that depends on the VC dimension of H and the size of samples S and T . By combining this result with a similar bound on the source risk, the following theorem is obtained.Theorem 2  #b4  Let H be a hypothesis class of VC dimension d. With probability 1 -\u03b4 over the choice of samples S \u223c (D S ) n and T \u223c (D X T ) n , for every \u03b7 \u2208 H:R D T (\u03b7) \u2264 R S (\u03b7) + 4 n d log 2e n d + log 4 \u03b4 + dH (S, T ) + 4 1 n d log 2n d + log 4 \u03b4 + \u03b2 , with \u03b2 \u2265 inf \u03b7 * \u2208H [R D S (\u03b7 * ) + R D T (\u03b7 * )] ,andR S (\u03b7) = 1 n m i=1 I [\u03b7(x i ) = y i ]is the empirical source risk.The previous result tells us that R D T (\u03b7) can be low only when the \u03b2 term is low, i.e., only when there exists a classifier that can achieve a low risk on both distributions. It also tells us that, to find a classifier with a small R D T (\u03b7) in a given class of fixed VC dimension, the learning algorithm should minimize (in that class) a trade-off between the source risk R S (\u03b7) and the empirical H-divergence dH (S, T ). As pointed-out by  #b4 , a strategy to control the H-divergence is to find a representation of the examples where both the source and the target domain are as indistinguishable as possible. Under such a representation, a hypothesis with a low source risk will, according to Theorem 2, perform well on the target data. In this paper, we present an algorithm that directly exploits this idea.",
+        "Domain-Adversarial Neural Networks (DANN)": "An original aspect of our approach is to explicitly implement the idea exhibited by Theorem 2 into a neural network classifier. That is, to learn a model that can generalize well from one domain to another, we ensure that the internal representation of the neural network contains no discriminative information about the origin of the input (source or target), while preserving a low risk on the source (labeled) examples.In this section, we detail the proposed approach for incorporating a \"domain adaptation component\" to neural networks. In Subsection 4.1, we start by developing the idea for the simplest possible case, i.e., a single hidden layer, fully connected neural network. We then describe how to generalize the approach to arbitrary (deep) network architectures.",
+        "Example Case with a Shallow Neural Network": "Let us first consider a standard neural network (NN) architecture with a single hidden layer. For simplicity, we suppose that the input space is formed by m-dimensional real vectors. Thus, X = R m . The hidden layer G f learns a function G f : X \u2192 R D that maps an example into a new D-dimensional representation2 , and is parameterized by a matrix-vector pair (W, b) \u2208 R D\u00d7m \u00d7 R D :G f (x; W, b) = sigm Wx + b ,(4)with sigm(a) =1 1+exp(-a i ) |a| i=1 .Similarly, the prediction layer G y learns a functionG y : R D \u2192 [0, 1] L that is parame- terized by a pair (V, c) \u2208 R L\u00d7D \u00d7 R L : G y (G f (x); V, c) = softmax VG f (x) + c , with softmax(a) = exp(a i ) |a| j=1 exp(a j ) |a| i=1 .Here we have L = |Y |. By using the softmax function, each component of vector G y (G f (x)) denotes the conditional probability that the neural network assigns x to the class in Y represented by that component. Given a source example (x i , y i ), the natural classification loss to use is the negative log-probability of the correct label:L y G y (G f (x i )), y i = log 1 G y (G f (x)) y i .Training the neural network then leads to the following optimization problem on the source domain:min W,b,V,c 1 n n i=1 L i y (W, b, V, c) + \u03bb \u2022 R(W, b) ,(5)whereL i y (W, b, V, c) = L y G y (G f (x i ; W, b); V, c), y i is a shorthand notation for the prediction loss on the i-th example, and R(W, b) is an optional regularizer that is weighted by hyper-parameter \u03bb.The heart of our approach is to design a domain regularizer directly derived from the H-divergence of Definition 1. To this end, we view the output of the hidden layer G f (\u2022) (Equation 4) as the internal representation of the neural network. Thus, we denote the source sample representations asS(G f ) = G f (x) x \u2208 S .Similarly, given an unlabeled sample from the target domain we denote the corresponding representationsT (G f ) = G f (x) x \u2208 T .Based on Equation (1), the empirical H-divergence of a symmetric hypothesis class H between samples S(G f ) andT (G f ) is given by dH S(G f ), T (G f ) = 2 1-min \u03b7\u2208H 1 n n i=1 I \u03b7(G f (x i ))=0 + 1 n N i=n+1 I \u03b7(G f (x i ))=1 .(6)Let us consider H as the class of hyperplanes in the representation space. Inspired by the Proxy A-distance (see Section 3.2), we suggest estimating the \"min\" part of Equation ( 6) by a domain classification layer G d that learns a logistic regressor G d : R D \u2192 [0, 1], parameterized by a vector-scalar pair (u, z) \u2208 R D \u00d7 R, that models the probability that a given input is from the source domain D X S or the target domain D X T . Thus,G d (G f (x); u, z) = sigm u G f (x) + z .(7)Hence, the function G d (\u2022) is a domain regressor. We define its loss byL d G d (G f (x i )), d i = d i log 1 G d (G f (x i )) + (1-d i ) log 1 1-G d (G f (x i )),where d i denotes the binary variable (domain label) for the i-th example, which indicates whether x i come from the source distribution (x i \u223cD X S if d i =0) or from the target distribu- tion (x i \u223cD X T if d i =1). Recall that for the examples from the source distribution (d i =0), the corresponding labels y i \u2208 Y are known at training time. For the examples from the target domains, we do not know the labels at training time, and we want to predict such labels at test time. This enables us to add a domain adaptation term to the objective of Equation ( 5), giving the following regularizer:R(W, b) = max u,z - 1 n n i=1 L i d (W, b, u, z) - 1 n N i=n+1 L i d (W, b, u, z ,(8)whereL i d (W, b, u, z)=L d G d (G f (x i ; W, b); u, z), d i ).This regularizer seeks to approximate the H-divergence of Equation ( 6), as 2(1-R(W, b)) is a surrogate for dH S(G f ), T (G f ) . In line with Theorem 2, the optimization problem given by Equations ( 5) and ( 8) implements a trade-off between the minimization of the source risk R S (\u2022) and the divergence dH (\u2022, \u2022). The hyper-parameter \u03bb is then used to tune the trade-off between these two quantities during the learning process.For learning, we first note that we can rewrite the complete optimization objective of Equation ( 5) as follows:E(W, V,b, c, u, z) (9) = 1 n n i=1 L i y (W, b, V, c) -\u03bb 1 n n i=1 L i d (W, b, u, z) + 1 n N i=n+1 L i d (W, b, u, z) ,where we are seeking the parameters \u0174, V, b, \u0109, \u00fb, \u1e91 that deliver a saddle point given by( \u0174, V, b, \u0109) = argmin W,V,b,c E(W, V, b, c, \u00fb, \u1e91) , (\u00fb, \u1e91) = argmax u,z E( \u0174, V, b, \u0109, u, z) .Thus, the optimization problem involves a minimization with respect to some parameters, as well as a maximization with respect to the others.",
+        "Algorithm 1 Shallow DANN -Stochastic training update": "1: Input:-samples S = {(xi, yi)} n i=1 and T = {xi} n i=1 , -hidden layer size D, -adaptation parameter \u03bb, -learning rate \u00b5, 2: Output: neural network {W, V, b, c}3: W, V \u2190 random init( D ) 4: b, c, u, d \u2190 0 5: while stopping criterion is not met do 6:for i from 1 to n do 7:# Forward propagation 8:G f (xi) \u2190 sigm(b + Wxi) 9: Gy(G f (xi)) \u2190 softmax(c + VG f (xi)) 10: # Backpropagation 11: \u2206c \u2190 -(e(yi) -Gy(G f (xi))) 12: \u2206 V \u2190 \u2206c G f (xi) 13: \u2206 b \u2190 V \u2206c G f (xi) (1 -G f (xi)) 14: \u2206 W \u2190 \u2206 b \u2022 (xi) 15: # Domain adaptation regularizer... 16: # ...from current domain 17: G d (G f (xi)) \u2190 sigm(d + u G f (xi)) 18: \u2206 d \u2190 \u03bb(1 -G d (G f (xi))) 19: \u2206u \u2190 \u03bb(1 -G d (G f (xi)))G f (xi) 20: tmp \u2190 \u03bb(1 -G d (G f (xi))) \u00d7 u G f (xi) (1 -G f (xi)) 21: \u2206 b \u2190 \u2206 b + tmp 22: \u2206 W \u2190 \u2206 W + tmp \u2022 (xi) 23: # ...from other domain 24: j \u2190 uniform integer(1, . . . , n ) 25: G f (xj) \u2190 sigm(b + Wxj) 26: G d (G f (xj)) \u2190 sigm(d + u G f (xj)) 27: \u2206 d \u2190 \u2206 d -\u03bbG d (G f (xj)) 28: \u2206u \u2190 \u2206u -\u03bbG d (G f (xj))G f (xj) 29: tmp \u2190 -\u03bbG d (G f (xj)) \u00d7 u G f (xj) (1 -G f (xj)) 30: \u2206 b \u2190 \u2206 b + tmp 31: \u2206 W \u2190 \u2206 W + tmp \u2022 (xj) 32: # Update neural network parameters 33: W \u2190 W -\u00b5\u2206 W 34: V \u2190 V -\u00b5\u2206 V 35: b \u2190 b -\u00b5\u2206 b 36: c \u2190 c -\u00b5\u2206c 37: # Update domain classifier 38: u \u2190 u + \u00b5\u2206u 39: d \u2190 d + \u00b5\u2206 d 40:end for 41: end while Note: In this pseudo-code, e(y) refers to a \"one-hot\" vector, consisting of all 0s except for a 1 at position y, and is the element-wise product.We propose to tackle this problem with a simple stochastic gradient procedure, in which updates are made in the opposite direction of the gradient of Equation ( 9) for the minimizing parameters, and in the direction of the gradient for the maximizing parameters. Stochastic estimates of the gradient are made, using a subset of the training samples to compute the averages. Algorithm 1 provides the complete pseudo-code of this learning procedure. 3 In words, during training, the neural network (parameterized by W, b, V, c) and the domain regressor (parameterized by u, z) are competing against each other, in an adversarial way, over the objective of Equation ( 9). For this reason, we refer to networks trained according to this objective as Domain-Adversarial Neural Networks (DANN). DANN will effectively attempt to learn a hidden layer G f (\u2022) that maps an example (either source or target) into a representation allowing the output layer G y (\u2022) to accurately classify source samples, but crippling the ability of the domain regressor G d (\u2022) to detect whether each example belongs to the source or target domains.3. We provide an implementation of Shallow DANN algorithm at http://graal.ift.ulaval.ca/dann/",
+        "Generalization to Arbitrary Architectures": "For illustration purposes, we've so far focused on the case of a single hidden layer DANN. However, it is straightforward to generalize to other sophisticated architectures, which might be more appropriate for the data at hand. For example, deep convolutional neural networks are well known for being state-of-the-art models for learning discriminative features of images  #b33 .Let us now use a more general notation for the different components of DANN. Namely, let G f (\u2022; \u03b8 f ) be the D-dimensional neural network feature extractor, with parameters \u03b8 f . Also, let G y (\u2022; \u03b8 y ) be the part of DANN that computes the network's label prediction output layer, with parameters \u03b8 y , while G d (\u2022; \u03b8 d ) now corresponds to the computation of the domain prediction output of the network, with parameters \u03b8 d . Note that for preserving the theoretical guarantees of Theorem 2, the hypothesis class H d generated by the domain prediction component G d should include the hypothesis class H y generated by the label prediction component G y . Thus, H y \u2286 H d .We will note the prediction loss and the domain loss respectively byL i y (\u03b8 f , \u03b8 y ) = L y G y (G f (x i ; \u03b8 f ); \u03b8 y ), y i , L i d (\u03b8 f , \u03b8 d ) = L d G d (G f (x i ; \u03b8 f ); \u03b8 d ), d i ) .Training DANN then parallels the single layer case and consists in optimizingE(\u03b8 f , \u03b8 y , \u03b8 d ) = 1 n n i=1 L i y (\u03b8 f , \u03b8 y ) -\u03bb 1 n n i=1 L i d (\u03b8 f , \u03b8 d ) + 1 n N i=n+1 L i d (\u03b8 f , \u03b8 d ) ,(10)by finding the saddle point \u03b8f , \u03b8y , \u03b8d such that ( \u03b8f , \u03b8y ) = argmin\u03b8 f ,\u03b8y E(\u03b8 f , \u03b8 y , \u03b8d ) , (11) \u03b8d = argmax \u03b8 d E( \u03b8f , \u03b8y , \u03b8 d ) .(12)As suggested previously, a saddle point defined by Equations (11-12) can be found as a stationary point of the following gradient updates:\u03b8 f \u2190-\u03b8 f -\u00b5 \u2202L i y \u2202\u03b8 f -\u03bb \u2202L i d \u2202\u03b8 f ,(13)\u03b8 y \u2190- \u03b8 y -\u00b5 \u2202L i y \u2202\u03b8 y ,(14)\u03b8 d \u2190- \u03b8 d -\u00b5\u03bb \u2202L i d \u2202\u03b8 d , (15)where \u00b5 is the learning rate. We use stochastic estimates of these gradients, by sampling examples from the data set. The updates of Equations (13-15) are very similar to stochastic gradient descent (SGD) updates for a feed-forward deep model that comprises feature extractor fed into the label predictor and into the domain classifier (with loss weighted by \u03bb). The only difference is that in (13), the gradients from the class and domain predictors are subtracted, instead of being summed (the difference is important, as otherwise SGD would try to make features dissimilar across domains in order to minimize the domain classification loss). Since SGDand its many variants, such as ADAGRAD  #b15  or ADADELTA  #b57 -is the main learning algorithm implemented in most libraries for deep learning, it would be convenient to frame an implementation of our stochastic saddle point procedure as SGD.Fortunately, such a reduction can be accomplished by introducing a special gradient reversal layer (GRL), defined as follows. The gradient reversal layer has no parameters associated with it. During the forward propagation, the GRL acts as an identity transformation. During the backpropagation however, the GRL takes the gradient from the subsequent level and changes its sign, i.e., multiplies it by -1, before passing it to the preceding layer. Implementing such a layer using existing object-oriented packages for deep learning is simple, requiring only to define procedures for the forward propagation (identity transformation), and backpropagation (multiplying by -1). The layer requires no parameter update.The GRL as defined above is inserted between the feature extractor G f and the domain classifier G d , resulting in the architecture depicted in Figure 1. As the backpropagation process passes through the GRL, the partial derivatives of the loss that is downstream the GRL (i.e., L d ) w.r.t. the layer parameters that are upstream the GRL (i.e., \u03b8 f ) get multiplied by -1, i.e., \u2202L d \u2202\u03b8 f is effectively replaced with -\u2202L d \u2202\u03b8 f . Therefore, running SGD in the resulting model implements the updates of Equations (13-15) and converges to a saddle point of Equation ( 10).Mathematically, we can formally treat the gradient reversal layer as a \"pseudo-function\" R(x) defined by two (incompatible) equations describing its forward and backpropagation behaviour:R(x) = x , (16) dR dx = -I , (17)where I is an identity matrix. We can then define the objective \"pseudo-function\" of (\u03b8 f , \u03b8 y , \u03b8 d ) that is being optimized by the stochastic gradient descent within our method:\u1ebc(\u03b8 f , \u03b8 y , \u03b8 d ) = 1 n n i=1 L y G y (G f (x i ; \u03b8 f ); \u03b8 y ), y i (18) -\u03bb 1 n n i=1 L d G d (R(G f (x i ; \u03b8 f )); \u03b8 d ), d i + 1 n N i=n+1 L d G d (R(G f (x i ; \u03b8 f )); \u03b8 d ), d i .Running updates (13-15) can then be implemented as doing SGD for (18) and leads to the emergence of features that are domain-invariant and discriminative at the same time. After the learning, the label predictor G y (G f (x; \u03b8 f ); \u03b8 y ) can be used to predict labels for samples from the target domain (as well as from the source domain). Note that we release the source code for the Gradient Reversal layer along with the usage examples as an extension to Caffe  #b31 ).4 ",
+        "Experiments": "In this section, we present a variety of empirical results for both shallow domain adversarial neural networks (Subsection 5.1) and deep ones (Subsections 5.2 and 5.3).",
+        "Experiments with Shallow Neural Networks": "In this first experiment section, we evaluate the behavior of the simple version of DANN described by Subsection 4.1. Note that the results reported in the present subsection are obtained using Algorithm 1. Thus, the stochastic gradient descent approach here consists of sampling a pair of source and target examples and performing a gradient step update of all parameters of DANN. Crucially, while the update of the regular parameters follows as usual the opposite direction of the gradient, for the adversarial parameters the step must follow the gradient's direction (since we maximize with respect to them, instead of minimizing).",
+        "Experiments on a Toy Problem": "As a first experiment, we study the behavior of the proposed algorithm on a variant of the inter-twinning moons 2D problem, where the target distribution is a rotation of the source We study the adaptation capability of DANN by comparing it to the standard neural network (NN). In these toy experiments, both algorithms share the same network architecture, with a hidden layer size of 15 neurons. We train the NN using the same procedure as the DANN. That is, we keep updating the domain regressor component using target sample T (with a hyper-parameter \u03bb = 6; the same value is used for DANN), but we disable the adversarial back-propagation into the hidden layer. To do so, we execute Algorithm 1 by omitting the lines numbered 22 and 31. This allows recovering the NN learning algorithm-based on the source risk minimization of Equation ( 5) without any regularizer-and simultaneously train the domain regressor of Equation ( 7) to discriminate between source and target domains. With this toy experience, we will first illustrate how DANN adapts its decision boundary when compared to NN. Moreover, we will also illustrate how the representation given by the hidden layer is less adapted to the source domain task with DANN than with NN (this is why we need a domain regressor in the NN experiment). We recall that this is the founding idea behind our proposed algorithm. The analysis of the experiment appears in Figure 2, where upper graphs relate to standard NN, and lower graphs relate to DANN. By looking at the lower and upper graphs pairwise, we compare NN and DANN from four different perspectives, described in details below.The column \"Label Classification\" of Figure 2 shows the decision boundaries of DANN and NN on the problem of predicting the labels of both source and the target examples. As expected, NN accurately classifies the two classes of the source sample S, but is not fully adapted to the target sample T . On the contrary, the decision boundary of DANN perfectly classifies examples from both source and target samples. In the studied task, DANN clearly adapts to the target distribution.The column \"Representation PCA\" studies how the domain adaptation regularizer affects the representation G f (\u2022) provided by the network hidden layer. The graphs are obtained by applying a Principal component analysis (PCA) on the set of all representation of source and target data points, i.e., S(G f ) \u222a T (G f ). Thus, given the trained network (NN or DANN), every point from S and T is mapped into a 15-dimensional feature space through the hidden layer, and projected back into a two-dimensional plane by the PCA transformation. In the DANN-PCA representation, we observe that target points are homogeneously spread out among source points; In the NN-PCA representation, a number of target points belong to clusters containing no source points. Hence, labeling the target points seems an easier task given the DANN-PCA representation.To push the analysis further, the PCA graphs tag four crucial data points by the letters A, B, C and D, that correspond to the moon extremities in the original space (note that the original point locations are tagged in the first column graphs). We observe that points A and B are very close to each other in the NN-PCA representation, while they clearly belong to different classes. The same happens to points C and D. Conversely, these four points are at the opposite four corners in the DANN-PCA representation. Note also that the target point A (resp. D)-that is difficult to classify in the original space-is located in the \"+\"cluster (resp. \"---\"cluster) in the DANN-PCA representation. Therefore, the representation promoted by DANN is better suited to the adaptation problem.The column \"Domain Classification\" shows the decision boundary on the domain classification problem, which is given by the domain regressor G d of Equation (7). More precisely, an example x is classified as a source example when G d (G f (x)) \u2265 0.5, and is classified as a domain example otherwise. Remember that, during the learning process of DANN, the G d regressor struggles to discriminate between source and target domains, while the hidden representation G f (\u2022) is adversarially updated to prevent it to succeed. As explained above, we trained a domain regressor during the learning process of NN, but without allowing it to influence the learned representation G f (\u2022). On one hand, the DANN domain regressor clearly fails to generalize source and target distribution topologies. On the other hand, the NN domain regressor shows a better (although imperfect) generalization capability. Inter alia, it seems to roughly capture the rotation angle of the target distribution. This again corroborates that the DANN representation does not allow discriminating between domains.The column \"Hidden Neurons\" shows the configuration of hidden layer neurons (by Equation 4, we have that each neuron is indeed a linear regressor). In other words, each of the fifteen plot line corresponds to the coordinates x \u2208 R 2 for which the i-th component of G f (x) equals 1 2 , for i \u2208 {1, . . . , 15}. We observe that the standard NN neurons are grouped in three clusters, each one allowing to generate a straight line of the zigzag decision boundary for the label classification problem. However, most of these neurons are also able to (roughly) capture the rotation angle of the domain classification problem. Hence, we observe that the adaptation regularizer of DANN prevents these kinds of neurons to be produced. It is indeed striking to see that the two predominant patterns in the NN neurons (i.e., the two parallel lines crossing the plane from lower left to upper right) are vanishing in the DANN neurons.",
+        "Unsupervised Hyper-Parameter Selection": "To perform unsupervised domain adaption, one should provide ways to set hyper-parameters (such as the domain regularization parameter \u03bb, the learning rate, the network architecture for our method) in an unsupervised way, i.e., without referring to labeled data in the target domain. In the following experiments of Sections 5.1.3 and 5.1.4, we select the hyper-parameters of each algorithm by using a variant of reverse cross-validation approach proposed by  #b61 , that we call reverse validation.To evaluate the reverse validation risk associated to a tuple of hyper-parameters, we proceed as follows. Given the labeled source sample S and the unlabeled target sample T , we split each set into training sets (S and T respectively, containing 90% of the original examples) and the validation sets (S V and T V respectively). We use the labeled set S and the unlabeled target set T to learn a classifier \u03b7. Then, using the same algorithm, we learn a reverse classifier \u03b7 r using the self-labeled set {(x, \u03b7(x))} x\u2208T and the unlabeled part of S as target sample. Finally, the reverse classifier \u03b7 r is evaluated on the validation set S V of source sample. We then say that the classifier \u03b7 has a reverse validation risk of R S V (\u03b7 r ). The process is repeated with multiple values of hyper-parameters and the selected parameters are those corresponding to the classifier with the lowest reverse validation risk.Note that when we train neural network architectures, the validation set S V is also used as an early stopping criterion during the learning of \u03b7, and self-labeled validation set {(x, \u03b7(x))} x\u2208T V is used as an early stopping criterion during the learning of \u03b7 r . We also observed better accuracies when we initialized the learning of the reverse classifier \u03b7 r with the configuration learned by the network \u03b7.",
+        "Experiments on Sentiment Analysis Data Sets": "We now compare the performance of our proposed DANN algorithm to a standard neural network with one hidden layer (NN) described by Equation ( 5), and a Support Vector Machine (SVM) with a linear kernel. We compare the algorithms on the Amazon reviews data set, as pre-processed by  #b9 . This data set includes four domains, each one composed of reviews of a specific kind of product (books, dvd disks, electronics, and kitchen appliances). Reviews are encoded in 5 000 dimensional feature vectors of unigrams and bigrams, and labels are binary: \"0\" if the product is ranked up to 3 stars, and \"1\" if the product is ranked 4 or 5 stars.We perform twelve domain adaptation tasks. All learning algorithms are given 2 000 labeled source examples and 2 000 unlabeled target examples. Then, we evaluate them on separate target test sets (between 3 000 and 6 000 examples). Note that NN and SVM do not use the unlabeled target sample for learning.Here are more details about the procedure used for each learning algorithms leading to the empirical results of Table 1. \u2022 For the DANN algorithm, the adaptation parameter \u03bb is chosen among 9 values between 10 -2 and 1 on a logarithmic scale. The hidden layer size l is either 50 or 100. Finally, the learning rate \u00b5 is fixed at 10 -3 .\u2022 For the NN algorithm, we use exactly the same hyper-parameters grid and training procedure as DANN above, except that we do not need an adaptation parameter. Note that one can train NN by using the DANN implementation (Algorithm 1) with \u03bb = 0.\u2022 For the SVM algorithm, the hyper-parameter C is chosen among 10 values between 10 -5 and 1 on a logarithmic scale. This range of values is the same as used by  #b9  in their experiments.As presented at Section 5.1.2, we used reverse cross validation selecting the hyper-parameters for all three learning algorithms, with early stopping as the stopping criterion for DANN and NN.The \"Original data\" part of Table 1a shows the target test accuracy of all algorithms, and Table 1b reports the probability that one algorithm is significantly better than the others according to the Poisson binomial test  #b34 . We note that DANN has a significantly better performance than NN and SVM, with respective probabilities 0.87 and 0.83. As the only difference between DANN and NN is the domain adaptation regularizer, we conclude that our approach successfully helps to find a representation suitable for the target domain.",
+        "Combining DANN with Denoising Autoencoders": "We now investigate on whether the DANN algorithm can improve on the representation learned by the state-of-the-art Marginalized Stacked Denoising Autoencoders (mSDA) proposed by  #b9 . In brief, mSDA is an unsupervised algorithm that learns a new robust feature representation of the training samples. It takes the unlabeled parts of both source and target samples to learn a feature map from input space X to a new representation space. As a denoising autoencoders algorithm, it finds a feature representation from which one can (approximately) reconstruct the original features of an example from its noisy counterpart.  #b9  showed that using mSDA with a linear SVM classifier reaches state-of-the-art performance on the Amazon reviews data sets. As an alternative to the SVM, we propose to apply our Shallow DANN algorithm on the same representations generated by mSDA (using representations of both source and target samples). Note that, even if mSDA and DANN are two representation learning approaches, they optimize different objectives, which can be complementary.We perform this experiment on the same Amazon reviews data set described in the previous subsection. For each source-target domain pair, we generate the mSDA representations using a corruption probability of 50% and a number of layers of 5. We then execute the three learning algorithms (DANN, NN, and SVM) on these representations. More precisely, following the experimental procedure of  #b9 , we use the concatenation of the output of the 5 layers and the original input as the new representation. Thus, each example is now encoded in a vector of 30 000 dimensions. Note that we use the same grid search as in the previous Subsection 5.1.3, but use a learning rate \u00b5 of 10 -4 for both DANN and the NN. The results of \"mSDA representation\" columns in Table 1a confirm that combining mSDA and DANN is a sound approach. Indeed, the Poisson binomial test shows that DANN has a better performance than the NN and the SVM, with probabilities 0.92 and 0.88 respectively, as reported in Table 1b. We note however that the standard NN and the SVM find the best solution on respectively the second and the fourth tasks. This suggests that DANN and mSDA adaptation strategies are not fully complementary.",
+        "Experiments with Deep Networks on Image Classification": "We now perform extensive evaluation of a deep version of DANN (see Subsection 4.2) on a number of popular image data sets and their modifications. These include large-scale data sets of small images popular with deep learning methods, and the Office data sets  #b48 , which are a de facto standard for domain adaptation in computer vision, but have much fewer images.",
+        "Baselines": "The following baselines are evaluated in the experiments of this subsection. The source-only model is trained without consideration for target-domain data (no domain classifier branch included into the network). The train-on-target model is trained on the target domain with class labels revealed. This model serves as an upper bound on DA methods, assuming that target data are abundant and the shift between the domains is considerable.In addition, we compare our approach against the recently proposed unsupervised DA method based on subspace alignment (SA)  #b17 , which is simple to setup and test on new data sets, but has also been shown to perform very well in experimental comparisons with other \"shallow\" DA methods. To boost the performance of this baseline, we pick its most important free parameter (the number of principal components) from the range {2, . . . , 60}, so that the test performance on the target domain is maximized. To apply SA in our setting, we train a source-only model and then consider the activations of the last hidden layer in the label predictor (before the final linear classifier) as descriptors/features, and learn the mapping between the source and the target domains  #b17 .Since the SA baseline requires training a new classifier after adapting the features, and in order to put all the compared settings on an equal footing, we retrain the last layer of the label predictor using a standard linear SVM  #b16  for all four considered methods (including ours; the performance on the target domain remains approximately the same after the retraining).For the Office data set  #b48 , we directly compare the performance of our full network (feature extractor and label predictor) against recent DA approaches using previously published results.",
+        "CNN architectures and Training Procedure": "In our experiments, we use siamese architecture described in  #b56  (Deep Metric Learning or DML) for learning deep image descriptors on the source data set. This architecture incorporates two convolution layers (with 7 \u00d7 7 and 5 \u00d7 5 filter banks), followed by ReLU and max pooling, and one fully-connected layer, which gives 500-dimensional descriptors as an output. There are three parallel flows within the CNN for processing three part of an image: the upper, the middle, and the lower one. The first convolution layer shares parameters between three parts, and the outputs of the second convolution layers are concatenated. During training, we follow  #b56  and calculate pairwise cosine similarities between 500-dimensional features within each batch and backpropagate the loss for all pairs within batch.To perform domain-adversarial training, we construct a DANN architecture. The feature extractor includes the two convolutional layers (followed by max-pooling and ReLU) discussed above. The label predictor in this case is replaced with descriptor predictor that includes one fully-connected layer. The domain classifier includes two fully-connected layers with 500 units in the intermediate representation (x\u2192500\u21921).For the verification loss function in the descriptor predictor we used Binomial Deviance loss, defined in  #b56  with similar parameters: \u03b1 = 2, \u03b2 = 0.5, c = 2 (the asymmetric cost parameter for negative pairs). The domain classifier is trained with logistic loss as in subsection 5.2.2.We used learning rate fixed to 0.001 and momentum of 0.9. The schedule of adaptation similar to the one described in subsection 5.2.2 was used. We also inserted dropout layer with rate 0.5 after the concatenation of outputs of the second max-pooling layer. 128-sized batches were used for source data and 128-sized batches for target data.",
+        "Visualizations": "We use t-SNE (van der Maaten, 2013) projection to visualize feature distributions at different points of the network, while color-coding the domains (Figure 5). As we already observed with the shallow version of DANN (see Figure 2), there is a strong correspondence 6. Equivalently, one can use the same \u03bbp for both feature extractor and domain classification components, but use a learning rate of \u00b5/\u03bbp for the latter.between the success of the adaptation in terms of the classification accuracy for the target domain, and the overlap between the domain distributions in such visualizations.",
+        "Results On Image Data Sets": "We now discuss the experimental settings and the results. In each case, we train on the source data set and test on a different target domain data set, with considerable shifts between domains (see Figure 6). The results are summarized in Table 2 andTable 3.MNIST \u2192 MNIST-M. Our first experiment deals with the MNIST data set (LeCun et al., 1998) (source). In order to obtain the target domain (MNIST-M) we blend digits from the original set over patches randomly extracted from color photos from BSDS500  #b1 . This operation is formally defined for two images I 1 , I 2 as I out ijk = |I 1 ijk -I 2 ijk |, where i, j are the coordinates of a pixel and k is a channel index. In other words, an output sample is produced by taking a patch from a photo and inverting its pixels at positions corresponding to the pixels of a digit. For a human the classification task becomes only slightly harder compared to the original data set (the digits are still clearly distinguishable) whereas for a CNN trained on MNIST this domain is quite distinct, as the background and the strokes are no longer constant. Consequently, the source-only model performs poorly. Our approach succeeded at aligning feature distributions (Figure 5), which led to successful adaptation results (considering that the adaptation is unsupervised). At the same time, the improvement over source-only model achieved by subspace alignment (SA)  #b17  is quite modest, thus highlighting the difficulty of the adaptation task.Synthetic numbers \u2192 SVHN. To address a common scenario of training on synthetic data and testing on real data, we use Street-View House Number data set SVHN  #b44  as the target domain and synthetic digits as the source. The latter (Syn Numbers) consists of \u2248 500,000 images generated by ourselves from Windows TM fonts by varying the text (that includes different one-, two-, and three-digit numbers), positioning, orientation, background and stroke colors, and the amount of blur. The degrees of variation were chosen manually to simulate SVHN, however the two data sets are still rather distinct, the biggest difference being the structured clutter in the background of SVHN images.The proposed backpropagation-based technique works well covering almost 80% of the gap between training with source data only and training on target domain data with known target labels. In contrast, SA  #b17  results in a slight classification accuracy drop (probably due to the information loss during the dimensionality reduction), indicating that the adaptation task is even more challenging than in the case of the MNIST experiment.MNIST \u2194 SVHN. In this experiment, we further increase the gap between distributions, and test on MNIST and SVHN, which are significantly different in appearance. Training on SVHN even without adaptation is challenging -classification error stays high during the first 150 epochs. In order to avoid ending up in a poor local minimum we, therefore, do not use learning rate annealing here. Obviously, the two directions (MNIST \u2192 SVHN and SVHN \u2192 MNIST) are not equally difficult. As SVHN is more diverse, a model trained on SVHN is expected to be more generic and to perform reasonably on the MNIST data set. This, indeed, turns out to be the case and is supported by the appearance of the  feature distributions. We observe a quite strong separation between the domains when we feed them into the CNN trained solely on MNIST, whereas for the SVHN-trained network the features are much more intermixed. This difference probably explains why our method succeeded in improving the performance by adaptation in the SVHN \u2192 MNIST scenario (see Table 2) but not in the opposite direction (SA is not able to perform adaptation in this case either). Unsupervised adaptation from MNIST to SVHN gives a failure example for our approach: it doesn't manage to improve upon the performance of the non-adapted model which achieves \u2248 0.25 accuracy (we are unaware of any unsupervised DA methods capable of performing such adaptation).Synthetic Signs \u2192 GTSRB. Overall, this setting is similar to the Syn Numbers \u2192 SVHN experiment, except the distribution of the features is more complex due to the significantly larger number of classes (43 instead of 10). For the source domain we obtained 100,000 synthetic images (which we call Syn Signs) simulating various imaging conditions. In the target domain, we use 31,367 random training samples for unsupervised adaptation and the rest for evaluation. Once again, our method achieves a sensible increase in performance proving its suitability for the synthetic-to-real data adaptation.As an additional experiment, we also evaluate the proposed algorithm for semi-supervised domain adaptation, i.e., when one is additionally provided with a small amount of labeled target data. Here, we reveal 430 labeled examples (10 samples per class) and add them to the training set for the label predictor. Figure 7 shows the change of the validation error throughout the training. While the graph clearly suggests that our method can be beneficial in the semi-supervised setting, thorough verification of semi-supervised setting is left for future work.Office data set. We finally evaluate our method on Office data set, which is a collection of three distinct domains: Amazon, DSLR, and Webcam. Unlike previously discussed data sets, Office is rather small-scale with only 2817 labeled images spread across 31 different categories in the largest domain. The amount of available data is crucial for a successful training of a deep model, hence we opted for the fine-tuning of the CNN pre-trained on the ImageNet (AlexNet from the Caffe package, see  #b31  as it is done in some recent DA works  #b14  #b52  #b28  #b40 . We make our approach more comparable with  #b52  by using exactly the same network architecture replacing domain mean-based regularization with the domain classifier.Following previous works, we assess the performance of our method across three transfer tasks most commonly used for evaluation. Our training protocol is adopted from  #b22 ;  #b11 ;  #b40  as during adaptation we use all available labeled source examples and unlabeled target examples (the premise of our method is the abundance of unlabeled data in the target domain). Also, all source domain data are used for training. Under this \"fully-transductive\" setting, our method is able to improve previously-reported state-of-the-art accuracy for unsupervised adaptation very considerably (Table 3), especially in the most challenging Amazon \u2192 Webcam scenario (the two domains with the largest domain shift).Interestingly, in all three experiments we observe a slight over-fitting (performance on the target domain degrades while accuracy on the source continues to improve) as training progresses, however, it doesn't ruin the validation accuracy. Moreover, switching off the domain classifier branch makes this effect far more apparent, from which we conclude that our technique serves as a regularizer.",
+        "Experiments with Deep Image Descriptors for Re-Identification": "In this section we discuss the application of the described adaptation method to person re-identification (re-id ) problem. The task of person re-identification is to associate people seen from different camera views. More formally, it can be defined as follows: given two sets of images from different cameras (probe and gallery) such that each person depicted in the probe set has an image in the gallery set, for each image of a person from the probe set find an image of the same person in the gallery set. Disjoint camera views, different illumination conditions, various poses and low quality of data make this problem difficult even for humans (e.g.,  #b39 , reports human performance at Rank1=71.08%).Unlike classification problems that are discussed above, re-identification problem implies that each image is mapped to a vector descriptor. The distance between descriptors is then used to match images from the probe set and the gallery set. To evaluate results of re-id methods the Cumulative Match Characteristic (CMC) curve is commonly used. It is a plot of the identification rate (recall) at rank-k, that is the probability of the matching gallery image to be within the closest k images (in terms of descriptor distance) to the probe image.Most existing works train descriptor mappings and evaluate them within the same data set containing images from a certain camera network with similar imaging conditions. Several papers, however, observed that the performance of the resulting re-identification systems drops very considerably when descriptors trained on one data set and tested on another. It is therefore natural to handle such cross-domain evaluation as a domain-adaptation problem, where each camera network (data set) constitutes a domain.experiments with all images of the whole CUHK data set as source domain and VIPeR and PRID data sets as target domains as in the original paper  #b56 .Following  #b56 , we augmented our data with mirror images, and during test time we calculate similarity score between two images as the mean of the four scores corresponding to different flips of the two compared images. In case of CUHK, where there are 4 images (including mirror images) for each of the two camera views for each person, all 16 combinations' scores are averaged.",
+        "Results on Re-identification data sets": "Figure 9 shows results in the form of CMC-curves for eight pairs of data sets. Depending on the hardness of the annotation problem we trained either for 50,000 iterations (CUHK/p1 \u2192 VIPeR, VIPeR \u2192 CUHK/p1, PRID \u2192 VIPeR) or for 20,000 iterations (the other five pairs).After the sufficient number of iterations, domain-adversarial training consistently improves the performance of re-identification. For the pairs that involve PRID data set, which is more dissimilar to the other two data sets, the improvement is considerable. Overall, this demonstrates the applicability of the domain-adversarial learning beyond classification problems. Figure 10 further demonstrates the effect of adaptation on the distributions of the learned descriptors in the source and in target sets in VIPeR \u2192 CUHK/p1 experiments, where domain adversarial learning once again achieves better intermixing of the two domains.",
+        "Conclusion": "The paper proposes a new approach to domain adaptation of feed-forward neural networks, which allows large-scale training based on large amount of annotated data in the source domain and large amount of unannotated data in the target domain. Similarly to many previous shallow and deep DA techniques, the adaptation is achieved through aligning the distributions of features across the two domains. However, unlike previous approaches, the alignment is accomplished through standard backpropagation training.The approach is motivated and supported by the domain adaptation theory of  #b4 , 2010). The main idea behind DANN is to enjoin the network hidden layer to learn a representation which is predictive of the source example labels, but uninformative about the domain of the input (source or target). We implement this new approach within both shallow and deep feed-forward architectures. The latter allows simple implementation within virtually any deep learning package through the introduction of a simple gradient reversal layer. We have shown that our approach is flexible and achieves state-of-the-art results on a variety of benchmark in domain adaptation, namely for sentiment analysis and image classification tasks.A convenient aspect of our approach is that the domain adaptation component can be added to almost any neural network architecture that is trainable with backpropagation. Towards this end, We have demonstrated experimentally that the approach is not confined to classification tasks but can be used in other feed-forward architectures, e.g., for descriptor learning for person re-identification."
+    },
+    {
+        "1": "As mentioned byBen-David et al. (2006), the same analysis holds for multiclass setting. However, to obtain the same results when |Y | > 2, one should assume that H is a symmetrical hypothesis class. That is, for all h \u2208 H and any permutation of labels c : Y \u2192 Y , we have c(h) \u2208 H. Note that this is the case for most commonly used neural network architectures.",
+        "2": "For brevity of notation, we will sometimes drop the dependence of G f on its parameters (W, b) and shorten G f (x; W, b) to G f (x).",
+        "4": "http://sites.skoltech.ru/compvision/projects/grl/",
+        "5": "A 2-layer domain classifier (x\u21921024\u21921024\u21922) is attached to the 256-dimensional bottleneck of fc7."
+    },
+    {
+        "b0": [
+            "Domain-adversarial neural networks",
+            "http://arxiv.org/abs/1412.4446",
+            "",
+            "",
+            "Ajakan",
+            "Germain",
+            "Larochelle",
+            "Laviolette",
+            "Marchand"
+        ],
+        "b1": [
+            "Contour detection and hierarchical image segmentation",
+            "",
+            "",
+            "",
+            "Arbelaez",
+            "Maire",
+            "Fowlkes",
+            "Malik"
+        ],
+        "b2": [
+            "Neural codes for image retrieval",
+            "",
+            "",
+            "",
+            "Babenko",
+            "Slesarev",
+            "Chigorin",
+            "Lempitsky"
+        ],
+        "b3": [
+            "Unsupervised domain adaptation by domain invariant projection",
+            "",
+            "",
+            "",
+            "Baktashmotlagh",
+            "Mehrtash",
+            "Harandi",
+            "Lovell",
+            "Salzmann"
+        ],
+        "b4": [
+            "Analysis of representations for domain adaptation",
+            "",
+            "",
+            "",
+            "Ben-David",
+            "Blitzer",
+            "Crammer",
+            "Pereira"
+        ],
+        "b5": [
+            "A theory of learning from different domains",
+            "",
+            "",
+            "",
+            "Ben-David",
+            "Blitzer",
+            "Crammer",
+            "Kulesza",
+            "Pereira",
+            "Vaughan"
+        ],
+        "b6": [
+            "Domain adaptation with structural correspondence learning",
+            "",
+            "",
+            "",
+            "Blitzer",
+            "Mcdonald",
+            "Pereira"
+        ],
+        "b7": [
+            "Integrating structured biological data by kernel maximum mean discrepancy",
+            "",
+            "",
+            "",
+            "Borgwardt",
+            "Gretton",
+            "Rasch",
+            "Kriegel",
+            "Sch\u00f6lkopf",
+            "Smola"
+        ],
+        "b8": [
+            "Domain adaptation problems: A DASVM classification technique and a circular validation strategy",
+            "",
+            "",
+            "",
+            "Bruzzone",
+            "Marconcini"
+        ],
+        "b9": [
+            "Marginalized denoising autoencoders for domain adaptation",
+            "",
+            "",
+            "",
+            "Chen",
+            "Xu",
+            "Weinberger",
+            "Sha"
+        ],
+        "b10": [
+            "Deep domain adaptation for describing people based on fine-grained clothing attributes",
+            "",
+            "",
+            "",
+            "Chen",
+            "Huang",
+            "Feris",
+            "Brown",
+            "Dong",
+            "Yan"
+        ],
+        "b11": [
+            "Dlid: Deep learning for domain adaptation by interpolating between domains",
+            "",
+            "",
+            "",
+            "Chopra",
+            "Balakrishnan",
+            "Gopalan"
+        ],
+        "b12": [
+            "Multi-column deep neural network for traffic sign classification",
+            "",
+            "",
+            "",
+            "Cire\u015fan",
+            "Meier",
+            "Masci",
+            "Schmidhuber"
+        ],
+        "b13": [
+            "Domain adaptation and sample bias correction theory and algorithm for regression",
+            "",
+            "",
+            "",
+            "Cortes",
+            "Mohri"
+        ],
+        "b14": [
+            "Decaf: A deep convolutional activation feature for generic visual recognition",
+            "",
+            "",
+            "",
+            "Donahue",
+            "Jia",
+            "Vinyals",
+            "Hoffman",
+            "Zhang",
+            "Tzeng",
+            "Darrell"
+        ],
+        "b15": [
+            "",
+            "",
+            "Adaptive subgradient methods for online learning and stochastic optimization",
+            ""
+        ],
+        "b16": [
+            "LIB-LINEAR: A library for large linear classification",
+            "",
+            "",
+            "",
+            "Fan",
+            "Chang",
+            "Hsieh",
+            "Wang",
+            "Lin"
+        ],
+        "b17": [
+            "Unsupervised visual domain adaptation using subspace alignment",
+            "",
+            "",
+            "",
+            "Fernando",
+            "Habrard",
+            "Sebban",
+            "Tuytelaars"
+        ],
+        "b18": [
+            "Unsupervised domain adaptation by backpropagation",
+            "http://jmlr.org/proceedings/papers/v37/ganin15.html",
+            "",
+            "",
+            "Ganin",
+            "Lempitsky"
+        ],
+        "b19": [
+            "A PAC-Bayesian approach for domain adaptation with specialization to linear classifiers",
+            "",
+            "",
+            "",
+            "Germain",
+            "Habrard",
+            "Laviolette",
+            "Morvant"
+        ],
+        "b20": [
+            "Domain adaptation for large-scale sentiment classification: A deep learning approach",
+            "",
+            "",
+            "",
+            "Glorot",
+            "Bordes",
+            "Bengio"
+        ],
+        "b21": [
+            "Geodesic flow kernel for unsupervised domain adaptation",
+            "",
+            "",
+            "",
+            "Gong",
+            "Shi",
+            "Sha",
+            "Grauman"
+        ],
+        "b22": [
+            "Connecting the dots with landmarks: Discriminatively learning domain-invariant features for unsupervised domain adaptation",
+            "",
+            "",
+            "",
+            "Gong",
+            "Grauman",
+            "Sha"
+        ],
+        "b23": [
+            "",
+            "",
+            "Person reidentification",
+            ""
+        ],
+        "b24": [
+            "Generative adversarial nets",
+            "",
+            "",
+            "",
+            "Goodfellow",
+            "Pouget-Abadie",
+            "Mirza",
+            "Xu",
+            "Warde-Farley",
+            "Ozair",
+            "Courville",
+            "Bengio"
+        ],
+        "b25": [
+            "Domain adaptation for object recognition: An unsupervised approach",
+            "",
+            "",
+            "",
+            "Gopalan",
+            "Li",
+            "Chellappa"
+        ],
+        "b26": [
+            "Evaluating appearance models for recognition, reacquisition, and tracking",
+            "",
+            "",
+            "",
+            "Gray",
+            "Brennan",
+            "Tao"
+        ],
+        "b27": [
+            "Person re-identification by descriptive and discriminative classification",
+            "",
+            "",
+            "",
+            "Hirzer",
+            "Beleznai",
+            "Roth",
+            "Bischof"
+        ],
+        "b28": [
+            "",
+            "",
+            "One-shot adaptation of supervised deep convolutional models",
+            "http://arxiv.org/abs/1312.6204"
+        ],
+        "b29": [
+            "Biased representation learning for domain adaptation",
+            "",
+            "",
+            "",
+            "Huang",
+            "Yates"
+        ],
+        "b30": [
+            "Correcting sample selection bias by unlabeled data",
+            "",
+            "",
+            "",
+            "Huang",
+            "Smola",
+            "Gretton",
+            "Borgwardt",
+            "Sch\u00f6lkopf"
+        ],
+        "b31": [
+            "",
+            "",
+            "Caffe: Convolutional architecture for fast feature embedding",
+            ""
+        ],
+        "b32": [
+            "Detecting change in data streams",
+            "",
+            "",
+            "",
+            "Kifer",
+            "Ben-David",
+            "Gehrke"
+        ],
+        "b33": [
+            "Imagenet classification with deep convolutional neural networks",
+            "",
+            "",
+            "",
+            "Krizhevsky",
+            "Sutskever",
+            "Hinton"
+        ],
+        "b34": [
+            "Bayesian comparison of machine learning algorithms on single and multiple datasets",
+            "",
+            "",
+            "",
+            "Lacoste",
+            "Laviolette",
+            "Marchand"
+        ],
+        "b35": [
+            "Gradient-based learning applied to document recognition",
+            "",
+            "",
+            "",
+            "Lecun",
+            "Bottou",
+            "Bengio",
+            "Haffner"
+        ],
+        "b36": [
+            "Locally aligned feature transforms across views",
+            "",
+            "",
+            "",
+            "Ganin",
+            "Ajakan",
+            "Germain",
+            "Larochelle",
+            "Laviolette",
+            "Wei",
+            "Wang"
+        ],
+        "b37": [
+            "Unsupervised domain adaptation by domain invariant projection",
+            "",
+            "",
+            "",
+            "Li",
+            "Swersky",
+            "Zemel"
+        ],
+        "b38": [
+            "Multi-view object class detection with a 3d geometric model",
+            "",
+            "",
+            "",
+            "Liebelt",
+            "Schmid"
+        ],
+        "b39": [
+            "POP: person reidentification post-rank optimisation",
+            "",
+            "",
+            "",
+            "Liu",
+            "Loy",
+            "Gong",
+            "Wang"
+        ],
+        "b40": [
+            "",
+            "",
+            "Learning transferable features with deep adaptation networks",
+            ""
+        ],
+        "b41": [
+            "Cross-domain person reidentification using domain adaptation ranking svms",
+            "",
+            "",
+            "",
+            "Ma",
+            "Li",
+            "Yuen",
+            "Li"
+        ],
+        "b42": [
+            "Domain adaptation: Learning bounds and algorithms",
+            "",
+            "",
+            "",
+            "Mansour",
+            "Mohri",
+            "Rostamizadeh"
+        ],
+        "b43": [
+            "Multiple source adaptation and the r\u00e9nyi divergence",
+            "",
+            "",
+            "",
+            "Mansour",
+            "Mohri",
+            "Rostamizadeh"
+        ],
+        "b44": [
+            "Reading digits in natural images with unsupervised feature learning",
+            "",
+            "",
+            "",
+            "Netzer",
+            "Wang",
+            "Coates",
+            "Bissacco",
+            "Wu",
+            "Ng"
+        ],
+        "b45": [
+            "Learning and transferring mid-level image representations using convolutional neural networks",
+            "",
+            "",
+            "",
+            "Oquab",
+            "Bottou",
+            "Laptev",
+            "Sivic"
+        ],
+        "b46": [
+            "",
+            "",
+            "Learning to rank in person re-identification with metric ensembles",
+            "http://arxiv.org/abs/1503.01543"
+        ],
+        "b47": [
+            "Domain adaptation via transfer component analysis",
+            "",
+            "",
+            "",
+            "Sinno Jialin Pan",
+            "Tsang",
+            "Kwok",
+            "Yang"
+        ],
+        "b48": [
+            "Adapting visual category models to new domains",
+            "",
+            "",
+            "",
+            "Saenko",
+            "Kulis",
+            "Fritz",
+            "Darrell"
+        ],
+        "b49": [
+            "Dropout: A simple way to prevent neural networks from overfitting",
+            "",
+            "",
+            "",
+            "Srivastava",
+            "Hinton",
+            "Krizhevsky",
+            "Sutskever",
+            "Salakhutdinov"
+        ],
+        "b50": [
+            "Back to the future: Learning shape models from 3d CAD data",
+            "",
+            "",
+            "",
+            "Stark",
+            "Goesele",
+            "Schiele"
+        ],
+        "b51": [
+            "From virtual to reality: Fast adaptation of virtual object detectors to real domains",
+            "",
+            "",
+            "",
+            "Sun",
+            "Saenko"
+        ],
+        "b52": [
+            "",
+            "",
+            "Deep domain confusion: Maximizing for domain invariance",
+            "http://arxiv.org/abs/1412.3474"
+        ],
+        "b53": [
+            "",
+            "",
+            "",
+            "http://arxiv.org/abs/1301.3342"
+        ],
+        "b54": [
+            "Virtual and real world adaptationfor pedestrian detection",
+            "",
+            "",
+            "",
+            "V\u00e1zquez",
+            "Manuel L\u00f3pez",
+            "Mar\u00edn",
+            "Ponsa",
+            "Gomez"
+        ],
+        "b55": [
+            "Extracting and composing robust features with denoising autoencoders",
+            "",
+            "",
+            "",
+            "Vincent",
+            "Larochelle",
+            "Bengio",
+            "Manzagol"
+        ],
+        "b56": [
+            "",
+            "",
+            "Deep metric learning for practical person reidentification",
+            "http://arxiv.org/abs/1407.4979"
+        ],
+        "b57": [
+            "",
+            "",
+            "ADADELTA: an adaptive learning rate method",
+            "http://arxiv.org/abs/1212.5701"
+        ],
+        "b58": [
+            "",
+            "",
+            "Visualizing and understanding convolutional networks",
+            "http://arxiv.org/abs/1311.2901"
+        ],
+        "b59": [
+            "",
+            "",
+            "Person re-identification via structured prediction",
+            "http://arxiv.org/abs/1406.4444"
+        ],
+        "b60": [
+            "",
+            "",
+            "Person re-identification by saliency learning",
+            "http://arxiv.org/abs/1412.1908"
+        ],
+        "b61": [
+            "Cross validation framework to choose amongst models and datasets for transfer learning",
+            "",
+            "",
+            "",
+            "Zhong",
+            "Fan",
+            "Yang",
+            "Verscheure",
+            "Ren"
+        ]
+    },
+    {
+        "tab_0": "Table 1 :1Classification accuracy on the Amazon reviews data set, and Pairwise Poisson binomial test.Domain-Adversarial Neural NetworksOriginal datamSDA representationSourceTargetDANN NN SVM DANN NNSVMbooksdvd.784.790 .799.829.824.830bookselectronics.733.747 .748.804.770.766bookskitchen.779.778 .769.843.842.821dvdbooks.723.720 .743.825.823.826dvdelectronics.754.732 .748.809.768.739dvdkitchen.783.778 .746.849.853.842electronics books.713.709 .705.774.770.762electronics dvd.738.733 .726.781.759.770electronics kitchen.854.854 .847.881.863.847kitchenbooks.709.708 .707.718.721.769kitchendvd.740.739 .736.789.789.788kitchenelectronics.843.841 .842.856.850.861(a) Classification accuracy on the Amazon reviews data setOriginal datamSDA representationsDANN NN SVMDANN NN SVMDANN.50.87.83DANN.50.92.88NN.13.50.63NN.08.50.62SVM.17.37.50SVM.12.38.50(b) Pairwise Poisson binomial test",
+        "tab_1": "SVHN architecture; adopted fromSrivastava et al. (2014).conv 5x5 32 maps ReLUmax-pool 2x2 2x2 strideconv 5x5 48 maps ReLUmax-pool 2x2 2x2 stridefully-conn 100 units ReLUfully-conn 100 units ReLUfully-conn 10 units Soft-maxfully-connfully-connGRL100 units1 unitReLULogistic(a) MNIST architecture; inspired by the classical LeNet-5 (LeCun et al., 1998).conv 5x5 64 maps ReLUmax-pool 3x3 2x2 strideconv 5x5 64 maps ReLUmax-pool 3x3 2x2 strideconv 5x5 128 maps ReLUfully-conn 3072 units ReLUfully-conn 2048 units ReLUfully-conn 10 units Soft-maxfully-connfully-connfully-connGRL1024 units1024 units1 unitReLUReLULogistic(b) conv 5x5 96 maps ReLU max-pool 2x2 2x2 strideconv 3x3 144 maps ReLUmax-pool 2x2 2x2 strideconv 5x5 256 maps ReLUmax-pool 2x2 2x2 stridefully-conn 512 units ReLUfully-conn 10 units Soft-maxfully-connfully-connfully-connGRL1024 units1024 units1 unitReLUReLULogistic",
+        "tab_2": "Table 2 :2Classification accuracies for digit image classifications for different source and target domains. MNIST-M corresponds to difference-blended digits over nonuniform background. The first row corresponds to the lower performance bound (i.e., if no adaptation is performed). The last row corresponds to training on the target domain data with known class labels (upper bound on the DA performance). For each of the two DA methods (ours andFernando et al., 2013) we show how much of the gap between the lower and the upper bounds was covered (in brackets). For all five cases, our approach outperformsFernando et al. (2013) considerably, and covers a big portion of the gap.MethodSourceMNISTSyn NumbersSVHNSyn SignsTargetMNIST-MSVHNMNISTGTSRBSource only.5225.8674.5490.7900SA (Fernando et al., 2013).5690 (4.1%).8644 (-5.5%).5932 (9.9%).8165 (12.7%)DANN.7666 (52.9%) .9109 (79.7%) .7385 (42.6%) .8865 (46.4%)Train on target.9596.9220.9942.9980MethodSourceAmazonDSLRWebcamTargetWebcam WebcamDSLRGFK(PLS, PCA) (Gong et al., 2012).197.497.6631SA* (Fernando et al., 2013).450.648.699DLID (Chopra et al., 2013).519.782.899DDC (Tzeng et al., 2014).618.950.985DAN (Long and Wang, 2015).685.960.990Source only.642.961.978DANN.730.964.992",
+        "tab_3": "Table 3 :3Accuracy evaluation of different DA approaches on the standard Office(Saenko et al., 2010) data set. All methods (except SA) are evaluated in the \"fullytransductive\" protocol (some results are reproduced fromLong and Wang, 2015). Our method (last row) outperforms competitors setting the new state-of-the-art. Results for the traffic signs classification in the semi-supervised setting. Syn and Real denote available labeled data (100,000 synthetic and 430 real images respectively); Adapted means that \u2248 31,000 unlabeled target domain images were used for adaptation. The best performance is achieved by employing both the labeled samples and the large unlabeled corpus in the target domain.0.2Real SynValidation error0.1 0.15Syn Adapted Syn + Real Syn + Real Adapted012345Batches seen\u202210 5Figure 7:"
+    }
+]

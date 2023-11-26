@@ -1,0 +1,467 @@
+{
+    "02567fd428a675ca91a0c6786f47f3e35881bcbd.grobid": [
+        "Convolutional Neural Networks ( ConvNets ) have achieved excellent recognition performance in various visual recognition tasks .",
+        "In order to utilize label correlation ( which may be considered as a consequence of label ambiguity in some applications ) , Geng et al. proposed a label distribution learning ( LDL ) approach for age estimation   # b3   and head pose estimation   # b6 .",
+        "Deep ConvNets have natural advantages in feature learning .",
+        "In many cases , the softmax loss and 2 loss are used in deep ConvNet models for classification   # b9   and regression problems   # b10 , respectively .",
+        "DLDL also improves the performance for multi-label classification and semantic segmentation .",
+        "DLDL consistently improves the network training process in our experiments , by preventing it from over-fitting when the training set is small .",
+        "It is an interesting direction to extend DLDL to more recognition problems by constructing different label distributions .."
+    ],
+    "02b3d1d162080d9aefd3fc30a0bcc9a843073b5d.grobid": [
+        "In this work we explore recent advances in Recurrent Neural Networks for large scale Language Modeling , a task central to language understanding .",
+        "Lastly , recently proposed sequence-to-sequence models employ conditional language models   # b28   as their key component to solve diverse tasks like machine translation   # b45   # b7   # b19   or video generation ( Srivastava et al. , 2015a).Deep Learning and Recurrent Neural Networks ( RNNs ) have fueled language modeling research in the past years as it allowed researchers to explore many tasks for which the strong conditional independence assumptions are unrealistic .",
+        "Indeed , most recent work on large scale LM has shown that RNNs are great in combination with N-grams , as they may have different strengths that complement N-gram models , but worse when considered in isolation   # b30   # b27   # b6   # b51 Ji et al. , 2015a ; # b40 .We believe that , despite much work being devoted to small data sets like the Penn Tree Bank ( PTB )   # b26 , research on larger tasks is very relevant as overfitting is not the main limitation in current language modeling , but is the main characteristic of the PTB task ."
+    ],
+    "0398552184f80db111e9c28bf533b395f233ac00.grobid": [
+        "Intuitively , by simulating the selective attention mechanism of human visual system , saliency detection technique can select attractive objects in scenes and thus is a potential way to provide useful priors for WOD .",
+        "However , the way to adopt saliency detection in WOD is not trivial since the detected saliency region might be possibly highly ambiguous in complex cases .",
+        "To this end , this paper first comprehensively analyzes the challenges in applying saliency detection to WOD .",
+        "Then , we make one of the earliest efforts to bridge saliency detection to WOD via the self-paced curriculum learning , which can guide the learning procedure to gradually achieve faithful knowledge of multi-class objects from easy to hard .",
+        "3 ) Several existing works , e.g. ,   # b9 , have attempted to apply saliency detection techniques to WOD .",
+        "Essentially , although it sounds reasonable to apply saliency detection to WOD , the way to bridge these two tasks is not trivial .",
+        "The main problem is that saliency detection is formulated as category-free models which only distinguish attractive regions from the image background while irrelevant to the concrete object category .",
+        "In this paper , in order to address the challenging WOD problem , we proposed an effective framework to bridge saliency detection to the investigated task based on a novel SPCL regime ."
+    ],
+    "05d2700846c0323f79c1344aca5333994c7c03a5.grobid": [
+        "In decreasing order of importance these are : rescoring with strong language models trained on diverse data sources ; joint training of an RNN and a CNN with 32000 outputs on 2000 hours of audio and maxout networks with annealed dropout ."
+    ],
+    "0626908dd710b91aece1a81f4ca0635f23fc47f3.grobid": [
+        "Since the 2012 ImageNet competition   # b15   winning entry by Krizhevsky et al   # b8 , their network \" AlexNet \" has been successfully applied to a larger variety of computer vision tasks , for example to object-detection   # b4 , segmentation   # b11 , human pose estimation   # b21 , video classification   # b7 , object tracking   # b22 , and superresolution   # b2 .These successes spurred a new line of research that focused on finding higher performing convolutional neural networks .",
+        "This has made it feasible to utilize Inception networks in big-data scenarios   # b16 ,   # b12 , where huge amount of data needed to be processed at reasonable cost or scenarios where memory or computational capacity is inherently limited , for example in mobile vision settings ."
+    ],
+    "0678a8abea82793993cd89383319da75f6dc4be3.grobid": [
+        "ProNet outperforms previous state-of-the-art significantly on PASCAL VOC 2012 and MS COCO datasets for object classification and point-based localization ..",
+        "They then aggregate the extracted features into image-level representations for classification purpose .",
+        "We choose to use the fully-convolutional network ( FCN ) architecture   # b15   # b18   # b22   # b26   # b20   for simultaneous object classification and localization .",
+        "Once a multi-scale FCN is trained , it can be used for classification and localization directly .",
+        "Moreover , apart from a traditional chain-structured cascade , we show that it is also possible to build tree-structured cascades , where each branch handles categories from a particular domain ( e.g. set of vehicles or animals).In summary , our paper makes the following contributions:\u2022 We propose ProNet , a cascaded neural network framework that zooms onto promising object-specific boxes for efficient object classification and localization . .",
+        "We proposed ProNet , a cascaded neural network for object classification and localization ."
+    ],
+    "081531984770a74e87dbd68907061b4b0f3631bf.grobid": [
+        "Real-Time Video Super-Resolution with Spatio-Temporal Networks and Motion Compensation .",
+        "Convolutional neural networks have enabled accurate image super-resolution in real-time .",
+        "Specifically , we discuss the use of early fusion , slow fusion and 3D convolutions for the joint processing of multiple consecutive video frames .",
+        "In this paper we combine the efficiency advantages of sub-pixel convolutions with temporal fusion strategies to present real-time spatio-temporal models for video SR ."
+    ],
+    "0834e74304b547c9354b6d7da6fa78ef47a48fa8.grobid": [
+        "Such a low-dimensional embedding is very useful in a variety of applications such as visualization   # b31 , node classification   # b13 , link prediction   # b20 , and recommendation   # b33 .Various methods of graph embedding have been proposed in the machine learning literature ( e.g. ,   # b14 20 , # b12 ) .",
+        "One approach that attracts attention in recent years is using the stochastic gradient descent for the optimization .",
+        "To address this , we propose a novel edge-sampling method , which improves both the effectiveness and efficiency of the inference .",
+        "An efficient and effective edge-sampling method is proposed for model inference , which solved the limitation of stochastic gradient descent on weighted edges without compromising the efficiency ."
+    ],
+    "0a3381f0432c5cfe491c718349d7a44e5814592c.grobid": [
+        "Compositional Sequence Labeling Models for Error Detection in Learner Writing .",
+        "In this paper , we present the first experiments using neural network models for the task of error detection in learner writing .",
+        "Finally , the model is integrated with a publicly deployed self-assessment system , leading to performance comparable to human annotators .. Automated systems for detecting errors in learner writing are valuable tools for second language learning and assessment .",
+        "Neural network models aim to address these weaknesses and have achieved success in various NLP tasks such as language modeling   # b2   and speech recognition   # b10 .",
+        "Recent developments in machine translation have also shown that text of varying length can be represented as a fixed-size vector using convolutional networks   # b24 Cho et al. , 2014a ) or recurrent neural networks ( Cho et al. , 2014b ; # b1 .In this paper , we present the first experiments using neural network models for the task of error detection in learner writing .",
+        "In this paper , we presented the first experiments using neural network models for the task of error detection in learner writing .",
+        "Based on the findings , we propose a novel error detection framework using token-level embeddings , bidirectional LSTMs for context representation , and a multi-layer architecture for learning more complex features .",
+        "As part of future work , it would be beneficial to investigate the effect of automatically generated training data for error detection ( e.g. ,   # b38 ) .We evaluated the performance of existing error correction systems from CoNLL-14 on the task of error detection .",
+        "In addition , the neural sequence tagging model , specialised for error detection , was able to outperform all other participating systems ."
+    ],
+    "0a6c36de8726b6feaab586046ddc1d1a008f44f9.grobid": [],
+    "0c47cad9729c38d9db1f75491b1ee4bd883a5d4e.grobid": [
+        "A widely successful semi-supervised learning strategy for neural NLP is pre-training word vectors   # b48 .",
+        "More recent work trains a Bi-LSTM sentence encoder to do language modeling and then incorporates its context-sensitive representations into supervised models   # b11   # b57 .",
+        "Selftraining has historically been effective for NLP   # b83   # b47 , but is less commonly used with neural models .",
+        "For example , one auxiliary prediction module for sequence tagging is attached to only the \" forward \" LSTM in the model 's first Bi-LSTM layer , so it makes predictions without seeing any tokens to the right of the current one .",
+        "CVT can be applied to a variety of tasks and neural architectures , but we focus on sequence modeling tasks where the prediction modules are attached to a shared Bi-LSTM encoder .",
+        "We propose auxiliary prediction modules that work well for sequence taggers , graph-based dependency parsers , and sequence-to-sequence models .",
+        "Training a unified model to jointly perform all of the tasks except machine translation improves results ( outperforming a multi-task ELMo model ) while decreasing the total training time ..",
+        "We propose Cross-View Training , a new method for semi-supervised learning ."
+    ],
+    "0dc9eb7d17f2def56ad930945f2521653f04c3fa.grobid": [
+        "Estimating full sentence language models is computationally hard if one seeks a properly normalized probability model 1 over strings of words of finite length in V * ."
+    ],
+    "107010b7f2abe3c0c9df62bcef35eb77f6fc76df.grobid": [
+        "We introduce a new representation learning approach for domain adaptation , in which data at training and test time come from similar but different distributions .",
+        "Below , we focus on the harder unsupervised case , although the proposed approach ( domain-adversarial learning ) can be generalized to the semi-supervised case rather straightforwardly .",
+        "Unlike many previous papers on domain adaptation that worked with fixed feature representations , we focus on combining domain adaptation and deep feature learning within one training process .",
+        "Finally , we evaluate domain-adversarial descriptor learning in the context of person re-identification application   # b23 , where the task is to obtain good pedestrian image descriptors that are suitable for retrieval and verification .",
+        "In a series of experiments , we demonstrate that domain-adversarial learning can improve cross-data-set re-identification considerably ..",
+        "The paper proposes a new approach to domain adaptation of feed-forward neural networks , which allows large-scale training based on large amount of annotated data in the source domain and large amount of unannotated data in the target domain .",
+        "However , unlike previous approaches , the alignment is accomplished through standard backpropagation training .",
+        "Towards this end , We have demonstrated experimentally that the approach is not confined to classification tasks but can be used in other feed-forward architectures , e.g. , for descriptor learning for person re-identification .."
+    ],
+    "1130d8fdd931225c2d7563c3808367726cfa1c3a.grobid": [
+        "We further show how the PixelGAN autoencoder with a categorical prior can be directly used in semi-supervised settings and achieve competitive semi-supervised classification results on the MNIST , SVHN and NORB datasets ..",
+        "Recently , several papers have proposed another application of GAN-style algorithms for approximate inference   # b1   # b2   # b3   # b4   # b5   # b6   # b7   # b8 .",
+        "Another type of GAN inference technique is used in the ALI   # b7   and BiGAN   # b8   models , which have been shown to approximate maximum likelihood learning   # b2 .",
+        "We then show how PixelGAN autoencoders with categorical priors can be directly used in clustering and semi-supervised scenarios and achieve very competitive classification results on several datasets in Section 3 .",
+        "While the main focus of this paper was to demonstrate the application of PixelGAN autoencoders in downstream tasks such as semi-supervised learning , we discussed how these architectures have many other potentials such as learning cross-domain relations between two different domains .."
+    ],
+    "11356cd6bb0f2776a88cd584ff108470414c6594.grobid": [
+        "Convolutional network are the de-facto standard for analysing spatio-temporal data such as images , videos , 3D shapes , etc ."
+    ],
+    "11da0c54ba904a1cb31a09d10da55f73e8825c61.grobid": [
+        "Natural Language Inference by Tree-Based Convolution and Heuristic Matching .",
+        "Traditional approaches to NLI mainly fall into two groups : feature-rich models and formal reasoning methods .",
+        "In this paper , we proposed the TBCNN-pair model for natural language inference ."
+    ],
+    "1235dd37312cb20aced0e97d953f6379d8a0c7d4.grobid": [
+        "Logic-based models analyse entailment in terms of possible worlds ( interpretations , or situations ) where a premise P entails a hypothesis H iff in all worlds where P is true , H is also true .",
+        "We use a multimodal version of the SNLI dataset ( Bowman et al. , 2015 ) and we compare \" blind \" and visually-augmented models of textual entailment .",
+        "Our results suggest that a model based on matching and aggregation like the BiMPM model   # b30   can perform very well at the reasoning task , classifying entailment relations correctly much more frequently than a baseline V-LSTM .",
+        "Given two d-dimensional vectors v P and v H , each replicated l times ( l is the number of ' perspectives ' ) and a trainable l \u00d7 d weight matrix W , matching involves a cosine similarity computation that yields an l-dimensional matching vector m , whose elements are defined as follows : m k = cosine ( W k \u2022 v P , W k \u2022 v H ) (1)The matching operations included are the following:1 .",
+        "To perform multimodal matching , the visual and textual vectors are mapped to a mutual space using the following affine transformation : v i = W t f i + b t ; f i \u2208 R e ; W t \u2208 R e \u00d7 d ; b t , v i \u2208 R d (2)where W t , b t , f i , and v i are the weight matrix , the bias , the input features and output features , respectively , and t is any text ( P or H ) ."
+    ],
+    "14318685b5959b51d0f1e3db34643eb2855dc6d9.grobid": [
+        "One particular incarnation used in our submission for ILSVRC14 is called GoogLeNet , a 22 layers deep network , the quality of which is assessed in the context of classification and detection ..",
+        "The biggest gains in object-detection have not come from the utilization of deep networks alone or bigger models , but from the synergy of deep architectures and classical computer vision , like the R-CNN algorithm by Girshick et al   # b5 .Another",
+        "In this paper , we will focus on an efficient deep neural network architecture for computer vision , codenamed Inception , which derives its name from the Network in network paper by Lin et"
+    ],
+    "16051bbe3a7f7c77a952ebf76722ea655e8906ca.grobid": [
+        "Image Super-resolution via Feature-augmented Random Forest .",
+        "In this paper , we present a novel feature-augmented random forest ( FARF ) for image super-resolution , where the conventional gradient-based features are augmented with gradient magnitudes and different feature recipes are formulated on different stages in an RF .",
+        "Secondly , generalized locality-sensitive hashing ( LSH ) is used to replace principal component analysis ( PCA ) for feature dimensionality reduction and original high-dimensional features are employed , instead of the compressed ones , for the leaf-nodes ' regressors , since regressors can benefit from higher dimensional features .",
+        "In the past few years , random forest ( RF )   # b2   # b13   as a machine-learning tool , working via an ensemble of multiple decision trees , has been employed for efficient classification or regression problems , and applied to a large variety of computer-vision applications , such as object recognition   # b26 , face alignment   # b14   # b17   # b20 , data clustering   # b16 , single image super-resolution ( SISR )   # b7   # b18 , and so on .",
+        "The RF method , which benefits from its simple implementation of binary trees , has been widely used , and exhibits a number of merits , including ( 1 ) it works with an ensemble of multiple decision trees to express the principle that \" two heads are better than one \" ,   # b1   it is easy to be sped up with parallel processing technology , on both the training and inference stages , ( 3 ) it has sub-linear search complexity , because of the use of the binary tree structure , ( 4 ) the bagging strategy for feature candidates on splitnodes enable it to handle high-dimensional features and avoid over-fitting on regression , and ( 5 ) the clustering-regression scheme employs the \" divide and conquer \" strategy , which can tackle the classification and regression tasks with more stable performance .",
+        "Since RF is used as a dictionarylearning-based tool , it inherits many properties from the conventional dictionary-learning-based algorithms on feature extraction .",
+        "In most dictionary-learning-based algorithms , principal component analysis ( PCA ) is used for dimensionality reduction before classification and regression processes .",
+        "Moreover , the unsupervised locality-sensitive hashing ( LSH ) model , instead of PCA , is employed for feature dimensionality reduction , which can reduce the damage on the feature structure for the compressed features used on clustering at the split-nodes and thus improve the final image quality .",
+        "For regression problems at the leaf-nodes , we propose a generalized weighted ridge regression ( GWRR ) as an extension of the work in   # b0 .",
+        "The pipeline of our FARF method , which includes feature extraction , the training stage , and inference stages for SISR , is shown in Fig. 1 .",
+        "Then , the conventional PCA is replaced by the generalized LSH for dimensionality reduction , and the compressed features are used for clustering in the split-nodes on an RF .",
+        "This paper presents a feature-augmented random forest ( FARF ) scheme for the single image superresolution ( SISR ) task by augmenting features and redesigning the inner structure of a random forest ."
+    ],
+    "160563abbd75265b19afc8b4169bab9e1eb33d97.grobid": [
+        "Massively Multilingual Sentence Embeddings for Zero-Shot Cross-Lingual Transfer and Beyond .",
+        "We also introduce a new test set of aligned sentences in 112 languages , and show that our sentence embeddings obtain strong results in multilingual similarity search even for lowresource languages .",
+        "While the recent advent of deep learning has led to impressive progress in natural language processing ( NLP ) , these techniques are known to be particularly data-hungry , limiting their applicability in many practical scenarios .",
+        "Whereas previous work in multilingual NLP has been limited to either a few languages ( Schwenk and Douze , 2017 ; # b41   or specific applications like typology prediction   # b27   or machine translation   # b30 , we learn general purpose sentence representations for 93 languages ( see Table 1 ) .",
+        "We use a single language-agnostic BiLSTM encoder for all languages , which is trained on publicly available parallel corpora and applied to different downstream tasks without any fine-tuning ."
+    ],
+    "175f74a09241b6cb5101a2a09978095720db7d5f.grobid": [
+        "Image Super-Resolution via Dual-State Recurrent Networks .",
+        "Advances in image super-resolution ( SR ) have recently benefited significantly from rapid developments in deep neural networks .",
+        "In recent years , SR performance has been significantly improved due to rapid developments in deep neural networks ( DNNs ) .",
+        "Specifically , convolutional neural networks ( CNNs ) and residual learning   # b15   have been widely applied in much recent SR work   # b9   # b11   # b19   # b20   # b21   # b24   # b34   # b38 .In these approaches , two principles have been consistently observed .",
+        "For the future work , we will explore use of our proposed DSRN to capture temporal dependencies for video SR   # b25 .."
+    ],
+    "1778e32c18bd611169e64c1805a51abff341ca53.grobid": [
+        "Recent progress on NLI is enabled by the availability of 570k human annotated dataset ( Bowman et al. , 2015 ) and the advancement of representation learning technique .",
+        "Among the core representation learning techniques , attention mechanism is broadly applied in many NLU tasks since its introduction : machine translation   # b15 , abstractive summarization   # b52 , Reading Comprehension(Hermann et al. , 2015 ) , dialog system   # b43 , etc .",
+        "Attention mechanism is known for its alignment between representations , focusing one part of representation over another , and modeling the dependency regardless of sequence length .",
+        "We introduce Interactive Inference Network , a novel class of architecture that allows the model to solve NLI or NLI alike tasks via extracting semantic feature from interaction tensor end-to-end ."
+    ],
+    "178275dbdcfa267e41a9d5efe386ee5874c6d23f.grobid": [
+        "Recurrent neural networks ( RNNs ) form an important class of architectures among neural networks useful for language modeling and sequential prediction .",
+        "We also show that our approach leads to performance improvement by a significant margin in image captioning ( Microsoft COCO ) and semi-supervised ( CIFAR-10 ) tasks .. Recurrent neural networks ( RNNs ) like long short-term memory ( LSTM ;   # b5 ) networks and gated recurrent unit ( GRU ;   # b0 ) are popular architectures for sequence modeling tasks like language generation , translation , speech synthesis , and machine comprehension .",
+        "Merity et al. ( 2017a ) and Merity et al. ( 2017b ) on the other hand show that activity regularization ( AR ) and temporal activation regularization (TAR)1 are also effective methods for regularizing LSTMs ."
+    ],
+    "178631e0f0e624b1607c7a7a2507ed30d4e83a42.grobid": [
+        "SPEECH RECOGNITION WITH DEEP RECURRENT NEURAL NETWORKS .",
+        "End-to-end training methods such as Connectionist Temporal Classification make it possible to train RNNs for sequence labelling problems where the input-output alignment is unknown .",
+        "However RNN performance in speech recognition has so far been disappointing , with better results returned by deep feedforward networks .",
+        "Neural networks have a long history in speech recognition , usually in combination with hidden Markov models   # b1   # b2 .",
+        "They have gained attention in recent years with the dramatic improvements in acoustic modelling yielded by deep feedforward networks   # b3   # b4 .",
+        "Instead of combining RNNs with HMMs , it is possible to train RNNs ' end-to-end ' for speech recognition   # b8   # b9   # b10 .",
+        "To answer this question we introduce deep Long Short-term Memory RNNs and assess their potential for speech recognition .",
+        "Sections 2 and 3 describe the network architectures and training methods , Section 4 provides experimental results and concluding remarks are given in Section 5 .. We have shown that the combination of deep , bidirectional Long Short-term Memory RNNs with end-to-end training and weight noise gives state-of-the-art results in phoneme recognition on the TIMIT database ."
+    ],
+    "18168aea48a22f6fe2fe407c0ff70083cba225a7.grobid": [
+        "Image Restoration Using Very Deep Convolutional Encoder-Decoder Networks with Symmetric Skip Connections .",
+        "In this paper , we propose a very deep fully convolutional encoding-decoding framework for image restoration such as denoising and super-resolution .",
+        "By accommodating different types of corruption distributions , the same mathematical model applies to problems such as image denoising and superresolution .",
+        "Recently , deep neural networks ( DNNs ) have shown their superior performance in image processing and computer vision tasks , ranging from high-level recognition , semantic segmentation to low-level denoising , super-resolution , deblur , inpainting and recovering raw images from compressed images .",
+        "Observing recent superior performance of DNNs on image processing tasks , we propose a convolutional neural network (CNN)-based framework for image restoration .",
+        "A very deep network architecture , which consists of a chain of symmetric convolutional and deconvolutional layers , for image restoration is proposed in this paper .",
+        "The deconvolutional layers then decode the image abstraction to recover the image content details.2 )",
+        "In this paper we have proposed a deep encoding and decoding framework for image restoration ."
+    ],
+    "193089d56758ab88391d846edd08d359b1f9a863.grobid": [
+        "A Discriminatively Learned CNN Embedding for Person Re-identification .",
+        "In this paper , we revisit two popular convolutional neural networks ( CNN ) in person re-identification ( re-ID ) , i.e.,verification and identification models .",
+        "a ) Identification models treat person re-ID as a multi-class recognition task , which take one image as input and predict its identity .",
+        "b ) Verification models treat person re-ID as a two-class recognition task or a similarity regression task , which take a pair of images as input and determine whether they belong to the same person or not .",
+        "In the attempt to take full advantages of the re-ID labels , identification models which treat person re-identification as a multi-class recognition task , are employed for feature learning   # b0 ,   # b6 ,   # b7 ,   # b8 .",
+        "Besides , we will investigate how to learn a robust descriptor to further improve the performance of the person re-identification on large-scale testing set .."
+    ],
+    "193b518bc3025804c6d587c74cbc154d91478417.grobid": [
+        "Convolutional neural network-based approaches for semantic segmentation rely on supervision with pixel-level ground truth , but may not generalize well to unseen image domains .",
+        "In this paper , we propose an adversarial learning method for domain adaptation in the context of semantic segmentation .",
+        "To further enhance the adapted model , we construct a multi-level adversarial network to effectively perform output space domain adaptation at different feature levels .",
+        "Recently , methods based on convolutional neural networks ( CNNs ) have achieved significant progress in semantic segmentation   # b1   # b20   # b22   # b23   # b39   # b41   # b42   with applications for autonomous driving   # b8   and image editing   # b35 .",
+        "Similar efforts have been made for semantic segmentation via adversarial learning in the feature space   # b2   # b12 .",
+        "However , different from the image classification task , feature adaptation for semantic segmentation may suffer from the complexity of high-dimensional features that needs to encode diverse visual cues , including appearance , shape and context .",
+        "In this paper , we propose an end-to-end CNN-based domain adaptation algorithm for semantic segmentation .",
+        "First , we propose a domain adaptation method for pixel-level semantic segmentation via adversarial learning .",
+        "We tackle the domain adaptation problem for semantic segmentation via adversarial learning in the output space .",
+        "We hope that our proposed method can be a generic adaptation model for a wide range of pixel-level prediction tasks .   "
+    ],
+    "1d0dcb458aa4d30b51f7c74b159be687f39120a0.grobid": [
+        "Pose-driven Deep Convolutional Model for Person Re-identification .",
+        "In recent years , deep learning has demonstrated strong model capabilities and obtains very promising performances in many computer vision tasks   # b24   # b14   # b31   # b38   # b8 .",
+        "Meanwhile , the release of person ReID datasets like CUHK 03   # b25 , Market-1501   # b63 , and MARS   # b61 , both of which contain many annotated person images , makes training deep models for person ReID feasible .",
+        "Therefore , many researchers attempt to leverage deep models in person ReID   # b0   # b10   # b53   # b46   # b42   # b61   # b13   # b56   # b43   # b57 .",
+        "Some recent works   # b62   # b16   attempt to use pose estimation algorithms to predict human pose and then train deep models for person ReID .",
+        "Moreover , a sub-network is proposed to automatically learn weights for different parts to facilitate feature similarity measurement .",
+        "This paper presents a pose-driven deep convolutional model for the person ReID .",
+        "The proposed deep architecture explicitly leverages the human part cues to learn effective feature representations and adaptive similarity measurements .",
+        "For similarity measurements , weights of feature representations from human body and different body parts are learned to adaptively chase a more discriminative feature fusion ."
+    ],
+    "1f08598381af9146d0fd9a61b30d0e51a7331689.grobid": [
+        "We propose a distributed architecture for deep reinforcement learning at scale , that enables agents to learn effectively from orders of magnitude more data than previously possible .",
+        "We have designed , implemented , and analyzed a distributed framework for prioritized replay in deep reinforcement learning ."
+    ],
+    "2138a7127429d67746ec78de46d6820fee0e548e.grobid": [
+        "GRAPH2SEQ : GRAPH TO SEQUENCE LEARNING WITH ATTENTION-BASED NEURAL NETWORKS .",
+        "The celebrated Sequence to Sequence learning ( Seq2Seq ) technique and its numerous variants achieve excellent performance on many tasks such as Neural Machine Translation   # b1   # b14 , Natural Language Generation ( NLG )   # b43   and Speech Recognition   # b58 .",
+        "Many other enhancements including Bidirectional Recurrent Neural Networks ( Bi-RNN )   # b40   or Bidirectional Long Short-Term Memory Networks ( Bi-LSTM )   # b19   as encoder , and attention mechanism   # b1   # b32 , have been proposed to further improve its practical performance for general or domain-specific applications .",
+        "Intuitively , the ideal solution for graph-to-sequence tasks is to build a more powerful encoder which is able to learn the input representation regardless of its inherent structure .",
+        "To address this issue , we propose Graph2Seq , a novel general attention-based neural network model for graph-to-sequence learning .",
+        "We highlight three main contributions of this paper as follows:\u2022 We propose a novel general attention-based neural networks model to elegantly address graph-to-sequence learning problems that learns a mapping between graph-structured inputs to sequence outputs , which current Seq2Seq and Tree2Seq may be inadequate to handle .",
+        "We also showed that introducing an attention mechanism over node representation into the decoding substantially enhances the ability of our model to produce correct target sequences from large graphs .",
+        "Since much symbolic data is represented as graphs and many tasks express their desired outputs as sequences , we expect Graph2Seq to be broadly applicable to unify symbolic AI and beyond ."
+    ],
+    "21a1654b856cf0c64e60e58258669b374cb05539.grobid": [
+        "Prior work on object detection repurposes classifiers to perform detection .",
+        "Current detection systems repurpose classifiers to perform detection .",
+        "After classification , post-processing is used to refine the bounding boxes , eliminate duplicate detections , and rescore the boxes based on other objects in the scene   # b12 .",
+        "YOLO trains on full images and directly optimizes detection performance .",
+        "We introduce YOLO , a unified model for object detection .",
+        "Fast YOLO is the fastest general-purpose object detector in the literature and YOLO pushes the state-of-the-art in real-time object detection ."
+    ],
+    "232b43584b2236669c0a53702ad89ab10c3886ea.grobid": [
+        "Implicit Quantile Networks for Distributional Reinforcement Learning .",
+        "Distributional RL aims to model the distribution over returns , whose mean is the traditional value function , and to use these distributions to evaluate and optimize a policy .",
+        "First , samplebased convergence results have been recently shown for a class of categorical distributional RL algorithms   # b32 ."
+    ],
+    "23d2d3a6ffebfecaa8930307fdcf451c147757c8.grobid": [
+        "As a new way of training generative models , Generative Adversarial Net ( GAN ) that uses a discriminative model to guide the training of the generative model has enjoyed considerable success in generating real-valued data .",
+        "Modeling the data generator as a stochastic policy in reinforcement learning ( RL ) , SeqGAN bypasses the generator differentiation problem by directly performing gradient policy update .",
+        "This approach has been successful and been mostly applied in computer vision tasks of generating samples of natural images   # b6 .Unfortunately , applying GAN to generating sequences has two problems .",
+        "Firstly , GAN is designed for generating realvalued , continuous data but has difficulties in directly generating sequences of discrete tokens , such as texts   # b14 .",
+        "In this paper , we proposed a sequence generation method , SeqGAN , to effectively train generative adversarial nets for structured sequences generation via policy gradient .",
+        "For three real-world scenarios , i.e. , poems , speech language and music generation , SeqGAN showed excellent performance on generating the creative sequences .",
+        "For future work , we plan to build Monte Carlo tree search and value network   # b21   to improve action decision making for large scale data and in the case of longer-term planning .."
+    ],
+    "24730424236724d3f798dec02901e7a1f1c4710e.grobid": [
+        "Joint Maximum Purity Forest with Application to Image Super-Resolution .",
+        "In this paper , we propose a novel random-forest scheme , namely Joint Maximum Purity Forest ( JMPF ) , for classification , clustering , and regression tasks .",
+        "Furthermore , we applied JMPF to image super-resolution , because the transformed , compact features are more discriminative to the clustering-regression scheme .",
+        "Experiment results on several public benchmark datasets also showed that the JMPF-based image super-resolution scheme is consistently superior to recent state-of-the-art image super-resolution algorithms .. Recently , random forest   # b5   # b16   has been employed as an efficient classification or regression tool on a large variety of computer-vision applications , such as object recognition   # b29 , face alignment   # b17   # b23   # b48 , data clustering   # b19 , image super-resolution   # b10   # b21 , and so on .",
+        "This method is attractive on computervision problems , not only for its simple implementation , but also for its many merits :   # b3   it can work efficiently on both the training and inference stages ,   # b4   it is feasible for it to be sped up with parallel processing technology ,   # b5   it has an inherent property to handle high-dimensional input features , and ( 4 ) it works with divide-and-conquer strategy , which has stable performance on classification and regression tasks as an ensemble machine-learning tool .",
+        "Therefore , JMPF is applied to single-image super-resolution in this paper .",
+        "In our algorithm , principal component analysis ( PCA ) is applied to the features for dimensionality reduction .",
+        "Experiment results show that JMPF can achieve more accurate clustering/classification performance on random forests , and applying JMPF to image super-resolution can achieve superior quality , compared to state-of-the-art methods .",
+        "In Section IV , we will validate the performance of JMPF scheme on single-image super-resolution ."
+    ],
+    "249b3b7421d3cdb932eecfe4b67203e0e46806b2.grobid": [
+        "In the field of natural language processing ( NLP ) , one of the most prevalent neural approaches to obtaining sentence representations is to use recurrent neural networks ( RNNs ) , where words in a sentence are processed in a sequential and recurrent manner .",
+        "Along with their intuitive design , RNNs have shown outstanding performance across various NLP tasks e.g. language modeling   # b28   # b17 , machine translation   # b7   # b43 Bahdanau et al. , 2015 ) , text classification   # b54   # b45 , and parsing   # b24   # b11 .Among",
+        "For future work we plan to apply the CAS-LSTM architecture beyond sentence modeling tasks ."
+    ],
+    "25a784f7f8c94c42821ee078587fc38dffcd00a4.grobid": [
+        "We realize that these hard images have become the main barriers for face detectors to achieve human-level detection performance .",
+        "However , due to the sparsity of ground-truth faces and positive anchors , traditional anchor-level hard example mining mainly focuses on mining hard negative anchors , and mining hard anchors on well-detected images exhibits less effectiveness since there is no useful information that can be further exploited in these easy images .",
+        "Finally , conclusions are drawn in Section 5 .. To conclude , we propose a novel face detector to focus on learning small faces on hard images , which achieves the state-of-the-art performance on all popular face detection datasets ."
+    ],
+    "25f5df29342a04936ba0d308b4d1b8245a7e8f5c.grobid": [
+        "In this work we show a systematic design for how convolutional networks can be incorporated into the pose machine framework for learning image features and image-dependent spatial models for the task of pose estimation .",
+        "We introduce Convolutional Pose Machines ( CPMs ) for the task of articulated pose estimation .",
+        "CPMs inherit the benefits of the pose machine   # b28   architecture-the implicit learning of long-range dependencies between image and multi-part cues , tight integration between learning and inference , a modular sequential design-and combine them with the advantages afforded by convolutional architectures : the ability to learn feature representations for both image and spatial context directly from data ; a differentiable architecture that allows for globally joint training with backpropagation ; and the ability to efficiently handle large training datasets .",
+        "In this work , we show how for a structured prediction problem such as pose estimation , CPMs naturally suggest a systematic framework that replenishes gradients and guides the network to produce increasingly accurate belief maps by enforcing intermediate supervision periodically through the network .",
+        "Our main contributions are ( a ) learning implicit spatial models via a sequential composition of convolutional architectures and ( b ) a systematic approach to designing and training such an architecture to learn both image features and image-dependent spatial models for structured prediction tasks , without the need for any graphical model style inference .",
+        "Convolutional pose machines provide an end-to-end architecture for tackling structured prediction problems in computer vision without the need for graphical-model style inference ."
+    ],
+    "269730dbbabed8b8b5ba720e44a4c31b1f51e8f1.grobid": [
+        "QUERY-REDUCTION NETWORKS FOR QUESTION ANSWERING .",
+        "Our proposed model , Query-Reduction Network 1 ( QRN ) , is a single recurrent unit that addresses the long-term dependency problem of most RNN-based models by simplifying the recurrent update , while taking the advantage of RNN 's capability to model sequential data ( Figure 1 ) .",
+        "Second , QRN is situated between the attention mechanism and RNN , effectively handling time dependency and long-term dependency problems of each technique , respectively .",
+        "It addresses the long-term dependency problem of most RNNs by simplifying the recurrent update , in which the candidate hidden state ( reduced query ) does not depend on the previous state .",
+        "Moreover , QRN can be parallelized and can address the well-known problem of RNN 's vanishing gradients ."
+    ],
+    "270e65acc071b9e4e2a632720130c0e10cb6fa08.grobid": [
+        "Neural Tree Indexers for Text Understanding .",
+        "RNNs equipped with gated hidden units and internal short-term memories , such as long shortterm memories ( LSTM )   # b9   have achieved a notable success in several NLP tasks including named entity recognition   # b17 , constituency parsing   # b30 , textual entailment recognition   # b24 ) , question answering   # b8 , and machine translation   # b0 .",
+        "Sequential LSTM models seem to learn syntactic structure from the natural language however their generalization on unseen text is relatively poor comparing with models that exploit syntactic tree structure ( Bowman et al. , 2015b).Unlike sequential models , recursive neural networks compose word phrases over syntactic tree structure and have shown improved performance in sentiment analysis   # b27 .",
+        "In this study , we introduce Neural Tree Indexers ( NTI ) , a class of tree structured models for NLP tasks .",
+        "Like CNN , the computation in the same tree-depth can be parallelized effectively ; and therefore NTI is scalable and suitable for large-scale sequence processing ."
+    ],
+    "2777cd26b2c257843273fe41ad4c5b8cdf1b1b75.grobid": [
+        "Understanding Humans in Crowded Scenes : Deep Nested Adversarial Learning and A New Benchmark for Multi-Human Parsing .",
+        "We further propose a novel deep Nested Adversarial Network ( NAN ) model for multi-human parsing .",
+        "NAN consists of three Generative Adversarial Network (GAN)-like sub-nets , respectively performing semantic saliency prediction , instance-agnostic parsing and instance-aware clustering .",
+        "Recently , deep learning based methods have achieved remarkable sucess in these perceptual tasks thanks to the availability of plentiful annotated images for training and evaluation purposes   # b7   # b8   # b12   # b24 .",
+        "Multihuman parsing enables more detailed understanding of humans in crowded scenes and aligns better with many real-world applications , such as group behavior analysis   # b10 , person re-identification   # b38 , e-commerce   # b30 , image editing   # b33 , video surveillance   # b4 , autonomous driving   # b5   and virtual reality   # b23 .",
+        "We further propose a novel deep Nested Adversarial Network ( NAN ) model for solving the challenging multi-human parsing problem .",
+        "NAN consists of three Generative Adversarial Network (GAN)-like sub-nets , respectively performing semantic saliency prediction , instance-agnostic parsing and instance-aware clustering .",
+        "The results demonstrate the superiority of NAN on multi-human parsing over the state-of-the-arts ."
+    ],
+    "27a99c21a1324f087b2f144adc119f04137dfd87.grobid": [
+        "Their approach is based on applying a sparsity inducing regularizer during optimization which introduces many zero-weight connections that can be removed at test time .",
+        "Our approach is based on kernel methods , in particular the Fastfood method for kernel approximation ."
+    ],
+    "27aa0f3ec934925265f93fac7ff1cd1d70ceb618.grobid": [
+        "Deep neural networks ( DNNs ) excel at learning from labeled data and have achieved state of the art in a wide array of supervised NLP tasks such as dependency parsing   # b10 , named entity recognition   # b23 , and semantic role labeling   # b17 .In contrast , learning from unlabeled data , especially under domain shift , remains a challenge .",
+        "It establishes a new state of the art on unsupervised domain adaptation for sentiment analysis but it is outperformed by classic tri-training for POS tagging .",
+        "For the two examined NLP tasks classic tri-training works the best and even outperforms a recent state-of-the-art method .",
+        "We therefore propose a more efficient multi-task tri-training model , which outperforms both traditional tri-training and recent alternatives in the case of sentiment analysis .",
+        "For POS tagging , classic tri-training is superior , performing especially well on OOVs and low frequency to-kens , which suggests it is less affected by error propagation ."
+    ],
+    "2a86bcdfb1d817ddb76ba202319f8267a36c0f62.grobid": [
+        "PCL : Proposal Cluster Learning for Weakly Supervised Object Detection .",
+        "Weakly Supervised Object Detection ( WSOD ) , using only image-level annotations to train object detectors , is of growing importance in object recognition .",
+        "In this paper , we propose a novel deep network for WSOD .",
+        "Many previous methods follow the Multiple Instance Learning ( MIL ) pipeline for WSOD   # b23 ,   # b24 ,   # b25 ,   # b26 ,   # b27 ,   # b28 ,   # b29 ,   # b30 .",
+        "In addition , inspired by the great success of CNN , recent efforts often combine MIL and CNN to obtain better WSOD performance .",
+        "Moreover , many recent works have achieved even better results for WSOD by an MIL network using standard end-to-end training   # b27 ,   # b29   or a variant of endto-end training   # b28 ,   # b30 .",
+        "some promising results have been obtained by MIL networks for WSOD , they do not perform as well as fully supervised ones   # b17 ,   # b18 ,   # b19 .",
+        "Based on these proposal clusters , we propose two methods to refine instance classifiers ( object detectors ) during training .",
+        "In this paper , we propose to generate proposal clusters to learn refined instance classifiers for weakly supervised object detection .",
+        "In addition , we believe our learning algorithm has the potential to be applied in other weakly supervised visual learning tasks such as weakly supervised semantic segmentation ."
+    ],
+    "2f04ba0f74df046b0080ca78e56898bd4847898b.grobid": [
+        "While many subsequences have improved the work with more powerful learning algorithms , the feature representation used for face detection still ca n't meet the demand for effectively and efficiently handling faces with large appearance variance in the wild .",
+        "Combined with the attentional cascade structure , the VJ detector achieved real-time face detection at that time .",
+        "As the combination of boosting and cascade has been proven to be quite effective in face detection , the bottleneck lies in the feature representation since complicated features adopted in the above literatures bring about limited performance gains at the cost of large computation cost .",
+        "Considering the large performance gain and similar speed , the proposed method can replace Viola-Jones detector for face detection in the wild ..",
+        "In this paper , we successfully apply the feature representation to face detection domain through a deep investigation into the feature design , and propose a multi-scale version of feature which further enriches the representation capacity ."
+    ],
+    "2f56b1ac5b9faac9527b6814778925e9242cf5fd.grobid": [
+        "The field of object detection has made significant advances riding on the wave of region-based ConvNets , but their training procedure still includes many heuristics and hyperparameters that are costly to tune .",
+        "Object detectors are often trained through a reduction that converts object detection into an image classification problem .",
+        "Bootstrapping has seen widespread use in the intervening decades of object detection research .",
+        "Dalal and Triggs   # b6   used it when training SVMs for pedestrian detection .",
+        "Their algorithm is often referred to as hard negative mining and is frequently used when training SVMs for object detection   # b14   # b15   # b31 ."
+    ],
+    "2f97ee95cad6a1f13596b108072b846c6f747d4e.grobid": [
+        "We describe Microsoft 's conversational speech recognition system , in which we combine recent developments in neural-network-based acoustic and language modeling to advance the state of the art on the Switchboard recognition task .",
+        "In language modeling , recurrent models appear to improve over classical N-gram models through the generalization ability of continuous word representations   # b16 ."
+    ],
+    "322a7dad274f440a92548faa8f2b2be666b2d01f.grobid": [
+        "Our global prior representation is effective to produce good quality results on the scene parsing task , while PSPNet provides a superior framework for pixellevel prediction .",
+        "A single PSPNet yields the new record of mIoU accuracy 85.4 % on PASCAL VOC 2012 and accuracy 80.2 % on Cityscapes .. Scene parsing , based on semantic segmentation , is a fundamental topic in computer vision .",
+        "For typical complex scene understanding , previously to get a global image-level feature , spatial pyramid pooling   # b23   was widely employed where spatial statistics provide a good descriptor for overall scene interpretation .",
+        "In addition to traditional dilated FCN   # b8   # b45   for pixel prediction , we extend the pixel-level feature to the specially designed global pyramid pooling one .",
+        "They manifest that PSPNet gives a promising direction for pixellevel prediction tasks , which may even benefit CNN-based stereo matching , optical flow , depth estimation , etc .",
+        "We have proposed an effective pyramid scene parsing network for complex scene understanding ."
+    ],
+    "325af39d281d5903a269c01fab8f53d7400a4c49.grobid": [
+        "We use this model to generate proposals for body joint locations and formulate articulated tracking as spatio-temporal grouping of such proposals .",
+        "To that end we use the graph partitioning formulation that has been used for people tracking and pose estimation in the past   # b24   # b22 , but has not been shown to enable articulated people tracking .",
+        "To facilitate efficient inference in video we resort to fast inference methods based on local combinatorial optimization   # b19   and aim for a sparse model that keeps the number of connections between variables to a minimum .",
+        "The main contribution of this work is a new articulated tracking model that operates by bottom-up assembly of part detections within each frame and over time .",
+        "Convolutional networks have emerged as an effective approach to localizing body joints of people in images   # b27   # b28   # b20   # b13   and have also been extended for joint estimation of body configurations over time   # b11 , and 3D pose estimation in outdoor environments in multi-camera setting   # b9 11].Current approaches are increasingly effective for estimating body configurations of single people   # b27   # b28   # b20   # b4   # b11   achieving high accuracies on this task , but are still failing on fast moving and articulated limbs .",
+        "We build on recent CNN detectors   # b13   that are effective in localizing body joints in cluttered scenes and explore different mechanisms for assembling the joints into multiple person configurations .",
+        "Grouping is formulated as a graph partitioning problem that lends itself to efficient inference with recent local search techniques ."
+    ],
+    "33261d252218007147a71e40f8367ed152fa2fe0.grobid": [
+        "Question Answering with Subgraph Embeddings .",
+        "This paper presented an embedding model that learns to perform open QA using training data made of questions paired with their answers and of a KB to provide a structure among answers , and can achieve promising performance on the competitive benchmark WEBQUESTIONS .."
+    ],
+    "3448e6a5039417dc1ae890efeca3bef5390ace7c.grobid": [
+        "xDeepFM : Combining Explicit and Implicit Feature Interactions for Recommender Systems .",
+        "Because using raw features can rarely lead to optimal results , data scientists usually spend a lot of work on the transformation of raw features in order to generate best predictive systems   # b13   # b23   or to win data mining games   # b20   # b21   # b25 .",
+        "In recent years , deep neural networks ( DNNs ) have become successful in computer vision , speech recognition , and natural language processing with their great power of feature representation learning .",
+        "It uses the pre-trained factorization machines for field embedding before applying DNN .  ",
+        "The Wide&Deep   # b4   and DeepFM   # b8   models overcome this problem by introducing hybrid architectures , which contain a shallow component and a deep component with the purpose of learning both memorization and generalization .",
+        "Thus xDeepFM can automatically learn high-order feature interactions in both explicit and implicit fashions , which is of great significance to reducing manual feature engineering work .",
+        "First , currently we simply employ a sum pooling for embedding multivalent fields ."
+    ],
+    "35734e8724559fb0d494e5cba6a28ad7a3d5dd4d.grobid": [],
+    "364c1a3df58d87cb40ab33fdf3831cf2862f3570.grobid": [
+        "aNMM : Ranking Short Answer Texts with Attention-Based Neural Matching Model .",
+        "In this paper , we propose an attention based neural matching model for ranking short answer text .",
+        "Using the popular benchmark TREC QA data , we show that the relatively simple aNMM model can significantly outperform other neural network models that have been used for the question answering task , and is competitive with models that are combined with additional features .",
+        "Many of current QA systems use a learning to rank approach that encodes question/answer pairs with complex linguistic features including lexical , syntactic and semantic features   # b18   # b22 .",
+        "To address these research questions , we analyze the existing current deep learning architectures for answer ranking and make the following two key observations:1 .",
+        "Architectures not specifically designed for question/answer matching : Some methods employ CNNs for question/answer matching .",
+        "However , CNNs are originally designed for computer vision ( CV ) , which uses position-shared weights with local perceptive filters , to learn spatial regularities in many CV tasks .",
+        "Meanwhile , models based on LSTMs view the question/answer matching problem in a sequential way .",
+        "In this paper , we propose an attention based neural matching model for ranking short answer text .",
+        "For further work , we will study other deep learning architectures for answer ranking and extend our work to include nonfactoid question answering data sets .."
+    ],
+    "3842ee1e0fdfeff936b5c49973ff21adfaaf3929.grobid": [
+        "They also can improve recognition despite the presence of domain shift or dataset bias : several adversarial approaches to unsupervised domain adaptation have recently been introduced , which reduce the difference between the training and test domain distributions and thus improve generalization performance .",
+        "Prior generative approaches show compelling visualizations , but are not optimal on discriminative tasks and can be limited to smaller shifts .",
+        "We first outline a novel generalized framework for adversarial adaptation , which subsumes recent state-of-the-art approaches as special cases , and we use this generalized view to better relate the prior approaches ."
+    ],
+    "38cc89399dd6f5aaab1654f27ab3c9eeade12a36.grobid": [
+        "Although the recent success of deep networks has led many state-of-the-art methods for 3D pose estimation to train deep networks end-to-end to predict from images directly , the top-performing approaches have shown the effectiveness of dividing the task of 3D pose estimation into two steps : using a state-of-the-art 2D pose estimator to estimate the 2D pose from images and then mapping them into 3D space .",
+        "The task of estimating 3D human pose from 2D representations like monocular images or videos is an open research problem among the computer vision and graphics community for a long time .",
+        "In this paper , we also adopt the decoupled approach to 3D pose estimation ."
+    ],
+    "38e2f851b705faa0d0a698ed9885bd6834440073.grobid": [
+        "Meta-learning for few-shot learning entails acquiring a prior over previous tasks and experiences , such that new tasks be learned from small amounts of data .",
+        "It is therefore quite desireable to develop few-shot meta-learning methods that can propose multiple potential solutions to an ambiguous few-shot learning problem .",
+        "To do so , we build upon tools in amortized variational inference for developing a probabilistic meta-learning approach .",
+        "Our approach enables sampling multiple potential solutions to a few-shot learning problem at meta-test time , and our experiments show that this ability can be utilized to sample multiple possible regressors for an ambiguous regression problem , as well as multiple possible classifiers for ambiguous few-shot attribute classification tasks .."
+    ],
+    "3aa21de1a7c97e0458e10ed5730ce160bb436caa.grobid": [
+        "We adopt a coarse-to-fine strategy to make the whole deformation procedure stable , and define various of mesh related losses to capture properties of different levels to guarantee visually appealing and physically accurate 3D geometry .",
+        "Recently , great success has been achieved for 3d shape generation from a single color image using deep learning techniques   # b5   # b8 .",
+        "First , deep network is better at predicting residual , e.g. a spatial deformation , rather than structured output , e.g. a graph ."
+    ],
+    "3acc07f7f8951617276cf99483ed02aeb0a6eeac.grobid": [
+        "Curriculum Domain Adaptation for Semantic Segmentation of Urban Scenes .",
+        "Hence we propose a curriculum-style learning approach to minimize the domain gap in semantic segmentation .",
+        "This paper is concerned with domain adaptation for semantic image segmentation of urban scenes , i.e. , assigning a category label to every pixel of an image or video frame   # b5 .",
+        "Second , the structured output in semantic segmentation enables convenient posterior regularization   # b15 , as opposed to the popular ( e.g. , \u2113 2 ) regularization over model parameters .",
+        "Our main contribution is on the proposed curriculumstyle domain adaptation for the semantic segmentation of urban scenes ."
+    ],
+    "3ca3993b1f3536b15112f759067f62e999c5d38f.grobid": [
+        "BB8 : A Scalable , Accurate , Robust to Partial Occlusion Method for Predicting the 3D Poses of Challenging Objects without Using Depth .",
+        "Our \" holistic \" approach , made possible by the remarkable abilities of Deep Networks for regression , allowed us to significantly advance the state-of-the-art on 3D pose estimation from color images , even on challenging objects from the T-LESS dataset .."
+    ],
+    "3cf31ecb2724b5088783d7c96a5fc0d5604cbf41.grobid": [
+        "Simple and Accurate Dependency Parsing Using Bidirectional LSTM Feature Representations .",
+        "The BiLSTM is trained jointly with the parser objective , resulting in very effective feature extractors for parsing .",
+        "The focus of this paper is on feature representation for dependency parsing , using recent techniques from the neural-networks ( \" deep learning \" ) literature .",
+        "Modern approaches to dependency parsing can be broadly categorized into graph-based and transition-based parsers   # b21 .",
+        "Graph-based parsers ( McDonald , 2006 ) treat parsing as a search-based structured prediction problem in which the goal is learning a scoring function over dependency trees such that the correct tree is scored above all other trees .",
+        "Transition-based parsers   # b33   # b34   treat parsing as a sequence of actions that produce a parse tree , and a classifier is trained to score the possible actions at each stage of the process and guide the parsing process .",
+        "Crucially , the BiLSTM is trained with the rest of the parser in order to learn a good feature representation for the parsing problem ."
+    ],
+    "3daa086acd367dc971a2dc1382caba2031294233.grobid": [
+        "In contrast to other approaches , our method can handle the varying number of people in each image and our holistic network produces state-of-the-art results in instance-level part and human segmentation , together with competitive results in category-level part segmentation , all achieved by a single forward-pass through our neural network .",
+        "Furthermore , with our part-level instance segmentation of humans , we can easily recover human-level instance segmentation ( by taking the union of all parts assigned to a particular instance as shown in Fig. 1d ) , and we show significant improvement over previous state-of-the-art in human instance-segmentation when doing so .",
+        "Using the output of a human detector , we are then able to associate segmented parts with detected humans in the image using a differentiable Conditional Random Field ( CRF ) , producing a part-level instance segmentation of the image .",
+        "Furthermore , our category-level segmentations improve after training for instance-level segmentation .",
+        "Our proposed method is able to leverage an initial category-level segmentation network and human detections to produce accurate instance-level part segmentation as shown in the third column . ) ."
+    ],
+    "408e8eecc14c5cc60bbdfc486ba7a7fc97031788.grobid": [
+        "We find that this simple feature learning algorithm is surprisingly successful when applied to visual object recognition .",
+        "The feature representation learned by our algorithm achieves classification results matching or outperforming the current state-of-the-art for unsupervised learning on several popular datasets ( STL-10 , CIFAR-10 , Caltech-101 ) .. Convolutional neural networks ( CNNs ) trained via backpropagation were recently shown to perform well on image classification tasks with millions of training images and thousands of categories   # b0   # b1 .",
+        "While CNNs have been known to yield good results on supervised image classification tasks such as MNIST for a long time   # b2 , the feature representation learned by the recent networks achieves stateof-the-art performance not only on the classification task for which the network was trained , but also on various other visual recognition tasks , for example : classification on Caltech-101   # b1   # b3 , Caltech-256   # b1 , Caltech-UCSD birds dataset   # b3 , SUN-397 scene recognition database   # b3 ; detection on PASCAL VOC dataset   # b4 .",
+        "The capability to generalize to new datasets makes supervised CNN training an attractive approach for generic visual feature learning .",
+        "For example , unsupervised feature learning is known to be beneficial for image restoration   # b5   and recent results show that it outperforms supervised feature learning also on descriptor matching   # b6 .In this work we combine the power of a discriminative objective with the major advantage of unsupervised feature learning : cheap data acquisition ."
+    ],
+    "4365eb43a635bc6431dfaf3af1f7bf7bf55522cc.grobid": [
+        "The region-based Convolutional Neural Network ( CNN ) detectors such as Faster R-CNN or R-FCN have already shown promising results for object detection by combining the region proposal subnetwork and the classification subnetwork together .",
+        "To fully explore the local and global properties , in this paper , we propose a novel fully convolutional network , named as CoupleNet , to couple the global structure with local parts for object detection .",
+        "However , no matter how complicated the objects are , when humans identify a target , the recognition of object categories is subserved by both a global process that retrieves structural information and a local process that is sensitive to individual parts .",
+        "As two representative region-based CNN approaches , Fast/Faster R-CNN   # b7   # b21   uses a certain subnetwork to predict the category of each region proposal while R-FCN   # b15   conducts the inference with the positionsensitive score maps .",
+        "As shown in Figure 1 , using PSRoI pooling to extract local part information for final object category prediction , R-FCN leads to a low confidence score of 0.08 for the sofa detection since the local responses of sofa are disturbed by a women and a dog ( they are also the categories that need to be detected ) .",
+        "In scene parsing , Zhao et al.   # b27   designed a pyramid pooling module to effectively extract hierarchical global contextual prior , and then concatenated it with the local FCN feature to improve the performance .",
+        "Extensive experiments demonstrate that CoupleNet can significantly improve the detection performance .",
+        "In this paper , we present the CoupleNet , a concise yet effective network that simultaneously couples global , local and context cues for accurate object detection ."
+    ],
+    "436b07bebaa1d1f05ef85415e10374048d25334d.grobid": [
+        "We apply the MoE to the tasks of language modeling and machine translation , where model capacity is critical for absorbing the vast quantities of knowledge available in the training corpora ."
+    ],
+    "44078d0daed8b13114cffb15b368acc467f96351.grobid": [
+        "This paper proposes an approach that couples a deep CNN-based approach with a low-dimensional discriminative embedding step , learned using triplet probability constraints to address the unconstrained face verification problem .",
+        "During the deployment phase , given a face template , we extract the deep features using the raw CNN model after implementing automatic pre-processing steps such as face detection and fiducial extraction .",
+        "The TPE method provides significant improvement for both identification and verification tasks as shown in Table 2.The method by Crosswhite et al.   # b25   uses the VGG-Face network   # b6   descriptors ( 4096-d ) as the raw features .",
+        "By using a simple neural network architecture , a relatively smaller training dataset and a fast embedding method we have realized a faster and more efficient end-to-end system ."
+    ],
+    "45429c281e30f9e87ebcd1ae42e0656d2ead24d1.grobid": [
+        "High-Resolution Image Synthesis and Semantic Manipulation with Conditional GANs .",
+        "Please visit our website for more side-by-side comparisons as well as interactive editing demos .. Photo-realistic image rendering using standard graphics techniques is involved , since geometry , materials , and light transport must be simulated explicitly .",
+        "Recently , Chen and Koltun   # b4   suggest that adversarial training might be unstable and prone to failure for high-resolution image generation tasks .",
+        "Our method allows many applications and will be potentially useful for domains where high-resolution results are in demand but pre-trained networks are not available ( e.g. , medical imaging   # b16   and biology   # b7 ) .This paper also shows that an image-to-image synthesis pipeline can be extended to produce diverse outputs , and enable interactive image manipulation given appropriate training input-output pairs ( e.g. , instance maps in our case ) ."
+    ],
+    "455da02e5048dffb51fb6ab5eb8aeca5926c9d9a.grobid": [
+        "Spatial Pyramid Pooling in Deep Convolutional Networks for Visual Recognition .",
+        "On the Pascal VOC 2007 and Caltech101 datasets , SPP-net achieves state-of-theart classification results using a single full-image representation and no fine-tuning .",
+        "The power of SPP-net is also significant in object detection .",
+        "SPP has long been a key component in the leading and competition-winning systems for classification ( e.g. ,   # b16 ,   # b17 ,   # b18 ) and detection ( e.g. ,   # b19 ) before the recent prevalence of CNNs .",
+        "SPP-net also shows state-of-the-art classification results on Cal-tech101   # b20   and Pascal VOC 2007   # b21   using only a single full-image representation and no fine-tuning .",
+        "SPP-net also shows great strength in object detection .",
+        "The resulting SPP-net shows outstanding accuracy in classification/detection tasks and greatly accelerates DNN-based detection ."
+    ]
+}

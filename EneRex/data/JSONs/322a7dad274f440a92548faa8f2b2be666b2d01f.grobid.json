@@ -1,0 +1,493 @@
+[
+    {
+        "basename": "322a7dad274f440a92548faa8f2b2be666b2d01f.grobid",
+        "fulltext": 15,
+        "footnote_size": 3,
+        "footnote_max": 3,
+        "reference": 49,
+        "authors": [
+            "Zhao",
+            "Shi",
+            "Qi",
+            "Wang",
+            "Jia"
+        ]
+    },
+    {
+        "title": "Pyramid Scene Parsing Network",
+        "abstract": "Scene parsing is challenging for unrestricted open vocabulary and diverse scenes. In this paper, we exploit the capability of global context information by different-regionbased context aggregation through our pyramid pooling module together with the proposed pyramid scene parsing network (PSPNet). Our global prior representation is effective to produce good quality results on the scene parsing task, while PSPNet provides a superior framework for pixellevel prediction. The proposed approach achieves state-ofthe-art performance on various datasets. It came first in Im-ageNet scene parsing challenge 2016, PASCAL VOC 2012 benchmark and Cityscapes benchmark. A single PSPNet yields the new record of mIoU accuracy 85.4% on PASCAL VOC 2012 and accuracy 80.2% on Cityscapes.",
+        "Introduction": "Scene parsing, based on semantic segmentation, is a fundamental topic in computer vision. The goal is to assign each pixel in the image a category label. Scene parsing provides complete understanding of the scene. It predicts the label, location, as well as shape for each element. This topic is of broad interest for potential applications of automatic driving, robot sensing, to name a few.Difficulty of scene parsing is closely related to scene and label variety. The pioneer scene parsing task  #b28  is to classify 33 scenes for 2,688 images on LMO dataset  #b27 . More recent PASCAL VOC semantic segmentation and PASCAL context datasets  #b13  #b34  include more labels with similar context, such as chair and sofa, horse and cow, etc. The new ADE20K dataset  #b48  is the most challenging one with a large and unrestricted open vocabulary and more scene classes. A few representative images are shown in Fig. 1.To develop an effective algorithm for these datasets needs to conquer a few difficulties.State-of-the-art scene parsing frameworks are mostly based on the fully convolutional network (FCN)  #b31 . The deep convolutional neural network (CNN) based methods boost dynamic object understanding, and yet still face chal- lenges considering diverse scenes and unrestricted vocabulary. One example is shown in the first row of Fig. 2, where a boat is mistaken as a car. These errors are due to similar appearance of objects. But when viewing the image regarding the context prior that the scene is described as boathouse near a river, correct prediction should be yielded.Towards accurate scene perception, the knowledge graph relies on prior information of scene context. We found that the major issue for current FCN based models is lack of suitable strategy to utilize global scene category clues. For typical complex scene understanding, previously to get a global image-level feature, spatial pyramid pooling  #b23  was widely employed where spatial statistics provide a good descriptor for overall scene interpretation. Spatial pyramid pooling network  #b17  further enhances the ability.Different from these methods, to incorporate suitable global features, we propose pyramid scene parsing network (PSPNet). In addition to traditional dilated FCN  #b8  #b45  for pixel prediction, we extend the pixel-level feature to the specially designed global pyramid pooling one. The local and global clues together make the final prediction more reliable. We also propose an optimization strategy with deeply supervised loss. We give all implementation details, which are key to our decent performance in this paper, and make the code and trained models publicly available 1 .Our approach achieves state-of-the-art performance on all available datasets. It is the champion of ImageNet scene parsing challenge 2016  #b48 , and arrived the 1st place on PASCAL VOC 2012 semantic segmentation benchmark  #b13 , and the 1st place on urban scene Cityscapes data  #b11 . They manifest that PSPNet gives a promising direction for pixellevel prediction tasks, which may even benefit CNN-based stereo matching, optical flow, depth estimation, etc. in follow-up work. Our main contributions are threefold.\u2022 We propose a pyramid scene parsing network to embed difficult scenery context features in an FCN based pixel prediction framework.\u2022 We develop an effective optimization strategy for deep ResNet  #b18  based on deeply supervised loss.\u2022 We build a practical system for state-of-the-art scene parsing and semantic segmentation where all crucial implementation details are included.",
+        "Related Work": "In the following, we review recent advances in scene parsing and semantic segmentation tasks. Driven by powerful deep neural networks  #b22  #b38  #b39  #b18 , pixel-level prediction tasks like scene parsing and semantic segmentation achieve great progress inspired by replacing the fully-connected layer in classification with the convolution layer  #b31 . To enlarge the receptive field of neural networks, methods of  #b8  #b45  used dilated convolution. Noh et al.  #b35  proposed a coarse-to-fine structure with deconvolution network to learn the segmentation mask. Our baseline network is FCN and dilated network  #b31  #b8 .Other work mainly proceeds in two directions. One line  #b31  #b8  #b10  #b44  #b16  is with multi-scale feature ensembling. Since in deep networks, higher-layer feature contains more semantic meaning and less location information. Combining multi-scale features can improve the performance.The other direction is based on structure prediction. The pioneer work  #b8  used conditional random field (CRF) as post processing to refine the segmentation result. Following methods  #b30  #b46  #b6  refined networks via end-to-end modeling. Both of the two directions ameliorate the localization ability of scene parsing where predicted semantic boundary fits objects. Yet there is still much room to exploit necessary information in complex scenes.To make good use of global image-level priors for diverse scene understanding, methods of  #b23  #b32  extracted global context information with traditional features not from deep neural networks. Similar improvement was made under object detection frameworks  #b40 . Liu et al.  #b29  proved that global average pooling with FCN can improve semantic segmentation results. However, our experiments show that these global descriptors are not representative enough for the challenging ADE20K data. Therefore, different from global pooling in  #b29 , we exploit the capability of global context information by different-region-based context aggregation via our pyramid scene parsing network.",
+        "Pyramid Scene Parsing Network": "We start with our observation and analysis of representative failure cases when applying FCN methods to scene parsing. They motivate proposal of our pyramid pooling module as the effective global context prior. Our pyramid scene parsing network (PSPNet) illustrated in Fig. 3 is then described to improve performance for open-vocabulary object and stuff identification in complex scene parsing.",
+        "Important Observations": "The new ADE20K dataset  #b48  contains 150 stuff/object category labels (e.g., wall, sky, and tree) and 1,038 imagelevel scene descriptors (e.g., airport terminal, bedroom, and street). So a large amount of labels and vast distributions of scenes come into existence. Inspecting the prediction results of the FCN baseline provided in  #b48 , we summarize several common issues for complex-scene parsing.Mismatched Relationship Context relationship is universal and important especially for complex scene understanding. There exist co-occurrent visual patterns. For example, an airplane is likely to be in runway or fly in sky while not over a road. For the first-row example in Fig. 2, FCN predicts the boat in the yellow box as a \"car\" based on its appearance. But the common knowledge is that a car is seldom over a river. Lack of the ability to collect contextual information increases the chance of misclassification.Confusion Categories There are many class label pairs in the ADE20K dataset  #b48  that are confusing in classification. Examples are field and earth; mountain and hill; wall, house, building and skyscraper. They are with similar appearance. The expert annotator who labeled the entire dataset, still makes 17.60% pixel error as described in  #b48 . In the second row of Fig. 2, FCN predicts the object in the box as part of skyscraper and part of building. These results should be excluded so that the whole object is either skyscraper or building, but not both. This problem can be remedied by utilizing the relationship between categories.Inconspicuous Classes Scene contains objects/stuff of arbitrary size. Several small-size things, like streetlight and signboard, are hard to find while they may be of great importance. Contrarily, big objects or stuff may exceed the Figure 2. Scene parsing issues we observe on ADE20K  #b48  dataset. The first row shows the issue of mismatched relationship -cars are seldom over water than boats. The second row shows confusion categories where class \"building\" is easily confused as \"skyscraper\". The third row illustrates inconspicuous classes. In this example, the pillow is very similar to the bed sheet in terms of color and texture. These inconspicuous objects are easily misclassified by FCN.receptive field of FCN and thus cause discontinuous prediction. As shown in the third row of Fig. 2, the pillow has similar appearance with the sheet. Overlooking the global scene category may fail to parse the pillow. To improve performance for remarkably small or large objects, one should pay much attention to different sub-regions that contain inconspicuous-category stuff.To summarize these observations, many errors are partially or completely related to contextual relationship and global information for different receptive fields. Thus a deep network with a suitable global-scene-level prior can much improve the performance of scene parsing.",
+        "Pyramid Pooling Module": "With above analysis, in what follows, we introduce the pyramid pooling module, which empirically proves to be an effective global contextual prior.In a deep neural network, the size of receptive field can roughly indicates how much we use context information. Although theoretically the receptive field of ResNet  #b18  is already larger than the input image, it is shown by Zhou et al.  #b47  that the empirical receptive field of CNN is much smaller than the theoretical one especially on high-level layers. This makes many networks not sufficiently incorporate the momentous global scenery prior. We address this issue by proposing an effective global prior representation.Global average pooling is a good baseline model as the global contextual prior, which is commonly used in image classification tasks  #b39  #b18 . In  #b29 , it was successfully applied to semantic segmentation. But regarding the complexscene images in ADE20K  #b48 , this strategy is not enough to cover necessary information. Pixels in these scene images are annotated regarding many stuff and objects. Directly fusing them to form a single vector may lose the spatial relation and cause ambiguity. Global context information along with sub-region context is helpful in this regard to distinguish among various categories. A more powerful representation could be fused information from different sub-regions with these receptive fields. Similar conclusion was drawn in classical work  #b23  #b17  of scene/image classification.In  #b17 , feature maps in different levels generated by pyramid pooling were finally flattened and concatenated to be fed into a fully connected layer for classification. This global prior is designed to remove the fixed-size constraint of CNN for image classification. To further reduce context information loss between different sub-regions, we propose a hierarchical global prior, containing information with different scales and varying among different sub-regions. We call it pyramid pooling module for global scene prior construction upon the final-layer-feature-map of the deep neural network, as illustrated in part (c) of Fig. 3.The pyramid pooling module fuses features under four different pyramid scales. The coarsest level highlighted in red is global pooling to generate a single bin output. The following pyramid level separates the feature map into different sub-regions and forms pooled representation for different locations. The output of different levels in the pyramid pooling module contains the feature map with varied sizes. To maintain the weight of global feature, we use 1\u00d71 convolution layer after each pyramid level to reduce the dimension of context representation to 1/N of the original one if the level size of pyramid is N . Then we directly upsample the low-dimension feature maps to get the same size feature as the original feature map via bilinear interpolation. Finally, different levels of features are concatenated as the final pyramid pooling global feature.Noted that the number of pyramid levels and size of each level can be modified. They are related to the size of feature map that is fed into the pyramid pooling layer. The structure abstracts different sub-regions by adopting varying-size pooling kernels in a few strides. Thus the multi-stage kernels should maintain a reasonable gap in representation. Our pyramid pooling module is a four-level one with bin sizes of 1\u00d71, 2\u00d72, 3\u00d73 and 6\u00d76 respectively. For the type of pooling operation between max and average, we perform extensive experiments to show the difference in Section 5.2.",
+        "Network Architecture": "With the pyramid pooling module, we propose our pyramid scene parsing network (PSPNet) as illustrated in Fig. 3. Given an input image in Fig. 3(a), we use a pretrained ResNet  #b18  model with the dilated network strategy  #b8  #b45  to extract the feature map. The final feature map size is 1/8 of the input image, as shown in Fig. 3(b). On top of the map, we use the pyramid pooling module shown in (c) to gather context information. Using our 4-level pyramid, the pooling kernels cover the whole, half of, and small portions of the image. They are fused as the global prior. Then we concatenate the prior with the original feature map in the final part of (c). It is followed by a convolution layer to generate the final prediction map in (d).To explain our structure, PSPNet provides an effective global contextual prior for pixel-level scene parsing. The pyramid pooling module can collect levels of information, more representative than global pooling  #b29 . In terms of computational cost, our PSPNet does not much increase it compared to the original dilated FCN network. In end-toend learning, the global pyramid pooling module and the local FCN feature can be optimized simultaneously.",
+        "Deep Supervision for ResNet-Based FCN": "Deep pretrained networks lead to good performance  #b22  #b38  #b18 . However, increasing depth of the network may introduce additional optimization difficulty as shown in  #b37  #b24  for image classification. ResNet solves this problem with skip connection in each block. Latter layers of deep ResNet mainly learn residues based on previous ones.We contrarily propose generating initial results by supervision with an additional loss, and learning the residue afterwards with the final loss. Thus, optimization of the deep network is decomposed into two, each is simpler to solve.An example of our deeply supervised ResNet101  #b18  model is illustrated in Fig. 4. Apart from the main branch using softmax loss to train the final classifier, another classifier is applied after the fourth stage, i.e., the res4b22 residue block. Different from relay backpropagation  #b37  that blocks the backward auxiliary loss to several shallow layers, we let the two loss functions pass through all previous layers. The auxiliary loss helps optimize the learning process, while the master branch loss takes the most responsibility. We add weight to balance the auxiliary loss.In the testing phase, we abandon this auxiliary branch and only use the well optimized master branch for final prediction. This kind of deeply supervised training strategy for ResNet-based FCN is broadly useful under different experimental settings and works with the pre-trained ResNet model. This manifests the generality of such a learning strategy. More details are provided in Section 5.2.",
+        "Experiments": "Our proposed method is successful on scene parsing and semantic segmentation challenges. We evaluate it in this section on three different datasets, including ImageNet scene parsing challenge 2016  #b48 , PASCAL VOC 2012 semantic segmentation  #b13  and urban scene understanding dataset Cityscapes  #b11 .",
+        "Implementation Details": "For a practical deep learning system, devil is always in the details. Our implementation is based on the public platform Caffe  #b20 . Inspired by  #b9 , we use the \"poly\" learning rate policy where current learning rate equals to the base one multiplying (1 -iter maxiter ) power . We set base learning rate to 0.01 and power to 0.9. The performance can be improved by increasing the iteration number, which is set to 150K for ImageNet experiment, 30K for PASCAL VOC and 90K for Cityscapes. Momentum and weight decay are set to 0.9 and 0.0001 respectively. For data augmentation, we adopt random mirror and random resize between 0.5 and 2 for all datasets, and additionally add random rotation between -10 and 10 degrees, and random Gaussian blur for ImageNet and PASCAL VOC. This comprehensive data augmentation scheme makes the network resist overfitting. Our network contains dilated convolution following  #b9 .During the course of experiments, we notice that an appropriately large \"cropsize\" can yield good performance and \"batchsize\" in the batch normalization  #b19  layer is of great importance. Due to limited physical memory on GPU cards, we set the \"batchsize\" to 16 during training. To achieve this, we modify Caffe from  #b42   branch  #b9  and make it support batch normalization on data gathered from multiple GPUs based on OpenMPI. For the auxiliary loss, we set the weight to 0.4 in experiments.",
+        "ImageNet Scene Parsing Challenge 2016": "Dataset and Evaluation Metrics The ADE20K dataset  #b48   Ablation Study for Auxiliary Loss The introduced auxiliary loss helps optimize the learning process while not influencing learning in the master branch. We experiment with setting the auxiliary loss weight \u03b1 between 0 and 1 and show the results in   5 shows a few results in this competition. Our ensemble submission achieves score 57.21% on the testing set. Our single-model yields score 55.38%, which is even higher than a few other multi-model ensemble submissions. This score is lower than that on the validation set possibly due to the difference of data distributions between validation and testing sets. As shown in column (d) of Fig. 2, PSPNet solves the common problems in FCN. Fig. 6 shows another few parsing results on validation set of ADE20K. Our results contain more accurate and detailed structures compared to the baseline.",
+        "PASCAL VOC 2012": "Our PSPNet also works satisfyingly on semantic segmentation. We carry out experiments on the PASCAL VOC 2012 segmentation dataset  #b13 , which contains 20 object categories and one background class. Following the procedure of  #b31  #b12  #b36  #b8 , we use augmented data with the annotation of  #b15  resulting 10,582, 1,449 and 1,456 images for training, validation and testing. Results are shown in Table 6, we compare PSPNet with previous best-performing methods on the testing set based on two settings, i.e., with or without pre-training on MS-COCO dataset  #b26 . Methods pre-trained with MS-COCO are marked by ' \u2020'. For fair comparison with current ResNet based frameworks  #b43  #b14  #b9  in scene parsing/semantic segmentation task, we build our architecture based on ResNet101 without postprocessing like CRF. We evaluate PSPNet with severalscale input and use the average results following  #b8  #b29 . As shown in Table 6, PSPNet outperforms prior methods on both settings. Trained with only VOC 2012 data, we achieve 82.6% accuracy2 -we get the highest accuracy on all 20 classes. When PSPNet is pre-trained with MS-COCO dataset, it reaches 85.4% accuracy3 where 19 out of the 20 classes receive the highest accuracy. Intriguingly, our PSP-Net trained with only VOC 2012 data outperforms existing methods trained with the MS-COCO pre-trained model.One may argue that our based classification model is more powerful than several prior methods since ResNet was recently proposed. To exhibit our unique contribution, we show that our method also outperforms stateof-the-art frameworks that use the same model, including FCRNs  #b43 , LRR  #b14 , and DeepLab  #b9 . In this process, we even do not employ time-consuming but effective postprocessing, such as CRF, as that in  #b9  #b14 .Several examples are shown in Fig. 7. For \"cows\" in row one, our baseline model treats it as \"horse\" and \"dog\" while PSPNet corrects these errors. For \"aeroplane\" and \"table\" in the second and third rows, PSPNet finds missing parts. For \"person\", \"bottle\" and \"plant\" in following rows, PSP-Net performs well on these small-size-object classes in the images compared to the baseline model. More visual comparisons between PSPNet and other methods are included in Fig. 9.",
+        "Cityscapes": "Cityscapes  #b11  is a recently released dataset for semantic urban scene understanding. It contains 5,000 high quality pixel-level finely annotated images collected from 50 cities    8.",
+        "Concluding Remarks": "We have proposed an effective pyramid scene parsing network for complex scene understanding. The global pyra- mid pooling feature provides additional contextual information. We have also provided a deeply supervised optimization strategy for ResNet-based FCN network. We hope the implementation details publicly available can help the community adopt these useful strategies for scene parsing and semantic segmentation and advance related techniques.  "
+    },
+    {
+        "1": "https://github.com/hszhao/PSPNet",
+        "2": "http://host.robots.ox.ac.uk:8080/anonymous/0OOWLP.html",
+        "3": "http://host.robots.ox.ac.uk:8080/anonymous/6KIR41.html"
+    },
+    {
+        "b0": [
+            "",
+            "",
+            "Method aero bike bird boat bottle bus car cat chair cow table dog horse mbike person plant sheep sofa train tv mIoU FCN",
+            ""
+        ],
+        "b1": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "b2": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "b3": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "b4": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "b5": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "b6": [
+            "Higher order conditional random fields in deep neural networks",
+            "",
+            "",
+            "",
+            "Arnab",
+            "Jayasumana",
+            "Zheng",
+            "Torr"
+        ],
+        "b7": [
+            "",
+            "",
+            "Segnet: A deep convolutional encoder-decoder architecture for image segmentation",
+            ""
+        ],
+        "b8": [
+            "",
+            "",
+            "Semantic image segmentation with deep convolutional nets and fully connected crfs",
+            ""
+        ],
+        "b9": [
+            "",
+            "",
+            "Deeplab: Semantic image segmentation with deep convolutional nets, atrous convolution, and fully connected crfs",
+            ""
+        ],
+        "b10": [
+            "Attention to scale: Scale-aware semantic image segmentation",
+            "",
+            "",
+            "",
+            "Chen",
+            "Yang",
+            "Wang",
+            "Xu",
+            "Yuille"
+        ],
+        "b11": [
+            "The cityscapes dataset for semantic urban scene understanding",
+            "",
+            "",
+            "",
+            "Cordts",
+            "Omran",
+            "Ramos",
+            "Rehfeld",
+            "Enzweiler",
+            "Benenson",
+            "Franke",
+            "Roth",
+            "Schiele"
+        ],
+        "b12": [
+            "Exploiting bounding boxes to supervise convolutional networks for semantic segmentation",
+            "",
+            "",
+            "",
+            "Dai",
+            "He",
+            "Sun",
+            "Boxsup"
+        ],
+        "b13": [
+            "The pascal visual object classes VOC challenge",
+            "",
+            "",
+            "",
+            "Everingham",
+            "Gool",
+            "Williams",
+            "Winn",
+            "Zisserman"
+        ],
+        "b14": [
+            "Laplacian pyramid reconstruction and refinement for semantic segmentation",
+            "",
+            "",
+            "",
+            "Ghiasi",
+            "Fowlkes"
+        ],
+        "b15": [
+            "Semantic contours from inverse detectors",
+            "",
+            "",
+            "",
+            "Hariharan",
+            "Arbelaez",
+            "Bourdev",
+            "Maji",
+            "Malik"
+        ],
+        "b16": [
+            "Hypercolumns for object segmentation and fine-grained localization",
+            "",
+            "",
+            "",
+            "Hariharan",
+            "Arbel\u00e1ez",
+            "Girshick",
+            "Malik"
+        ],
+        "b17": [
+            "Spatial pyramid pooling in deep convolutional networks for visual recognition",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b18": [
+            "Deep residual learning for image recognition",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b19": [
+            "Batch normalization: Accelerating deep network training by reducing internal covariate shift",
+            "",
+            "",
+            "",
+            "Ioffe",
+            "Szegedy"
+        ],
+        "b20": [
+            "Caffe: Convolutional architecture for fast feature embedding",
+            "",
+            "",
+            "",
+            "Jia",
+            "Shelhamer",
+            "Donahue",
+            "Karayev",
+            "Long",
+            "Girshick",
+            "Guadarrama",
+            "Darrell"
+        ],
+        "b21": [
+            "Convolutional scale invariance for semantic segmentation",
+            "",
+            "",
+            "",
+            "Kreso",
+            "Causevic",
+            "Krapac",
+            "Segvic"
+        ],
+        "b22": [
+            "Imagenet classification with deep convolutional neural networks",
+            "",
+            "",
+            "",
+            "Krizhevsky",
+            "Sutskever",
+            "Hinton"
+        ],
+        "b23": [
+            "Beyond bags of features: Spatial pyramid matching for recognizing natural scene categories",
+            "",
+            "",
+            "",
+            "Lazebnik",
+            "Schmid",
+            "Ponce"
+        ],
+        "b24": [
+            "Deeplysupervised nets",
+            "",
+            "",
+            "",
+            "Lee",
+            "Xie",
+            "Gallagher",
+            "Zhang",
+            "Tu"
+        ],
+        "b25": [
+            "Efficient piecewise training of deep structured models for semantic segmentation",
+            "",
+            "",
+            "",
+            "Lin",
+            "Shen",
+            "Reid",
+            "Van Den",
+            "Hengel"
+        ],
+        "b26": [
+            "Microsoft coco: Common objects in context",
+            "",
+            "",
+            "",
+            "Lin",
+            "Maire",
+            "Belongie",
+            "Hays",
+            "Perona",
+            "Ramanan",
+            "Doll\u00e1r",
+            "Zitnick"
+        ],
+        "b27": [
+            "Nonparametric scene parsing: Label transfer via dense scene alignment",
+            "",
+            "",
+            "",
+            "Liu",
+            "Yuen",
+            "Torralba"
+        ],
+        "b28": [
+            "Nonparametric scene parsing via label transfer",
+            "",
+            "",
+            "",
+            "Liu",
+            "Yuen",
+            "Torralba"
+        ],
+        "b29": [
+            "",
+            "",
+            "Looking wider to see better",
+            ""
+        ],
+        "b30": [
+            "Semantic image segmentation via deep parsing network",
+            "",
+            "",
+            "",
+            "Liu",
+            "Li",
+            "Luo",
+            "Loy",
+            "Tang"
+        ],
+        "b31": [
+            "Fully convolutional networks for semantic segmentation",
+            "",
+            "",
+            "",
+            "Long",
+            "Shelhamer",
+            "Darrell"
+        ],
+        "b32": [
+            "Are spatial and global constraints really necessary for segmentation",
+            "",
+            "",
+            "",
+            "Lucchi",
+            "Li",
+            "Bosch",
+            "Smith",
+            "Fua"
+        ],
+        "b33": [
+            "Feedforward semantic segmentation with zoom-out features",
+            "",
+            "",
+            "",
+            "Mostajabi",
+            "Yadollahpour",
+            "Shakhnarovich"
+        ],
+        "b34": [
+            "The role of context for object detection and semantic segmentation in the wild",
+            "",
+            "",
+            "",
+            "Mottaghi",
+            "Chen",
+            "Liu",
+            "Cho",
+            "Lee",
+            "Fidler",
+            "Urtasun",
+            "Yuille"
+        ],
+        "b35": [
+            "Learning deconvolution network for semantic segmentation",
+            "",
+            "",
+            "",
+            "Noh",
+            "Hong",
+            "Han"
+        ],
+        "b36": [
+            "Weakly-and semi-supervised learning of a deep convolutional network for semantic image segmentation",
+            "",
+            "",
+            "",
+            "Papandreou",
+            "Chen",
+            "Murphy",
+            "Yuille"
+        ],
+        "b37": [
+            "Relay backpropagation for effective learning of deep convolutional neural networks",
+            "",
+            "",
+            "",
+            "Shen",
+            "Lin",
+            "Huang"
+        ],
+        "b38": [
+            "",
+            "",
+            "Very deep convolutional networks for large-scale image recognition",
+            ""
+        ],
+        "b39": [
+            "Going deeper with convolutions",
+            "",
+            "",
+            "",
+            "Szegedy",
+            "Liu",
+            "Jia",
+            "Sermanet",
+            "Reed",
+            "Anguelov",
+            "Erhan",
+            "Vanhoucke",
+            "Rabinovich"
+        ],
+        "b40": [
+            "",
+            "",
+            "Scalable, high-quality object detection",
+            ""
+        ],
+        "b41": [
+            "Gaussian conditional random field network for semantic segmentation",
+            "",
+            "",
+            "",
+            "Vemulapalli",
+            "Tuzel",
+            "Liu",
+            "Chellappa"
+        ],
+        "b42": [
+            "",
+            "",
+            "Towards good practices for very deep two-stream convnets",
+            ""
+        ],
+        "b43": [
+            "",
+            "",
+            "Bridging category-level and instance-level semantic image segmentation",
+            ""
+        ],
+        "b44": [
+            "Zoom better to see clearer: Human and object parsing with hierarchical auto-zoom net",
+            "",
+            "",
+            "",
+            "Xia",
+            "Wang",
+            "Chen",
+            "Yuille"
+        ],
+        "b45": [
+            "",
+            "",
+            "Multi-scale context aggregation by dilated convolutions",
+            ""
+        ],
+        "b46": [
+            "Conditional random fields as recurrent neural networks",
+            "",
+            "",
+            "",
+            "Zheng",
+            "Jayasumana",
+            "Romera-Paredes",
+            "Vineet",
+            "Su",
+            "Du",
+            "Huang",
+            "Torr"
+        ],
+        "b47": [
+            "",
+            "",
+            "Object detectors emerge in deep scene cnns",
+            ""
+        ],
+        "b48": [
+            "",
+            "",
+            "Semantic understanding of scenes through the ADE20K dataset",
+            ""
+        ]
+    },
+    {
+        "tab_2": "Table 2 .2The baseline uses ResNet50based FCN with dilated network, with the master branch's softmax loss for optimization. Adding the auxiliary lossLoss Weight \u03b1Mean IoU(%) Pixel Acc.(%)ResNet50 (without AL)35.8277.07ResNet50 (with \u03b1 = 0.3)37.0177.87ResNet50 (with \u03b1 = 0.4)37.2378.01ResNet50 (with \u03b1 = 0.6)37.0977.84ResNet50 (with \u03b1 = 0.9)36.9977.87",
+        "tab_3": "Table 2 .2Setting an appropriate loss weight \u03b1 in the auxiliary branch is important. 'AL' denotes the auxiliary loss. Baseline is ResNet50-based FCN with dilated network. Empirically, \u03b1 = 0.4 yields the best performance. The results are tested on the validation set with the single-scale input. Figure 5. Performance grows with deeper networks. The results are obtained on the validation set with the single-scale input.MethodMean IoU(%) Pixel Acc.(%)PSPNet(50)41.6880.04PSPNet(101)41.9680.64PSPNet(152)42.6280.80PSPNet(269)43.8180.88PSPNet(50)+MS42.7880.76PSPNet(101)+MS43.2981.39PSPNet(152)+MS43.5181.38PSPNet(269)+MS44.9481.69",
+        "tab_4": "Table 3 .3Deeper pre-trained model get higher performance. Number in the brackets refers to the depth of ResNet and 'MS' denotes multi-scale testing.branch, \u03b1 = 0.4 yields the best performance. It outperforms the baseline with an improvement of 1.41/0.94 in terms of Mean IoU and Pixel Acc. (%). We believe deeper networks will benefit more given the new augmented auxiliary loss.Ablation Study for Pre-trained Model Deeper neuralnetworks have been shown in previous work to be beneficialto large scale data classification. To further analyze PSPNet,we conduct experiments for different depths of pre-trainedResNet. We test four depths of {50, 101, 152, 269}. Asshown in Fig. 5, with the same setting, increasing the depthof ResNet from 50 to 269 can improve the score of (Mean IoU + Pixel Acc.) / 2 (%) from 60.86 to 62.35, with 1.49 absolute improvement. Detailed scores of PSPNet pre-trained from different depth ResNet models are listed in Table3.",
+        "tab_5": "Table 4 .4Detailed analysis of our proposed PSPNet with comparison with others. Our results are obtained on the validation set with the single-scale input except for the last row. Results of FCN, SegNet and DilatedNet are reported in[43]. 'DA' refers to data augmentation we performed, 'AL' denotes the auxiliary loss we added and 'PSP' represents the proposed PSPNet. 'MS' means that multi-scale testing is used.Rank Team NameFinal Score (%)1Ours57.212Adelaide56.743360+MCG-ICT-CAS SP55.56-(our single model)(55.38)4SegModel54.655CASIA IVA54.33-DilatedNet [40]45.67-FCN [26]44.80-SegNet [2]40.79",
+        "tab_6": "Table 5 .5Results of ImageNet scene parsing challenge 2016. The best entry of each team is listed. The final score is the mean of Mean IoU and Pixel Acc. Results are evaluated on the testing set.Results in Challenge Using the proposed architecture, our team came in the 1st place in ImageNet scene parsingMore Detailed Performance Analysis We show ourmore detailed analysis on the validation set of ADE20K inTable 4. All our results except the last-row one use single-scale test. \"ResNet269+DA+AL+PSP+MS\" uses multi-scale testing. Our baseline is adapted from ResNet50 withdilated network, which yields MeanIoU 34.28 and PixelAcc. 76.35. It already outperforms other prior systems pos-sibly due to the powerful ResNet [13].Our proposed architecture makes further improvementcompared to the baseline. Using data augmentation,our result exceeds the baseline by 1.54/0.72 and reaches35.82/77.07. Using the auxiliary loss can further improveit by 1.41/0.94 and reaches 37.23/78.01. With PSPNet, wenotice relatively more significant progress for improvementof 4.45/2.03. The result reaches 41.68/80.04. The differ-ence from the baseline result is 7.40/3.69 in terms of abso-lute improvement and 21.59/4.83 (%) in terms of relativity.A deeper network of ResNet269 yields even higher perfor-mance up to 43.81/80.88. Finally, the multi-scale testingscheme moves the scores to 44.94/81.69.",
+        "tab_7": "Table 6 .6Per-class results on PASCAL VOC 2012 testing set. Methods pre-trained on MS-COCO are marked with ' \u2020'.CRF-RNN [41]62.534.482.766.0FCN [26]65.341.785.770.1SiCNN [16]66.344.985.071.2DPN [25]66.839.186.069.1Dilation10 [40]67.142.086.571.1LRR [9]69.748.088.274.7DeepLab [4]70.442.686.467.7Piecewise [20]71.651.787.374.1PSPNet78.456.790.678.6LRR  \u2021 [9]71.847.988.473.9PSPNet  \u202180.258.190.678.2MethodIoU cla. iIoU cla. IoU cat. iIoU cat.",
+        "tab_8": "Table 7 .7Results Methods trained using both fine and coarse data are marked with ' \u2021'. Detailed results are listed in Table7. Our base model is ResNet101 as in DeepLab[4] for fair comparison and the testing procedure follows Section 5.3.Statistics in Table7show that PSPNet outperforms other methods with notable advantage. Using both fine and coarse data for training makes our method yield 80.on Cityscapes testing set. Methods trained using both fine and coarse data are marked with ' \u2021'. in different seasons. The images are divided into sets with numbers 2,975, 500, and 1,525 for training, validation and testing. It defines 19 categories containing both stuff and objects. Also, 20,000 coarsely annotated images are provided for two settings in comparison, i.e., training with only fine data or with both the fine and coarse data.",
+        "tab_9": "Table 8 .83 61.1 65.1 53.8 61.6 70.6 71.6 PSPNet 98.6 86.2 92.9 50.8 58.8 64.0 75.6 79.0 93.4 72.3 95.4 86.5 71.3 95.9 68.2 79.5 73.8 69.5 77.2 78.4 LRR \u2021 [9] 97.9 81.5 91.4 50.5 52.7 59.4 66.8 72.7 92.5 70.1 95.0 81.3 60.1 94.3 51.2 67.7 54.6 55.6 69.6 71.8 PSPNet \u2021 98.6 86.6 93.2 58.1 63.0 64.5 75.2 79.2 93.4 72.1 95.1 86.3 71.4 96.0 73.5 90.4 80.3 69.9 76.9 80.2 Per-class results on Cityscapes testing set. Methods trained using both fine and coarse set are marked with ' \u2021'."
+    }
+]

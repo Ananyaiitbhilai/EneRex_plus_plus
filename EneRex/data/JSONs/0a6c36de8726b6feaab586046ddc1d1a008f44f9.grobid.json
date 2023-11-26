@@ -1,0 +1,444 @@
+[
+    {
+        "basename": "0a6c36de8726b6feaab586046ddc1d1a008f44f9.grobid",
+        "fulltext": 23,
+        "footnote_size": 4,
+        "footnote_max": 2004,
+        "reference": 43,
+        "authors": [
+            "Zhang",
+            "Benenson"
+        ]
+    },
+    {
+        "title": "Filtered Channel Features for Pedestrian Detection",
+        "abstract": "This paper starts from the observation that multiple top performing pedestrian detectors can be modelled by using an intermediate layer filtering low-level features in combination with a boosted decision forest. Based on this observation we propose a unifying framework and experimentally explore different filter families. We report extensive results enabling a systematic analysis. Using filtered channel features we obtain top performance on the challenging Caltech and KITTI datasets, while using only HOG+LUV as low-level features. When adding optical flow features we further improve detection quality and report the best known results on the Caltech dataset, reaching 93% recall at 1 FPPI.",
+        "Introduction": "Pedestrian detection is an active research area, with 1000+ papers published in the last decade 1 , and well established benchmark datasets  #b8  #b12 . It is considered a canonical case of object detection, and has served as playground to explore ideas that might be effective for generic object detection.Although many different ideas have been explored, and detection quality has been steadily improving  #b1 , arguably it is still unclear what are the key ingredients for good pedestrian detection; e.g. it remains unclear how effective parts, components, and features learning are for this task.Current top performing pedestrian detection methods all point to an intermediate layer (such as max-pooling or filtering) between the low-level feature maps and the classification layer  #b39  #b42  #b27  #b23 . In this paper we explore the simplest of such intermediary: a linear transformation implemented as convolution with a filter bank. We propose a framework for filtered channel features (see figure 1) that unifies multiple top performing methods  #b7  #b0  #b42  #b23 , Figure 1: Filtered feature channels illustration, for a single weak classifier reading over a single feature channel. Integral channel features detectors pool features via sums over rectangular regions  #b7  #b0 . We can equivalently rewrite this operation as convolution with a filter bank followed by single pixel reads (see \u00a72). We aim to answer: What is the effect of selecting different filter banks?and that enables a systematic exploration of different filter banks. With our experiments we show that, with the proper filter bank, filtered channel features reach top detection quality.It has been shown that using extra information at test time (such as context, stereo images, optical flow, etc.) can boost detection quality. In this paper we focus on the \"core\" sliding window algorithm using solely HOG+LUV features (i.e. oriented gradient magnitude and colour features). We consider context information and optical flow as add-ons, included in the experiments section for the sake of completeness and comparison with existing methods. Using only HOG+LUV features we already reach top performance on the challenging Caltech and KITTI datasets, matching results using optical flow and significantly more features (such as LBP and covariance  #b39  #b27 ).",
+        "Related work": "Recent survey papers discuss the diverse set of ideas explored for pedestrian detection  #b9  #b13  #b8  #b1 . The most recent survey  #b1  indicates that the classifier choice (e.g. linear/non-linear SVM versus decision forest) is not a clear differentiator regarding quality; rather the features used seem more important.Creativity regarding different types of features has not been lacking. HOG) The classic HOG descriptor is based on local image differences (plus pooling and normalization steps), and has been used directly  #b4 , as input for a deformable parts model  #b10 , or as features to be boosted  #b18  #b24 . The integral channel features detector  #b7  #b0  uses a simpler HOG variant with sum pooling and no normalizations. Many extensions of HOG have been proposed (e.g.  #b15  #b10  #b5  #b32 ). LBP) Instead of using the magnitude of local pixel differences, LBP uses the difference sign only as signal  #b38  #b39  #b27 . Colour) Although the appearance of pedestrians is diverse, the background and skin areas do exhibit a colour bias. Colour has shown to be an effective feature for pedestrian detection and hence multiple colour spaces have been explored (both hand-crafted and learned)  #b7  #b16  #b17  #b21 . Local structure) Instead of simple pixel values, some approaches try to encode a larger local structure based on colour similarities (soft-cue)  #b37  #b14 , segmentation methods (hard-decision)  #b25  #b30  #b34 , or by estimating local boundaries  #b19 . Covariance) Another popular way to encode richer information is to compute the covariance amongst features (commonly colour, gradient, and oriented gradient)  #b35  #b27 . Etc.) Other features include bag-of-words over colour, HOG, or LBP features  #b3 ; learning sparse dictionary encoders  #b31 ; and training features via a convolutional neural network  #b33 . Additional features specific for stereo depth or optical flow have been proposed, however we consider these beyond the focus of this paper. For our flow experiments we will use difference of frames from weakly stabilized videos (SDt)  #b28 .All the feature types listed above can be used in the integral channel features detector framework  #b7 . This family of detectors is an extension of the old ideas from Viola&Jones  #b36 . Sums of rectangular regions are used as input to decision trees trained via Adaboost. Both the regions to pool from and the thresholds in the decision trees are selected during training. The crucial difference from the pioneer work  #b36  is that the sums are done over feature channels other than simple image luminance.Current top performing pedestrian detection methods (dominating INRIA  #b4 , Caltech  #b8  and KITTI datasets  #b12 ) are all extensions of the basic integral channel features detector (named ChnFtrs in  #b7 , which uses only HOG+LUV features). SquaresChnFtrs  #b1 , InformedHaar  #b42 , and LDCF  #b23 , are discussed in detail in section 2.2. Katamari exploits context and optical flow for improved performance. SpatialPooling(+)  #b27  adds max-pooling on top of sum-pooling, and uses additional features such as covariance, LBP, and optical flow. Similarly, Regionlets  #b39  also uses extended features and max-pooling, together with stronger weak classifiers and training a cascade of classifiers. Out of these, Regionlets is the only method that has also shown good performance on general classes datasets such as Pascal VOC and ImageNet.In this paper we will show that vanilla HOG+LUV features have not yet saturated, and that, when properly used, they can reach top performance for pedestrian detection.",
+        "Contributions": "\u2022 We point out the link between ACF  #b6 ,(Squares)ChnFtrs [8, 1, 2], InformedHaar  #b42 , and LDCF  #b23 . See section 2.\u2022 We provide extensive experiments to enable a systematic analysis of the filtered integral channels, covering aspects not explored by related work. We report the summary of 65+ trained models (corresponding \u223c10 days of single machine computation). See sections 4, 5 and 7.\u2022 We show that top detection performance can be reached on Caltech and KITTI using HOG+LUV features only. We additionally report the best known results on Caltech. See section 7.",
+        "Filtered channel features": "Before entering the experimental section, let us describe our general architecture. Methods such as ChnFtrs  #b7 , SquaresChnFtrs  #b0  #b1  and ACF  #b6  all use the basic architecture depicted in figure 1 top part (best viewed in colours). The input image is transformed into a set of feature channels (also called feature maps), the feature vector is constructed by sum-pooling over a (large) set of rectangular regions. This feature vector is fed into a decision forest learned via Adaboost. The split nodes in the trees are a simple comparison between a feature value and a learned threshold. Commonly only a subset of the feature vector is used by the learned decision forest. Adaboost serves both for feature selection and for learning the thresholds in the split nodes.A key observation, illustrated in figure 1 (bottom), is that such sum-pooling can be re-written as convolution with a filter bank (one filter per rectangular shape) followed by reading a single value of the convolution's response map. This \"filter + pick\" view generalizes the integral channel features  #b7  detectors by allowing to use any filter bank (instead of only rectangular shapes). We name this generalization \"filtered channel features detectors\".In our framework, ACF  #b6  has a single filter in its bank, corresponding to a uniform 4\u00d74 pixels pooling region. ChnFtrs  #b7  was a very large (tens of thousands) filter bank comprised of random rectangular shapes. SquaresChnFtrs  #b0  #b1 , on the other hand, was only 16 filters, each with a square-shaped uniform pooling region of different sizes. See figure 2a for an illustration of the SquaresChnFtrs filters, the upper-left filter corresponds to ACF's one.The InformedHaar  #b42  method can also be seen as a filtered channel features detector, where the filter bank (and read locations) are based on a human shape template (thus the \"informed\" naming). LDCF  #b23  is also a particular instance of this framework, where the filter bank consists of PCA bases of patches from the training dataset. In sections 4 and 5 we provide experiments revisiting some of the design decisions of these methods.Note that all the methods mentioned above (and in the majority of experiments below) use only HOG+LUV feature channels2 (10 channels total). Using linear filters and decision trees on top of these does not allow to reconstruct the decision functions obtained when using LBP or covariance features (used by SpatialPooling and Regionlets). We thus consider the approach considered here orthogonal to adding such types of features.",
+        "Evaluation protocol": "For our experiments we use the Caltech  #b8  #b1  and KITTI datasets  #b12 . The popular INRIA dataset is considered too small and too close to saturation to provide interesting results. All Caltech results are evaluated using the provided toolbox, and summarised by log-average miss-rate (MR, lower is better) in the 10 -2 , 10 0 FPPI range for the \"reasonable\" setup. KITTI results are evaluated via the online evaluation portal, and summarised as average precision (AP, higher is better) for the \"moderate\" setup. Caltech10x The raw Caltech dataset consists of videos (acquired at 30 Hz) with every frame annotated. The standard training and evaluation considers one out of each 30 frames (1 631 pedestrians over 4 250 frames in training, 1 014 pedestrians over 4 024 frames in testing). In our experiments of section 5 we will also consider a 10\u00d7 increased training set where every 3rd frame is used (linear growth in pedestrians and images). We name this extended training set \"Caltech10x\". LDCF  #b23  uses a similar extended set for training its model (every 4th frame). Flow Methods using optical flow do not only use additional neighbour frames during training (1 \u2194 4 depending on the method), but they also do so at test time. Because they have access to additional information at test time, we consider them as a separate group in our results section.Validation set In order to explore the design space of our pedestrian detector we setup a Caltech validation set by splitting the six training videos into five for training and one for testing (one of the splits suggested in  #b8 ). Most of our experiments use this validation setup. We also report (a posteriori) our key results on the standard test set for comparison to the state of the art. For the KITTI experiments we also validate some design choices (such as search range and number of scales) before submission on the evaluation server. There we use a 2 /3+ 1 /3 validation setup.",
+        "Baselines": "ACF Our experiments are based on the open source release of ACF  #b6 . Our first baseline is vanilla ACF re-trained on the standard Caltech set (not Caltech10x). On the Caltech test set it obtains 32.6% MR (50.2% MR on validation set). Note that this baseline already improves over more than 50 previously published methods  #b1  on this dataset. There is also a large gap between ACF-Ours (32.6% MR) and the original number from ACF-Caltech (44.2% MR  #b6 ). The improvement is mainly due to the change towards a larger model size (from 30\u00d760 pixels to 60\u00d7120). All parameter details are described in section 2.3, and kept identical across experiments unless explicitly stated.InformedHaar Our second baseline is a reimplementation of InformedHaar  #b42 . Here again we observe an important gain from using a larger model size (same change as for ACF). While the original InformedHaar paper reports 34.6% MR, Informed-Haar-Ours reaches 27.0% MR on the Caltech test set (39.3% MR on validation set).For both our baselines we use exactly the same training set as the original papers. Note that the Informed-Haar-Ours baseline (27.0% MR) is right away the best known result for a method trained on the standard Caltech training set. In section 3 we will discuss our reimplementation of LDCF  #b23 .",
+        "Model parameters": "Unless otherwise specified we train all our models using the following parameters. Feature channels are HOG+LUV only. The final classifier includes 4096 level-2 decision trees (L2, 3 stumps per tree), trained via vanilla discrete Adaboost. Each tree is built by doing exhaustive greedy search for each node (no randomization). The model has size 60\u00d7120 pixels, and is built via four rounds of hard negative mining (starting from a model with 32 trees, and then 512, 1024, 2048, 4096 trees). Each round adds 10 000 additional negatives to the training set. The sliding window stride is 6 pixels (both during hard negative mining and at test time). Compared to the default ACF parameters, we use a bigger model, more trees, more negative samples, and more boosting rounds. But we do use the same code-base and the same training set.Starting from section 5 we will also consider results with the Caltech10x data, there we use level-4 decision trees (L4), and Realboost  #b11  instead of discrete Adaboost. All other parameters are left unchanged.",
+        "Filter bank families": "Given the general architecture and the baselines described in section 2, we now proceed to explore different types of filter banks. Some of them are designed using prior knowledge and they do not change when applied across datasets, others exploit data-driven techniques for learning their filters. Sections 4 and 5 will compare their detection quality.InformedFilters Starting from the Informed-Haar  #b42  baseline we use the same \"informed\" filters but let free the positions where they are applied (instead of fixed in InformedHaar); these are selected during the boosting learning. Our initial experiments show that removing the position constraint has a small (positive) effect. Additionally we observe that the original InformedHaar filters do not include simple square pooling regions (\u00e0 la SquaresChnFtrs), we thus add these too. We end up with 212 filters in total, to be applied over each of the 10 feature channels. This is equivalent to training decision trees over 2120 (non filtered) channel features. As illustrated in figure 2d the InformedFilters have different sizes, from 1\u00d71 to 4\u00d73 cells (1 cell = 6\u00d7 6 pixels), and each cell takes a value in {-1, 0, +1}. These filters are applied with a step size of 6 pixels. For a model of 60\u00d7120 pixels this results in 200 features per channel, 2 120 \u2022 200 = 424 000 features in total 3 . In practice considering border effects (large filters are not applied on the border of the model to avoid reading outside it) we end up with \u223c300 000 features. When training 4 096 level-2 decision trees, at most 4 096 \u2022 3 = 12 288 features will be used, that is \u223c3% of the total. In this scenario (and all others considered in this paper) Adaboost has a strong role of feature selection.",
+        "Checkerboards": "As seen in section 2.2 InformedHaar is a strong baseline. It is however unclear how much the \"informed\" design of the filters is effective compared to other possible choices. Checkerboards is a na\u00efve set of filters that covers the same sizes (in number of cells) as InformedHaar/InformedFilters and for each size defines (see figure 2b): a uniform square, all horizontal and vertical gradient detectors (\u00b11 values), and all possible checkerboard patterns. These configurations are comparable to InformedFilters but do not use the human shape as prior. The total number of filters is a direct function of the maximum size selected. For up to 4\u00d74 cells we end up with 61 filters, up to 4\u00d73 cells 39 filters, up to 3\u00d73 cells 25 filters, and up to 2\u00d72 cells 7 filters.RandomFilters Our next step towards removing a hand-crafted design is simply using random filters (see fig- ure 2c). Given a desired number of filters and a maximum filter size (in cells), we sample the filter size with uniform distribution, and set its cell values to \u00b11 with uniform probability. We also experimented with values {-1, 0, +1} and observed a (small) quality decrease compared to the binary option). The design of the filters considered above completely ignores the available training data. In the following, we consider additional filters learned from data.LDCF  #b23  The work on PCANet  #b2  showed that applying arbitrary non-linearities on top of PCA projections of image patches can be surprisingly effective for image classification. Following this intuition LDCF  #b23  uses learned PCA eigenvectors as filters (see figure 2e). We present a re-implementation of  #b23  based on ACF's  #b6  source code. We try to follow the original description as closely as possible. We use the same top 4 filters of 10\u00d710 pixels, selected per feature channel based on their eigenvalues (40 filters total). We do change some parameters to be consistent amongst all experiments, see sections 2.3 and 5. The main changes are the training set (we use Caltech10x, sampled every 3 frames, instead of every 4 frames in  #b23 ), and the model size (60\u00d7120 pixels instead of 32\u00d764). As will be shown in section 7, our implementation (LDCF-Ours) clearly improves over the previously published numbers  #b23 , showing the potential of the method.For comparison with PcaForeground we also consider training LDCF8 where the top 8 filters are selected per channel (80 filters total).",
+        "PcaForeground": "In LDCF the filters are learned using all of the training data available. In practice this means that the learned filters will be dominated by background information, and will have minimal information about the pedestrians. Put differently, learning filters from all the data assumes that the decision boundary is defined by a single distribution (like in Linear Discriminant Analysis  #b22 ), while we might want to define it based on the relation between the background distribution and the foreground distribution (like Fisher's Discriminant Analysis  #b22 ). In PcaForeground we train 8 filters per feature channel, 4 learned from background image patches, and 4 learned from patches extracted over pedestrians (see figure 2f). Compared to LDCF8 the obtained filters are similar but not identical, all other parameters are kept identical. Other than via PcaForeground/LDCF8, it is not clear how to further increase the number of filters used in LDCF. Past 8 filters per channel, the eigenvalues decrease to negligible values and the eigenvectors become essentially random (similar to RandomFilters).To keep the filtered channel features setup close to InformedHaar, the filters are applied with a step of 6 pixels. However, to stay close to the original LDCF, the LDCF/PcaForeground filters are evaluated every 2 pixels. Although (for example) LDCF8 uses only \u223c10% of the number of filters per channel compared to Che-ckerboards4x4, due to the step size increase, the obtained feature vector size is \u223c40%.",
+        "How many filters?": "Given a fixed set of channel features, a larger filter bank provides a richer view over the data compared to a smaller one. With enough training data one would expect larger filter banks to perform best. We want thus to analyze the trade-off between number of filters and detection quality, as well as which filter bank family performs best.Figure 3 presents the results of our initial experiments on the Caltech validation set. It shows detection quality versus number of filters per channel. This figure densely summarizes \u223c30 trained models.",
+        "InformedFilters": "The first aspect to notice is that there is a meaningful gap between Informed-Haar-Ours and InformedFilters despite having a similar number of filters (209 versus 212). This validates the importance of letting Adaboost choose the pooling locations instead of hand-crafting them. Keep in mind that InformedHaar-Ours is a top performing baseline (see \u00a72.2). Secondly, we observe that (for the fixed training data available) \u223c50 filters is better than \u223c200. Below 50 filters the performance degrades for all methods (as expected).To change the number of filters in InformedFilters we train a full model (212 filters), pick the N most frequently used filters (selected from node splitting in the decision forest), and use these to train the desired reduced model.We can select the most frequent filters across channels or per channel (marked as Inf.FiltersPerChannel). We observe that per channel selection is slightly worse than across channels, thus we stick to the latter. Using the most frequently used filters for selection is clearly a crude strategy since frequent usage does not guarantee discriminative power, and it ignores relation amongst fil- We observe a similar trend for other filter banks.ters. We find this strategy good enough to convey the main points of this work.Checkerboards also reaches best results in the \u223c50 filters region. Here the number of filters is varied by changing the maximum filter size (in number of cells). Regarding the lowest miss-rate there is no large gap between the \"informed\" filters and this na\u00efve baseline.",
+        "RandomFilters": "The hexagonal dots and their deviation bars indicate the mean, maximum and minimum missrate obtained out of five random runs. When using a larger number of filters (50) we observe a lower (better) mean but a larger variance compared to when using fewer filters  #b14 .Here again the gap between the best random run and the best result of other methods is not large. Given a set of five models, we select the N most frequently used filters and train new reduced models; these are shown in the RandomFilters line. Overall the random filters are surprisingly close to the other filter families. This indicates that expanding the feature channels via filtering is the key step for improving detection quality, while selecting the \"perfect\" filters is a secondary concern.",
+        "LDCF/PcaForeground": "In contrast to the other filter bank families, LDCF under-performs when increasing the number of filters (from 4 to 8) while using the standard Caltech training set (consistent with the observations in  #b23 ).PcaForeground improves marginally over LDCF8.Takeaways From figure 3 we observe two overall trends. First, the more filters the merrier, with \u223c50 filters as sweet spot for Caltech training data. Second, there is no flagrant difference between the different filter types.",
+        "Additional training data": "One caveat of the previous experiments is that as we increase the number of filters used, so does the number of features Adaboost must pick from. Since we increased the model capacity (compared to ACF which uses a single filter), we consider using the Caltech10x dataset ( \u00a72.1) to verify that our models are not starving for data. Similar to the experiments in  #b23 , we also reconsider the decision tree depth, since additional training data enables bigger models. Results for two representative methods are collected in table 1. First we observe that already with the original training data, deeper trees do provide significant improvement over level-2 (which was selected when tuning over INRIA data  #b7  #b0 ). Second, we notice that increasing the training data volume does provide the expected improvement only when the decision trees are deep enough. For our following experiments we choose to use level-4 decision trees (L4) as a good balance between increased detection quality and reasonable training times.",
+        "Aspect": "Realboost Although previous papers on ChnFtrs detectors reported that different boosting variants all obtain equal results on this task  #b7  #b0 , the recent  #b23  indicated that Realboost has an edge over discrete Adaboost when additional training data is used. We observe the same behaviour in our Caltech10x setup.As summarized in table 2 using filtered channels, deeper trees, additional training data, and Realboost does provide a significant detection quality boost. For the rest of the paper our models trained on Caltech10x all use level-4 trees and RealBoost, instead of level-2 and discrete Adaboost for the Caltech1x models.Timing When using Caltech data ACF takes about one hour for training and one for testing. Checkerboards-4x4 takes about 4 and 2 hours respectively. When using Caltech10x the training times for these methods augment to 2 and 29 hours, respectively. The training time does not increase proportionally with the training data volume because the hard negative mining reads a variable amount of images to attain the desired quota of negative samples. This amount increases when a detector has less false positive mistakes.",
+        "Validation set experiments": "Based on the results in table 2 we proceed to evaluate on Caltech10x the most promising configurations (filter type and number) from section 4. The results over the Caltech validation set are collected in table 3. We observe a clear overall gain from increasing the training data.Interestingly with enough RandomFilters we can outperform the strong performance of LDCF-Ours. We  also notice that the na\u00efve Checkerboards outperforms the manual design of InformedFilters.",
+        "Add-ons": "Before presenting the final test set results of our \"core\" method (section 7), we also consider some possible \"addons\" based on the suggestions from  #b1 . For the sake of evaluating complementarity, comparison with existing method, and reporting the best possible detection quality, we consider extending our detector with context and optical flow information. Context Context is modelled via the 2Ped re-scoring method of  #b26 . It is a post-processing step that merges our detection scores with the results of a two person DPM  #b10  trained on the INRIA dataset (with extended annotations). In  #b26  the authors reported an improvement of \u223c5 pp (percent points) on the Caltech set, across different methods. In  #b1  an improvement of 2.8 pp is reported over their strong detector (SquaresChnFtrs+DCT+SDt 25.2% MR). In our experiments however we obtain a gain inferior to 0.5 pp. We have also investigated fusing the 2Ped detection results via a different, more principled, fusion method  #b40 . We observe consistent results: as the strength of the starting point increases, the gain from 2Ped decreases. When reaching our Checkerboards results, all gains have evaporated. We believe that the 2Ped approach is a promising one, but our experiments indicate that the used DPM template is simply too weak in comparison to our filtered channels. Optical flow Optical flow is fed to our detector as an additional set of 2 channels (not filtered). We use the implementation from SDt  #b28  which uses differences of weakly stabilized video frames. On Caltech, the authors of  #b28  reported a \u223c7 pp gain over ACF (44.2% MR), while  #b1  reported a \u223c5 pp percent points improvement over their strong baseline (SquaresChnFtrs+DCT+2Ped 27.4% MR). When using +SDt our results are directly comparable to Katamari  #b1  and SpatialPooling+  #b27  which both use optical flow too.   ACF+SDt results  #b28 , 43.9% \u2192 33.9% MR). We name our Checkerboards+SDt detector All-in-one.Our filtered channel features results are strong enough to erode existing context and flow features. Although these remain complementary cues, more sophisticated ways of extracting this information will be required to further progress in detection quality.It should be noted that despite our best efforts we could not reproduce the results from neither 2Ped nor SDt on the KITTI dataset (in spite of its apparent similarity to Caltech). Effective methods for context and optical flow across datasets have yet to be shown. Our main contribution remains on the core detector (only HOG+LUV features over local sliding window pixels in a single frame).",
+        "Test set results": "Having done our exploration of the parameters space on the validation set, we now evaluate the most promising methods on the Caltech and KITTI test sets. Caltech test set Figures 5 and4 present our key results on the Caltech test set. For proper comparison, only methods using the same training set should be compared (see [2, figure 3] for a similar table comparing 50+ previous methods). We include for comparison the baselines mentioned in section 2.2, Roerei  #b0  the best known method trained without any Caltech images, MT-DPM  #b41  the best known method based on DPM, and SDN  #b20  the best known method using convolutional neural networks. We also include the top performers Katamari  #b1  and SpatialPooling+  #b27 . We mark as \"CaltechN \u00d7\" both the Caltech10x training set and the one used in LDCF  #b23  (see section 5). Our results cut by half miss-rate of the best known convnet for pedestrian detection (SDN  #b20 ), which in principle could learn similar low-level features and their filtering.When adding optical flow we further push the state of the art and reach 17.1% MR, a comfortable \u223c5 pp improvement over the previous best optical flow method (Spa-tialPooling+). This is the best reported result on this challenging dataset.The results on the KITTI dataset confirm the strength of our approach, reaching 54.0% AP, just 1 pp below the best known result on this dataset. Competing methods (Regionlets  #b39  and SpatialPooling  #b27 ) both use HOG together with additional LBP and covariance features. Adding these remains a possibility for our system. Note that our results also improve over methods using LIDAR + Image, such as Fusion-DPM  #b29  (46.7% AP, not included in figure 6 for clarity).",
+        "Conclusion": "Through this paper we have shown that the seemingly disconnected methods ACF, (Squares)ChnFtrs, InformedHaar, and LDCF can be all put under the filtered channel features detectors umbrella. We have systematically explored different filter banks for such architecture and shown that they provide means for important improvements for pedestrian detection. Our results indicate that HOG+LUV features have not yet saturated, and that competitive results (over Caltech and KITTI datasets) can be obtained using only them. When optical flow information is added we set the new state of art for the Caltech dataset, reaching 17.1% MR (93% recall at 1 false positive per image).In future work we plan to explore how the insights of this work can be exploited into a more general detection architecture such as convolutional neural networks.",
+        "A. Learned model": "In figures 7 and 8 we present some qualitative aspects of the final learned models Checkerboards4x3 and RandomFilters (see results section of main paper), not included in the main submission due to space limitations.In figure 7 we compare the spatial distribution of our models versus a significantly weaker model (Roerei, trained on INRIA, see figure 5 of main paper). We observe that our strong models focalize in similar areas than the weak Roerei model. This indicates that using filtered channels does not change which areas of the pedestrian are informative, but rather that at the same locations filtered channels are able to extract more discriminative information.In all three models we observe that diagonal oriented channels focus on left and right shoulders. The U colour channel is mainly used around the face, while L (luminance) and gradient magnitude ( \u2022 ) channels are used all over the body. Overall head, feet, and upper torso areas provide most clues for detection.In figure 8 we observe that the filters usage distribution is similar across different filter bank families.   Uniform filters are clearly the most frequently used ones (also used in methods such as (Roerei, ACF and (Squares)ChnFtrs), there is no obvious ordering pattern in the remaining ones. Please note that each decision tree will probably use multiple filters across multiple channels to reach its weak decision."
+    },
+    {
+        "1": "Papers from",
+        "2004": "to 2014 with \"pedestrian detection\" in the title, according to Google Scholar.",
+        "2": "We use \"raw\" HOG, without any clamping, cell normalization, block normalization, or dimensionality reduction.",
+        "3": "\"Feature channel\" refers to the output of the first transformation in figure1bottom. \"Filters\" are the convolutional operators applied to the feature channels. And \"features\" are entries in the response maps of all filters applied over all channels. A subset of these features are the input to the learned decision forest."
+    },
+    {
+        "b0": [
+            "Seeking the strongest rigid detector",
+            "",
+            "",
+            "",
+            "Benenson",
+            "Mathias",
+            "Tuytelaars",
+            "Van Gool"
+        ],
+        "b1": [
+            "Ten years of pedestrian detection, what have we learned",
+            "",
+            "",
+            "",
+            "Benenson",
+            "Omran",
+            "Hosang",
+            "Schiele"
+        ],
+        "b2": [
+            "",
+            "",
+            "Pcanet: A simple deep learning baseline for image classification",
+            ""
+        ],
+        "b3": [
+            "Word channel based multiscale pedestrian detection without image resizing and using only one classifier",
+            "",
+            "",
+            "",
+            "Costea",
+            "Nedevschi"
+        ],
+        "b4": [
+            "Histograms of oriented gradients for human detection",
+            "",
+            "",
+            "",
+            "Dalal",
+            "Triggs"
+        ],
+        "b5": [
+            "Improved hog descriptors",
+            "",
+            "",
+            "",
+            "Dang",
+            "Bui",
+            "Vo",
+            "Tran",
+            "Le"
+        ],
+        "b6": [
+            "Fast feature pyramids for object detection",
+            "",
+            "",
+            "",
+            "Doll\u00e1r",
+            "Appel",
+            "Belongie",
+            "Perona"
+        ],
+        "b7": [
+            "Integral channel features",
+            "",
+            "",
+            "",
+            "Doll\u00e1r",
+            "Tu",
+            "Perona",
+            "Belongie"
+        ],
+        "b8": [
+            "Pedestrian detection: An evaluation of the state of the art",
+            "",
+            "",
+            "",
+            "Doll\u00e1r",
+            "Wojek",
+            "Schiele",
+            "Perona"
+        ],
+        "b9": [
+            "Monocular pedestrian detection: Survey and experiments",
+            "",
+            "",
+            "",
+            "Enzweiler",
+            "Gavrila"
+        ],
+        "b10": [
+            "Object detection with discriminatively trained part-based models",
+            "",
+            "",
+            "",
+            "Felzenszwalb",
+            "Girshick",
+            "Mcallester",
+            "Ramanan"
+        ],
+        "b11": [
+            "",
+            "",
+            "Additive logistic regression: a statistical view of boosting. The annals of statistics",
+            ""
+        ],
+        "b12": [
+            "Are we ready for autonomous driving? the kitti vision benchmark suite",
+            "",
+            "",
+            "",
+            "Geiger",
+            "Lenz",
+            "Urtasun"
+        ],
+        "b13": [
+            "Survey of pedestrian detection for advanced driver assistance systems",
+            "",
+            "",
+            "",
+            "Geronimo",
+            "Lopez",
+            "Sappa",
+            "Graf"
+        ],
+        "b14": [
+            "Cs-hog: Color similarity-based hog",
+            "",
+            "",
+            "",
+            "Goto",
+            "Yamauchi",
+            "Fujiyoshi"
+        ],
+        "b15": [
+            "",
+            "",
+            "Multiview pedestrian detection based on vector boosting",
+            ""
+        ],
+        "b16": [
+            "Color attributes for object detection",
+            "",
+            "",
+            "",
+            "Khan",
+            "Anwer",
+            "Van De Weijer",
+            "Bagdanov",
+            "Vanrell",
+            "Lopez"
+        ],
+        "b17": [
+            "Discriminative color descriptors",
+            "",
+            "",
+            "",
+            "Khan",
+            "Van De Weijer",
+            "Khan",
+            "Muselet",
+            "Ducottet",
+            "Barat"
+        ],
+        "b18": [
+            "Improving object detection with boosted histograms",
+            "",
+            "",
+            "",
+            "Laptev"
+        ],
+        "b19": [
+            "Sketch tokens: A learned mid-level representation for contour and object detection",
+            "",
+            "",
+            "",
+            "Lim",
+            "Zitnick",
+            "Doll\u00e1r"
+        ],
+        "b20": [
+            "Switchable deep network for pedestrian detection",
+            "",
+            "",
+            "",
+            "Luo",
+            "Tian",
+            "Wang",
+            "Tang"
+        ],
+        "b21": [
+            "Face detection without bells and whistles",
+            "",
+            "",
+            "",
+            "Mathias",
+            "Benenson",
+            "Pedersoli",
+            "Van Gool"
+        ],
+        "b22": [
+            "",
+            "",
+            "Machine learning: a probabilistic perspective",
+            ""
+        ],
+        "b23": [
+            "Local decorrelation for improved detection",
+            "",
+            "",
+            "",
+            "Nam",
+            "Doll\u00e1r",
+            "Han"
+        ],
+        "b24": [
+            "Improving object localization using macrofeature layout selection",
+            "",
+            "",
+            "",
+            "Nam",
+            "Han",
+            "Han"
+        ],
+        "b25": [
+            "Implicit color segmentation features for pedestrian and object detection",
+            "",
+            "",
+            "",
+            "Ott",
+            "Everingham"
+        ],
+        "b26": [
+            "Single-pedestrian detection aided by multi-pedestrian detection",
+            "",
+            "",
+            "",
+            "Ouyang",
+            "Wang"
+        ],
+        "b27": [
+            "Strengthening the effectiveness of pedestrian detection with spatially pooled features",
+            "",
+            "",
+            "",
+            "Paisitkriangkrai",
+            "Shen",
+            "Van Den",
+            "Hengel"
+        ],
+        "b28": [
+            "Exploring weak stabilization for motion feature extraction",
+            "",
+            "",
+            "",
+            "Park",
+            "Zitnick",
+            "Ramanan",
+            "Doll\u00e1r"
+        ],
+        "b29": [
+            "Pedestrian detection combining RGB and dense LIDAR data",
+            "",
+            "",
+            "",
+            "Premebida",
+            "Carreira",
+            "Batista",
+            "Nunes"
+        ],
+        "b30": [
+            "Using segmentation to verify object hypotheses",
+            "",
+            "",
+            "",
+            "Ramanan"
+        ],
+        "b31": [
+            "Histograms of sparse codes for object detection",
+            "",
+            "",
+            "",
+            "Ren",
+            "Ramanan"
+        ],
+        "b32": [
+            "Human detection by quadratic classification on subspace of extended histogram of gradients",
+            "",
+            "",
+            "",
+            "Satpathy",
+            "Jiang",
+            "Eng"
+        ],
+        "b33": [
+            "Pedestrian detection with unsupervised multi-stage feature learning",
+            "",
+            "",
+            "",
+            "Sermanet",
+            "Kavukcuoglu",
+            "Chintala",
+            "Lecun"
+        ],
+        "b34": [
+            "Improving hog with image segmentation: Application to human detection",
+            "",
+            "",
+            "",
+            "Socarras",
+            "Vazquez",
+            "Lopez",
+            "Geronimo",
+            "Gevers"
+        ],
+        "b35": [
+            "Pedestrian detection via classification on riemannian manifolds",
+            "",
+            "",
+            "",
+            "Tuzel",
+            "Porikli",
+            "Meer"
+        ],
+        "b36": [
+            "Detecting pedestrians using patterns of motion and appearance",
+            "",
+            "",
+            "",
+            "Viola",
+            "Jones",
+            "Snow"
+        ],
+        "b37": [
+            "New features and insights for pedestrian detection",
+            "",
+            "",
+            "",
+            "Walk",
+            "Majer",
+            "Schindler",
+            "Schiele"
+        ],
+        "b38": [
+            "An hog-lbp human detector with partial occlusion handling",
+            "",
+            "",
+            "",
+            "Wang",
+            "Han",
+            "Yan"
+        ],
+        "b39": [
+            "Regionlets for generic object detection",
+            "",
+            "",
+            "",
+            "Wang",
+            "Yang",
+            "Zhu",
+            "Lin"
+        ],
+        "b40": [
+            "Evidential combination of pedestrian detectors",
+            "",
+            "",
+            "",
+            "Xu",
+            "Davoine",
+            "Denoeux"
+        ],
+        "b41": [
+            "Robust multi-resolution pedestrian detection in traffic scenes",
+            "",
+            "",
+            "",
+            "Yan",
+            "Zhang",
+            "Lei",
+            "Liao",
+            "Li"
+        ],
+        "b42": [
+            "Informed haar-like features improve pedestrian detection",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Bauckhage",
+            "Cremers"
+        ]
+    },
+    {
+        "tab_0": "Table 1 :1Effect of the training volume and decision tree depth (Ln) over the detection quality (average miss-rate on validation set, lower is better), for ACF-Ours and Checkerboards variant with (61) filters of 4\u00d74 cells.TrainingMethodL2L3L4L5Caltech Caltech10xACF50.2 42 .1 48.8 52.6 49.9 44.9 41 .3 48.7CaltechChecker-32.9 30.4 28 .0 31.5Caltech10xboards37.0 31.6 24 .7 24 .7",
+        "tab_1": "Table 2 :2Ingredients to build our strong detectors (using Checkerboards4x4 in this example, 61 filters). Validation set log-average miss-rate (MR).MR \u2206MRACF-Ours50.8-+ filters32.9 +17.9+ L428.0 +4.9+ Caltech10x24.7 +3.3+ Realboost24.4 +0.3Checkerboards4x4 24.4 +26.4",
+        "tab_2": "Table 3 :3Effect of increasing the training set for different methods, quality measured on Caltech validation set (MR: log-average miss-rate).type# filtersCaltech Caltech10x \u2206MR MR MRACF-Ours150.239.810.4LDCF-Ours437.334.13.2LDCF8842.630.711.9PcaForeground841.628.613.0RandomFilters5036.528.28.3InformedFilters5030.326.63.7Checkerboards3930.925.95.0Checkerboards6132.924.48.5",
+        "tab_4": "Some of the top quality detection methods for Caltech test set (see text), and our results (highlighted with white hatch). Methods using optical flow are trained on original Caltech except our All-in-one which uses Cal-tech10x. CaltechN \u00d7 indicates Caltech10x for all methods but the original LDCF (see section 2.1). Checkerboards 18.5% MR). Using our architecture and the adequate number of filters one can obtain strong results using only HOG+LUV features. The exact type of filters seems not critical, in our experi-0 log-average miss-rate (lower is better) 10 20 30 40 50 Detection quality on Caltech test set Roerei 48.4% ACF-Caltech 44.2% MT-DPM 40.5% SDN 37.9% ACF+SDt 37.3% SquaresChnFtrs 34.8% InformedHaar 34.6% ACF-Ours 32.6% SpatialPooling 29.2% Inf.Haar-Ours 27.0% LDCF 24.8% Katamari 22.5% SpatialPooling+ 21.9% LDCF-Ours 21.4% InformedFilters 18.7% RandomFilters 18.5% Checkerboards 18.5% All-in-one 17.1% INRIA training Caltech training CaltechN \u00d7 training Optical flow Figure 5: KITTI test set Figure 6 presents the results on the KITTI test set (\"moderate\" setup), together with all other reported methods using only monocular image content (no stereo or LIDAR data). The KITTI evaluation server only recently has started receiving submissions (14 for this task, 11 in the last year), and thus is less prone to dataset over-fitting. We train our model on the KITTI training set using almost identical parameters as for Caltech. The only change is a subtle pre-processing step in the HOG+LUV computation. On KITTI the input image is smoothed (radius 1 pixel) be-fore the feature channels are computed, while on Caltech we do not. This subtle change provided a \u223c4 pp (percent points) improvement on the KITTI validation set. 7.1. Analysis With a \u223c10 pp (percent points) gap between ACF/In-formedHaar and ACF/InformedHaar-Ours (see fig-ure 5), the results of our baselines show the importance of proper validation of training parameters (large enough model size and negative samples). InformedHaar--Ours is the best reported result when training with Cal-tech1x. When considering methods trained on Caltech10x, we obtain a clear gap with the previous best results (LDCF 24.8% MR \u2192 KITTI Pedestrians, moderate difficulty 0 0.2 0.4 0.6 0 0.25 0.5 0.75 1 Recall Precision Figure 6: Pedestrian detection on the KITTI dataset (using 0.8 Regionlets 55.0% SpatialPooling 54.5% Ours-Checkboards4x3 54.0% DA-DPM 45.5% SquaresChnFtrs 44.4% DPM 38.4% SubCat 36.0% images only). ments Checkerboards4x3 gets best performance given the available training data. RandomFilters reaches the same result, but requires training and merging multiple models."
+    }
+]

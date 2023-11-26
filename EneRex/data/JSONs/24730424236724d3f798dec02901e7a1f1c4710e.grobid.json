@@ -1,0 +1,549 @@
+[
+    {
+        "basename": "24730424236724d3f798dec02901e7a1f1c4710e.grobid",
+        "fulltext": 19,
+        "footnote_size": 0,
+        "reference": 59,
+        "authors": [
+            "Li",
+            "Lam",
+            "Li"
+        ]
+    },
+    {
+        "title": "Joint Maximum Purity Forest with Application to Image Super-Resolution",
+        "abstract": "In this paper, we propose a novel random-forest scheme, namely Joint Maximum Purity Forest (JMPF), for classification, clustering, and regression tasks. In the JMPF scheme, the original feature space is transformed into a compactly pre-clustered feature space, via a trained rotation matrix. The rotation matrix is obtained through an iterative quantization process, where the input data belonging to different classes are clustered to the respective vertices of the new feature space with maximum purity. In the new feature space, orthogonal hyperplanes, which are employed at the split-nodes of decision trees in random forests, can tackle the clustering problems effectively. We evaluated our proposed method on public benchmark datasets for regression and classification tasks, and experiments showed that JMPF remarkably outperforms other state-of-the-art random-forest-based approaches. Furthermore, we applied JMPF to image super-resolution, because the transformed, compact features are more discriminative to the clustering-regression scheme. Experiment results on several public benchmark datasets also showed that the JMPF-based image super-resolution scheme is consistently superior to recent state-of-the-art image super-resolution algorithms.",
+        "INTRODUCTION": "Recently, random forest  #b5  #b16  has been employed as an efficient classification or regression tool on a large variety of computer-vision applications, such as object recognition  #b29 , face alignment  #b17  #b23  #b48 , data clustering  #b19 , image super-resolution  #b10  #b21 , and so on. This method is attractive on computervision problems, not only for its simple implementation, but also for its many merits:  #b3  it can work efficiently on both the training and inference stages,  #b4  it is feasible for it to be sped up with parallel processing technology,  #b5  it has an inherent property to handle high-dimensional input features, and (4) it works with divide-and-conquer strategy, which has stable performance on classification and regression tasks as an ensemble machine-learning tool.By studying the mechanism of a random forest, we can see that the random-forest approach has some critical properties, as do other powerful classifiers, such as SVM (support vector machine)  #b12  #b50  and AdaBoost (short for \"Adaptive Boosting\")  #b15 . Both SVM and AdaBoost work as to approximate Bayes decision rule -known to be the optimal classifiers -via minimizing a margin-based global loss function.Each threshold in a decision tree of a random forest works as a hyperplane, and each single decision tree, similar to AdaBoost, attempts to minimize its global loss greedily and recursively on working through from the root-node down to leaf-nodes in the binary tree.At each split-node in a decision tree, a hyperplane is learned to separate data into two groups.Although each decision tree attempts to achieve maximum purity for the two data groups clustered at each split-node independently during training a random forest, there is no guarantee that the original feature space can meet the expectation of global maximum purity for all the clustered groups. As the hyperplanes in a random forest have the orthogonal constraint, as shown in Fig. 1(b), which hinders us from achieving the optimal hyperplanes as SVM does (i.e., there is no orthogonal constraint in SVM) in some original feature space, as shown in Fig. 1(a). In this paper, we aim to solve this orthogonalconstraint limitation. With the fixed orthogonal hyperplanes, we propose to rotate the feature space, this is equivalent to rotating the hyperplanes, in such a way that global maximum purity on the clustered data can be achieved, as illustrated in Fig. 2. This strategy can achieve a joint maximum purity for all the split-nodes when training a random forest.Image super-resolution can be performed based on clustering/classification, according to the recent emerging clustering-regression stream  #b4  #b7  #b10 , and the JMPF scheme can achieve remarkable performance on both the classification and regression tasks. Therefore, JMPF is applied to single-image super-resolution in this paper. In our algorithm, principal component analysis (PCA) is applied to the features for dimensionality reduction. The projected feature space is then rotated to a compact, preclustered feature space via a learned rotation matrix. Finally, for all the split-nodes trained for a random forest, their thresholds are directly set to the inherent zero-center orthogonal hyperplanes in the rotated feature space to meet the maximum-purity criterion. Experiment results show that JMPF can achieve more accurate clustering/classification performance on random forests, and applying JMPF to image super-resolution can achieve superior quality, compared to state-of-the-art methods.Having introduced the main idea of our proposed algorithm, the remainder of this paper is organized as follows. In Section II, we will describe our proposed scheme, the joint maximum purity forest scheme, and present in detail how to compute the rotation matrix via clustering data into the feature-space vertices.Section III will evaluate our proposed method and compare its performance with recent state-of-the-art random-forest-based approaches on regression and classification tasks. In Section IV, we will validate the performance of JMPF scheme on single-image super-resolution. Conclusions are given in Section V.  It can be seen from Fig. 1(b) that, for each split-node, the optimal hyperplane with more generalization capability is the one which can achieve maximum purity in clustering samples into two groups. For example, the vertical dotted line is the first optimal hyperplane because it clusters all the red training samples into the right node, while all the blue and green samples are clustered into the left node.",
+        "II. JOINT MAXIMUM PURITY FOREST SCHEME": "",
+        "II.1 Random Forest and Our Insights": "Furthermore, the left margin and the right margin are equal. Although there is no guarantee that optimal hyperplanes can be determined for all the split-nodes in a random forest, approximated optimal hyperplanes can be obtained through a random bagging strategy.The training of a whole random forest is to train all of its decision trees, by choosing the candidate features and thresholds for each of the split-nodes, where the feature dimensions and thresholds are determined using a random bagging strategy. In the prediction stage, each decision tree returns a class probability ( | ) for a given query sample \u2208 \u211d , and the final class label y * is then obtained via averaging, as follows:* = arg max \u2211 ( | ) .(1)The splitting function for a split-node is denoted as ( ; \u0398) , where is a sample and \u0398 is typically parameterized by two values: (i) a feature dimension \u0398 \u00ce{1, . . . , }, and (ii) a threshold \u0398 \u00ce\u211d.The splitting function is defined as follows:( ; \u0398) = 0, if (\u0398 ) < \u0398 , 1, otherwise,(2)where the outcome defines to which child node the sample is routed, and 0 and 1 are the two labels for the left and right child nodes, respectively. Each node chooses the best splitting function \u0398 * out of a randomly sampled set {\u0398 } by optimizing the following function: that the training data in each newly created child node is clustered according to their corresponding class labels, so the purity at each node is increasing along a tree. Each tree is grown until a stopping criterion is reached (e.g. the number of samples in a node is less than a threshold or the tree depth reaches a maximum value) and the class probability distributions are estimated in the leaf-nodes. After fulfilling one of these criteria, a density model ( ) in the leaf-node is estimated by all samples falling into this leaf-node for predicting the target value in the testing stage. A simple way to estimate the probability distribution ( ) is averaging all the samples in the leaf-node, while there are also variant methods, such as fitting a Gaussian distribution or kernel density estimation, ridge regression  #b10  #b23  #b48 , and so on.= | | | | | | ( ) + | | | | | | ( ),(3)( ) is the local score for a set of samples ( is either or ), which normally is calculated using entropy as in Eqn. ( 4), but it can be replaced by variance  #b10  #b23  #b48  or the Gini index  #b16 .( ) = - ( | ) * log ( | ) ,(4)where K is the number of classes, and ( | ) is the probability for class , given the set . For the regression problem, the differential entropy:( ) = \u222b ( | ) * log ( ( | ) )(5)over continuous outputs can be employed, where ( | ) denotes the conditional probability of a target variable given the input sample. Assuming (. , . ) to be a Gaussian distribution and having only a finite set of samples, the differential entropy can be written in closed form as( ) = (1 -log(2\u03c0)) + log(det(\u03a3 )),(6)where det (\u03a3 ) is the determinant of the estimated covariance matrix of the target variables in . For training each decision tree in a random forest, the goal on each split-node is to maximize the information gain (IG) by reducing the entropy after splitting. IG is defined as follows:IG = entropy(parent) -[average entropy(children)].(7)Since each decision tree is a binary tree and each step is to split a current node (a parent set ) into two children nodes ( and sets), IG can be described as follows:arg max \u210b = arg max , (S) - | | | | | | ( ) - | | | | | | ( ),(8)where \u210b is the optimal hyperplane of the split-node, and Eqn. ( 8) is the target function of each splitnode when training each decision tree of a random forest. As we can see from Fig. 1(b), all the optimal hyperplanes from split-nodes are achieved independently and locally.Since each optimal hyperplane is obtained from a subset of feature-dimension candidates with the randomly bagging strategy, there is no guarantee of obtaining a global optimum with respect to all the hyperplanes in all the split-nodes. An intuitive thinking, which was inspired by the data distribution in Fig. 1(b), is to achieve a global optimum by jointly considering all the hyperplanes of all the split-nodes, in the form as follows:max \u210b = arg max \u210b \u220f ,(9)where is the total number of split-nodes that a training sample has routed through a decision tree. As there is no mathematical solution to the problem described in Eqn. ( 9), an alternative way (i.e., an approximate method) to numerically solving Eqn. ( 9) is to jointly maximize the purity of the clustered data groups at each of the split-nodes. This also means that all the data is clustered into the corners (feature-space vertices) of the feature space, as shown in Fig. 2.",
+        "II.2 The Joint Maximum Purity Forest Scheme": "To calculate the threshold for each split-node in each decision tree when training a random forest, we are attempting to determine an orthogonal hyperplane for a three-category classification problem, as shown in Fig. 1. Since the hyperplanes for the split-nodes of a decision tree are required to be orthogonal to each other, seeking an optimal orthogonal hyperplane locally cannot guarantee obtaining maximum purity for the whole tree globally. As shown in Fig. 2, it is easy to determine the vertical hyperplane for maximum purity, but it is hard to obtain the horizontal hyperplane for maximum purity in the original feature space.To achieve an optimal classification performance for the whole decision tree, all the split-nodes should be considered globally or simultaneously.As shown in Fig. 2, a number of split-nodes, which have their hyperplanes orthogonal to each other, are required to separate the samples into different nodes. However, if we can transform the samples (zerocentered feature data) to locate them at the respective corners of the feature space, i.e. {-1,1} for mdimensional features, the feature data can be easily and accurately separated by the orthogonal (either vertical or horizontal) hyperplanes, which contain the space center {0} , as illustrated in Fig. 1(b). The insight behind this is that the data is clustered into the feature-space vertices (the corners in a 2-D feature space means that the data points belong to {-1,1} as the coordinate range is set to [-1, 1]).To tackle the original feature data , which is not ideally clustered in the vertices or corners of the feature space or close to them, as shown in Fig. 1(a), an intuitive idea is to rotate the feature space (this is equivalent to rotating the hyperplanes). This transformation clusters the feature data compactly into feature-space vertices {-1,1} with a total of 2 vertices. Therefore, a possible solution to the problem described in Eqn. ( 10) is to rotate the data features by a rotation matrix \u211b \u00d7 , as shown in Fig. 2, through which the original feature space is transformed into a more compact clustered feature space, where all the feature data is clustered close to the feature-space vertices . This solution can be mathematically defined as follows:min\u2016 -\u211b\u2016 , s.t. \u2208 {-1,1} \u00d7 , \u211b \u211b =(10)where \u2208 \u211d \u00d7 contains n samples, each of which is a -dimensional feature vector arranged in a row, and is zero-centered, i.e. all the feature vectors are demeaned by subtracting the mean vector from each feature vector.This idea of clustering data into the feature-space vertices can also be found in locality-sensitive hashing (LSH)  #b3  and image representation  #b9 . In  #b3 , a simple and efficient alternating minimization scheme was proposed to find a rotation matrix for zero-centered feature data, which minimizes the quantization errors by mapping the feature data to the vertices of a zero-centered binary hypercube. The method is termed as iterative quantization (ITQ), which can work on multi-class spectral clustering and orthogonal Procrustes problem. Yu et al.  #b56  proposed using a circulant matrix to speed up the computation, because the circulant structure enables the use of Fast Fourier Transformation (FFT). As the computation of the rotation matrix in the training and testing stage is ignorable, we choose a similar scheme to ITQ  #b3  to determine the rotation matrix (we throw away the final quantization matrix described in Eqn.  #b12 , which is used for hashing in  #b3 ), through which the original feature space can be transformed into a new compact clustered feature space: = \u211b, where the data is located at the respective vertices in the new feature space. After this transformation, a random forest with globally joint maximum purity of all the clustered data can be trained, through all the hyperplanes in the split-nodes of each decision tree. Based on this idea, our proposed scheme is called joint maximum purity forest (JMPF).",
+        "II.3 Learning the Rotation Matrix via Clustering Data into Feature-Space Vertices": "Assuming that \u2208 \u211d is one point in the -dimensional feature space (zero-centered data), the respective vertices in the zero-centered binary hypercube space can be denoted as( ) \u2208 {-1,1} ,and there is a total of 2 vertices in the -dimensional feature space. It is easy to see from Fig. 2 that ( ) is the vertex in the feature space, such that it is the closest to in terms of Euclidean distance.We denote a binary code matrix \u2208 {-1,1} \u00d7 , whose rows = ( ) \u2208 . For a matrix or a vector, (. ) applies the sign operation to it element-wise.Our objective is to minimize the error between the feature and the feature-space vertices , i.e., min\u2016 -\u2016 . As we can see in Fig. 2, when the feature space is rotated, the feature points will be more concentrated around their nearest vertices, which means that the quantization error will become smaller.Therefore, the minimization problem of min\u2016 -\u2016 is equivalent to minimizing the error of the zerocentered data with respect to the Frobenius norm, as in the following formulation:( , \u211b) = \u2016 -\u211b\u2016 , s.t. \u2208 {-1,1} \u00d7 , \u211b \u211b = . (11)Therefore, the task of this minimization problem is to determine an optimal rotation matrix \u211b to satisfy Eqn.  #b13 . Since there are two variables in Eqn.  #b13 , the expectation-maximization (E-M) algorithm is applied to cluster data into the feature-space vertices, such that a local minimum of the binary code matrix and the rotation matrix \u211b are computed simultaneously. The idea of rotating feature data to minimize the error between the transformed data and the featurespace vertices can also be found in  #b9 , which showed that the rotation matrix \u211b can be initialized randomly, and then iterated to converge to the required rotation matrix. Two iteration steps will be performed: in every iteration, each feature vector in the feature space is firstly quantized to the nearest vertex of the binary hypercube, i.e. to a vertex in , and then the rotation matrix \u211b is updated to minimize the quantization error by fixing . These two alternating steps are described in detail below:(1) Fix \u211b and update :( , \u211b) = \u2016 -\u211b\u2016 = \u2016 \u2016 + \u2016 \u2016 -2 ( \u211b ) = \u00d7 + \u2016 \u2016 -2 ( \u211b )(12)Because the zero-centered data matrix is fixed, minimizing Eqn. ( 12) is equivalent to maximizing the following term:( \u211b ) = \u2211 \u2211(13)where is an element of = \u211b. To maximize Eqn.  #b15  with respect to , = 1 whenever \u2265 0 and = -1 otherwise, i.e. = ( \u211b) \u2208 {-1,1} .(2) Fix and update \u211b:The problem of fixing to obtain a rotation matrix based on the objective function Eqn.  #b13  is relative to the classic orthogonal Procrustes problem  #b8  #b36  #b57 , in which a rotation matrix is determined to align one point set with another.In our algorithm, these two point sets are the zero-centered data set and the quantized matrix .Therefore, a closed-form solution for \u211b is available, by applying SVD on the \u00d7 matrix to obtain \u03a9 (\u03a9 is a diagonal matrix), then set \u211b = to update \u211b.",
+        "II.4 Proof of the Orthogonal Procrustes Problem:": "For completeness, we prove the orthogonal Procrustes problem, for which the solution can be found in  #b8  #b36  #b57 :Problem definition: min \u211b \u2016 -\u211b\u2016 subject to: \u211b \u211b = . (14)Proof:\u2016 -\u211b\u2016 (15) = ( -\u211b)( -\u211b ) = ( ) -2 ( \u211b ) + (\u211b \u211b )Thus, min \u211b \u2016 -\u211b \u2016 equals to maximizing:( \u211b ) ([ , \u03a9, ] = ( )) (16) = ( \u03a9 \u211b ) = (\u03a9 \u211b ) ( = \u211b ) = (\u03a9 ) = \u2211 Z , \u03a9 , \u2264 \u2211 \u03a9 ,The last inequality holds because Z is also an orthonormal matrix, and \u2211 , = 1, , \u2264 1 . The objective function can be maximized if Z = , i.e.",
+        "\u211b = \u220e": "",
+        "III. JOINT MAXIMUM PURITY FOREST FOR REGRESSION AND CLASSIFICATION": "",
+        "III.1 The Workflow of Joint Maximum Purity Forest": "Random forest is a machine-learning method using an ensemble of randomized decision trees for classification. Each tree in a random forest consists of split-nodes and leaf-nodes, which can be trained recursively. A random forest is constructed recursively, where each node attempts to find a splitting function or a hyperplane to separate its samples into two leaf-nodes, such that the information gain is optimized. A tree stops growing if the maximum depth is reached or if a node has achieved maximum purity, i.e. it contains only samples from one class. Then, each leaf-node collects the statistics of the samples falling in it. In the evaluation phase, the probability of a query sample x belonging to class k is given by averaging all the trees, or by other methods. Compared to conventional random forests, our JMPF scheme has one more step, as shown in the left of Fig. 3, the rotation matrix. The JMPF scheme transforms the original feature space by rotating it into a more compact, pre-clustered feature space, using a trained rotation matrix learned through clustering feature vectors iteratively into the vertices of a new feature space. The whole workflow of our proposed algorithm, the JMPF scheme, is outlined in Fig. 3. The source code of our algorithm is available to download at: https://github.com/HarleyHK/JMPF. ",
+        "III.2 The inherent zero-center hyperplanes as thresholds for split-nodes": "In training a random forest, the two main operations for training (splitting) each split-node are to choose splitting feature(s), and to determine the threshold, using a random bagging strategy, which can avoid over-fitting in training classifiers. In the rotated compact pre-clustered feature space, the inherent zerocenter hyperplanes are inherently the optimal thresholds (to meet the max-purity criterion on two clustered data groups) after training the rotation matrix. Therefore, these inherent zero-center hyperplanes can directly be set as the thresholds to achieve optimal classification performance on training a random forest. Compared to conventional random forests, our proposed JMPF only needs to choose which feature(s) to split data at split-nodes. This can speed up the training process for a random forest.Experimental results in the next subsection will validate this performance.",
+        "III.3: Experimental results on JMPF regression and classification": "To evaluate the performances of the proposed JMPF, we test it with 15 standard machine-learning tasks, We firstly evaluate the proposed approach on two real applications, one for classification (Table -2) and one for regression (Table-3). Our proposed JMPF is compared with the original random forest before refinement (denoted as RF), and two state-of-the-art variants: alternating decision forests (ADF)  #b25  and alternating regression forests (ARF)  #b26 , for classification and regression, respectively. Furthermore, we compare with JMPF+ADF/ARF, for demonstrating that our algorithm can be combined with other methods. We follow the experiment settings in  #b25  #b26 . We set the maximum tree depth D at 15, and the minimum sample number in a splitting node is set at 5. The experiments were repeated five times, and the average error and standard deviation were measured. The results are presented in Table-2 and Table -3, for the classification and regression tasks, respectively. In terms of accuracy, our proposed JMPF significantly outperforms the standard random forest on all classification and regression tasks. Compared to RF, JMPF achieves an average of 23.57% improvement on the classification tasks, and an average of 23.13% improvement on the regression tasks. Our method also consistently outperforms the state-of-theart variants: ADF/ARF. Moreover, the performance of our JMPF algorithm can be further improved by integrating with ADF and ARF, denoted as JMPF + ADF/ARF. As shown in Table-3: Comparison of regression performances on eight datasets, which can be found at http://www.dcc.fc.up.pt/~ltorgo/Regression/DataSets.html. RF: standard random forest, ARF: alternating regression forests  #b26 , JMPF: proposed algorithm, JMPF+ARF: our proposed algorithm embedded into ARF. is the error scale. The number of randomly chosen hyperplanes #\u210b is 3. The percentages in brackets for JMPF and JMPF+ARF are the reduction rates in RMSE compared with the RF algorithm.",
+        "III.4: Discussions on Experimental Results": "The computational complexity of JMPF is similar to that of the standard random forest. As illustrated in the workflow of JMPF in Fig. 3, only one additional step, which computes the rotation matrix, is required, when compared to the standard random forest. For a small dataset (e.g., feature dimension size less than 500 and data size less than 10,000), the computation required to compute the rotation matrix for clustering data into the feature-space vertices is acceptable in the training stage (about 10 seconds per level, using MatLab) and negligible in the testing stage. When the dimension size becomes larger, PCA dimensionality reduction can be employed. If the size of the dataset increases, such that using PCA still involves heavy computation, bagging can be used to achieve comparable accuracy and the whole extra computation will be insignificant. To study the stability of JMPF, we choose the letterorig dataset for classification and the kin8nm dataset for regression, and the respective results are shown in Fig. 4(a) and Fig. 4(b), respectively. In the experiments, the number of trees, i.e., the number of weak classifiers in the random forest, varies from 10 to 200, and we have three observations. Firstly, as shown in Fig. 4, when the number of trees increases, the performance of all the algorithms improves. For classification, as shown in Fig. 4(a), when the number of trees is larger than 100, the errors are converged to become steady. On the contrary, for the regression task as shown in Fig. 4(b), the errors are almost stable, ranged from 10 to 200. Secondly, the results show that JMPF consistently outperforms ADF and RF, irrespective of the number of trees used.Finally, Fig. 4 clearly shows that JMPF can integrate with ADF or ARF to further improve its performance.",
+        "IV. IMAGE SUPER-RESOLUTION BASED ON JOINT MAXIMUM PURITY FOREST": "",
+        "IV.1 Overview of Image Super-resolution and Related Works": "Image super-resolution (SR), which recovers a high-resolution (HR) image from one single image or a number of low-resolution (LR) images, has been a hot research topic in the field of image processing for decades. SR is a well-known ill-posed problem, which needs artistic skills from mathematics and machine learning. Prior methods on SR are mainly based on edge preserving, such as New Edge-directed Interpolation (NEDI)  #b51 , Soft-decision Adaptive Interpolation (SAI)  #b52 , Directional Filtering and Data-Fusion (DFDF)  #b53 , Modified Edge-Directed Interpolation (MEDI)  #b54 , etc.The neighbor-embedding (NE) methods  #b31  #b32  set the milestone on the patch-learning-based superresolution approach. In this approach, each LR patch is approximated as a linear regression of its nearest LR neighbors in a collected dataset, while its HR counterpart can be reconstructed with the same coefficients of corresponding HR neighbors, based on the non-linear manifold structure. Although the NE method is simple and practical, it requires a huge dataset (millions of patches) to achieve good reconstruction quality and it is computationally intensive, because k-NN is used in searching neighboring patches in the huge dataset. Instead of using the patches extracted directly from natural images, Yang et al.  #b30  employed sparse coding  #b14  #b30  to represent patch images, of large size, efficiently, which opens the era for sparse coding in the image inverse problems.The sparse-coding super-resolution (ScSR) approach is a framework that the HR counterpart of an LR patch can be reconstructed aided by two learned dictionaries, with the sparse constraint on the coefficients via the following formulations: The compact LR and HR dictionaries can be jointly learned with a sparsity constraint, using the following sparse representation:D , D = argmin , \u2016 -D \u2016 + \u2016 -D \u2016 + \u2016 \u2016 , (18)where and are the LR patch and the corresponding HR patch, respectively; and D and D are the LR and HR dictionaries learned from the LR and the corresponding HR patch samples, respectively.The value of in \u2016 \u2016 is the sparsity factor of the coefficients . \u2016 \u2016 is -norm, which means the non-zero count of the coefficients in . For each LR patch of an input LR image , the problem of finding the sparse coefficients can be formulated as follows:min\u2016 \u2016 s.t. \u2016D -\u2016 \u2264(19)ormin\u2016 \u2016 s.t. \u2016 D -\u2016 \u2264 ,(20)where is a linear or non-linear feature-extraction operator on the LR patches, which makes the LR patches more discriminative from each other. Typically, can be chosen as a high-pass filter, and a simple high-pass filter can be obtained by subtracting the input from the output of a low-pass filter, as in an early work  #b46 . In  #b4  #b6  #b7  #b30 , first and second-order gradient operators are employed on up-sampled versions of low-resolution images, then four patches are extracted from these gradient maps at each location, and concatenate them to become feature vectors. The four 1-D filters used to extract the derivatives are:= [-1, 0, 1], = = [1, 0, -2, 0, 1], =(21)The ideal regularization term for the sparse constraint on the coefficients \u03b1 is the -norm (nonconvex), but, based on greedy matching, it leads to an NP-hard problem. Alternatively, Yang et al.  #b30  relaxed it to -norm, as shown in the following formulation:min\u2016 \u2016 s.t. \u2016 D -y\u2016 \u2264 .(22)The Lagrange multiplier provides an equivalent formulation as follows:min \u2016 D -y\u2016 + \u2016 \u2016 ,(23)where the parameter balances the sparsity of the solution and the fidelity of the approximation to .However, the effectiveness of sparsity was challenged in  #b7  #b11 , as to whether real sparsity can help image classification and restoration, or locality property can achieve the same effect. Timofte et al.  #b4  proposed an anchored neighborhood regression (ANR) framework, which relaxes the sparse decomposition optimization ( -norm) of  #b6  #b30  to a ridge regression ( -norm) problem.An important step in the ANR model is the relaxation of the -norm in Eqn.  #b25  to the -norm least-squares minimization constraint, as follows:min \u2016 D -y\u2016 + \u2016 \u2016 ,(24)where D and D are the LR and HR patch-based dictionaries, respectively. This -norm constraint problem can be solved with a closed-form solution from the ridge regression  #b18  theory. Based on the Tikhonov regularization/ridge-regression theory, the closed-form solution of the coefficients is given:= ( + ) . (25)We assume that the HR patches share the same coefficient \u03b1 from their counterpart LR patches, i.e., = D . From Eqn. (25), we have:= D ( + ) .(26)Therefore, the HR patches can be reconstructed by: = y, where can be considered a projection matrix, which can be calculated offline, as follows:= D ( + ) . (27)Ridge regression allows the coefficients to be calculated by multiplying the constant projection matrix with the new extracted feature , as described in Eqn.  #b28  and Eqn.  #b29 . More importantly, the projection matrix can be pre-computed, and this offline learning enables significant speed-up at the prediction stage.Timofte et al.  #b7  further extended the ANR approach to the A+ approach, which learns regressors from all the training samples, rather than from a small quantity of neighbors of the anchor atoms as ANR does. Later, there are numerous variants and extended approaches, based on ANR and A+  #b11  #b20  #b24  #b35  #b37  #b38  #b47  #b49 . By investigating the ANR model, Li et al.  #b11  found that the weights of the supporting atoms can be of different values to represent their similarities to the anchor atom. Based on this idea, the normal collaborative representation (CR) model in ANR is generalized to a weighted model, named as weighted collaborative representation (WCR) model, as follows:min \u2016 D -y\u2016 + \u2016 \u2016 ,(28)where is a diagonal matrix. The weights on the diagonal atoms are proportional to their similarities to the anchor atom. Similarly, the new closed-form solution for the coefficients can be calculated offline, as follows:* = ( + ) y,(29)and the new projection matrix is given as follows:* = D ( + ) .(30)The WCR model can further improve the ANR or A+ model in terms of image quality, but it is still a time-consuming problem to find the most similar anchor atoms in a dictionary, and this always hinders its applications where fast speed is greatly required.Schulter et al.  #b10  adopted the random forest as a classifier, and the regressors are learned from the patches in the leaf-nodes. With the same number of regressors, these random-forest-based methods  #b10  #b43  #b44  #b45  can perform on a par with the A+ method in terms of accuracy. However, they achieve an increase in speed, because the sublinear search property of random forest can remarkably reduce the regressors' search complexity.Recently, deep learning has become a hot research topic, which has been successfully applied to image super-resolution  #b39  #b40  #b41  #b42  and achieved promising performance, particularly in terms of image quality. In  #b39  #b40 , a convolutional neural-network-based image super-resolution (SRCNN) was proposed, in which an end-to-end mapping between LR and HR images is learned through a deep convolutional neural network (CNN).  #b41  presented a super-resolution approach with very deep networks with extremely high learning rates, and the deep network convergence rate is sped up by residual learning. Meanwhile,  #b42  presented a generative adversarial network (GAN)-based deep residual network model for image super-resolution (SRGAN), in which content loss and adversarial loss are combined as an image perceptual loss function. The proposed deep residual network in  #b42  can super-resolve photo-realistic textures from 4-times down-sampled images, and an extensive meanopinion-score (MOS) criterion is proposed to test the perceptual quality gained by using the SRGAN approach. Although deep-learning-based approaches can achieve superior performance compared to other SR methods, their heavy computation is always a big obstacle to their extensive applications with real-time requirements, where the graphics processing unit (GPU) may not be available, such as smart mobile phones.  Regressors are then trained for each of the clusters, which generate mappings from an input LR patch's feature to its corresponding HR patch (see Fig. 5). In the testing stage, an LR query image follows the same procedures to cut into patches and to extract features, which are then assigned to their corresponding clusters using the k-NN algorithm  #b10  #b21  or random forest  #b4  #b7  #b9 . The respective HR patches are constructed through regressors learned for the clusters (see Fig. 6). This kind of clustering-regression algorithms, based on random forest  #b4  #b7  #b9 , has achieved state-of-the-art performance in single image super-resolution, both in terms of accuracy and efficiency, because of the use of ensemble learning and sublinear search. As JMPF achieves promising results on both classification and regression tasks, it can be employed for image super-resolution for better performances.",
+        "IV.2 JMPF-based Image Super-Resolution": "An overview of the training and testing processes of the proposed JMPF-based image SR method is illustrated in Fig. 5 and Fig. 6, respectively. In our method, the first and second-order gradients are extracted as features from each patch, followed by PCA for dimensionality reduction. These features are then rotated into a more compact, pre-clustered feature space. Finally, all the thresholds are directly set to the inherent zero-center hyperplanes when training the random forest, and similar to other algorithms, the regressors at the leaf-nodes are computed using the rigid regression algorithms. This approach is named as JMPF-based image super-resolution method.",
+        "IV.3 The Working Processes of JMPF-based Image Super-resolution": "JMPF has been shown to achieve a better performance for clustering and classification than other random forest methods. Since image super-resolution can be considered as a clustering/classification problem, using JMPF is likely to result in better performance. This is mainly due to the features transformed to the vertices in the new feature space, so the features become more discriminative. The image super-resolution training and testing processes of our proposed JMPF-based method are described in Algorithm 1 and Algorithm 2, respectively. ",
+        "IV.4 Experimental Results on JMPF-based Image Super-Resolution": "In this section, we evaluate our image SR algorithm on some standard super-resolution datasets, including Set 5, Set14, and B100  #b22 , and compare it with a number of classical or state-of-the-art methods. These include bicubic interpolation, sparse representation SR (Zeyde)  #b6 , anchored neighborhood regression (ANR)  #b4 , A+  #b7 , standard random forest (RF)  #b10 , and alternating regression forests (ARF)  #b10 . We set the same parameters for all the random-forest-based algorithms: the of trees in the random forest is 10, and the maximum depth of each tree is 15. Experiment results are tabulated in Tables-4 and Tables-5, where JMPF is our proposed JMPF-based image super-resolution method, and JMPF \uf02d is a trimmed version, such that the thresholds for the splitnodes are not the inherent zero-center hyperplanes, but set by the standard random-forest bagging strategy.We use the same training images (91 images) for all the algorithms as previous works  #b4  #b6  #b7  #b10  do.However, for JMPF + , 100 more images from the General-100 dataset  #b24  are used, so as to check whether or not more training samples can further improve our proposed algorithm. and ARF. As those random-forest-based algorithms may not be stable on small datasets, when evaluation works on extensive datasets, such as B100, our proposed algorithm JMPF can stably outperform A+ and ARF for all magnification factors (\u00d72, \u00d73, \u00d74). Moreover, the objective quality metrics on PSNR also show that the JMPF algorithm can achieve a better performance when more samples are used for training, as shown from JMPF + in Table-4. Table-5 provides more details of the performances in datasets Set5.To compare the visual quality of our proposed JMPF-based SR algorithm to other methods, Fig. 7,shows the reconstructed HR images using different methods. Some regions in the reconstructed images are also enlarged, so as to show the details in the images. In general, our proposed method can produce better quality images, particularly in areas with rich texture, which verifies the feature discrimination of the proposed JMPF scheme. V. CONCLUSIONSIn this paper, we have proposed a novel random-forest scheme, namely the Joint Maximum Purity Forest (JMPF) scheme, which rotates the feature space into a compact, clustered feature space, by jointly maximizing the purity of all the feature-space vertices. In the new pre-clustered feature space, orthogonal hyperplanes can be effectively used in the split-nodes of a decision tree, which can improve the performance of the trained random forest. Compared to the standard random forests and the recent state-of-the-art variants, such as alternating decision forests (ADF)  #b25  and alternating regression forests (ARF)  #b26 , our proposed random-forest method inherits the merits of random forests (fast training and testing, multi-class capability, etc.), and also yields promising results on both classification and regression tasks. Experiments have shown that our method achieves an average improvement of about 20% for classification and regression on publicly benchmarked datasets. Furthermore, our proposed scheme can integrate with other methods, such as ADF and ARF, to further improve the performance.We have also applied JMPF to single-image super-resolution. We tackle image super-resolution as a clustering-regression problem, and focus on the clustering stage, which happens at the split-nodes of each decision tree. By employing the JMPF strategy, we rotate the feature space into a pre-clustered feature space, which can cluster samples into different sub-spaces more compactly in an unsupervised problem.The compact pre-clustered feature space can provide the optimal thresholds for split-nodes in decision trees, which are the zero-centered orthogonal hyperplanes. Our experiment results on intensive image benchmark datasets, such as B100, show that the proposed JMPF-based image super-resolution approach can consistently outperform recent state-of-the-art algorithms, in terms of PSNR and visual quality. Our method also inherits the advantages of random forests, which have fast speed on both the training and inference processes."
+    },
+    {},
+    {
+        "b0": [
+            "",
+            "",
+            "Table-4: Results of the proposed method, compared with state-of-the-art methods on 3 datasets, in terms of PSNR (dB)",
+            ""
+        ],
+        "b1": [
+            "",
+            "",
+            "Table-5: Detailed results of the proposed method, compared with state-of-the-art methods on the dataset Set5, in terms of PSNR (dB) using three different magnification factors",
+            ""
+        ],
+        "b2": [
+            "",
+            "",
+            "Table-4 tabulates the performances, in terms of the average peak signal to noise ratio (PSNR) scores, of our proposed algorithm and other image SR methods, on the 3 datasets with different magnification factors. For the Set5 and Set14 datasets, with different magnification factors, our proposed JMPF-based algorithm can achieve a comparable performance to other recent state-of-the-art methods",
+            ""
+        ],
+        "b3": [
+            "Iterative quantization: A procrustean approach to learning binary codes for large-scale image retrieval",
+            "",
+            "",
+            "",
+            "Gong",
+            "Lazebnik",
+            "Gordo",
+            "Perronnin"
+        ],
+        "b4": [
+            "Anchored neighborhood regression for fast example-based super-resolution",
+            "",
+            "",
+            "",
+            "Timofte",
+            "Smet",
+            "Van Gool"
+        ],
+        "b5": [
+            "Shape quantization and recognition with randomized trees",
+            "",
+            "",
+            "",
+            "Amit",
+            "Geman"
+        ],
+        "b6": [
+            "On single image scale-up using sparse-representations",
+            "",
+            "",
+            "",
+            "Zeyde",
+            "Elad",
+            "Protter"
+        ],
+        "b7": [
+            "A+: Adjusted anchored neighborhood regression for fast super-resolution",
+            "",
+            "",
+            "",
+            "Timofte",
+            "Smet",
+            "Van Gool"
+        ],
+        "b8": [
+            "A generalized solution of the orthogonal Procrustes problem",
+            "",
+            "",
+            "",
+            "Sch\u00f6nemann"
+        ],
+        "b9": [
+            "Aggregating local descriptors into a compact image representation",
+            "",
+            "",
+            "",
+            "J\u00e9gou",
+            "Douze",
+            "Schmid",
+            "P\u00e9rez"
+        ],
+        "b10": [
+            "Fast and accurate image upscaling with super-resolution forests",
+            "",
+            "",
+            "",
+            "Schulter",
+            "Leistner",
+            "Bischof"
+        ],
+        "b11": [
+            "Fast super-resolution based on weighted collaborative representation",
+            "",
+            "",
+            "",
+            "Li",
+            "Lam"
+        ],
+        "b12": [
+            "A tutorial on support vector machines for pattern recognition",
+            "",
+            "",
+            "",
+            "Burges"
+        ],
+        "b13": [
+            "",
+            "",
+            "An introduction to support vector machines",
+            ""
+        ],
+        "b14": [
+            "Hybrid sparse-representation-based approach to image super-resolution reconstruction",
+            "",
+            "",
+            "",
+            "Zhang",
+            "He"
+        ],
+        "b15": [
+            "Experiments with a new boosting algorithm",
+            "",
+            "",
+            "",
+            "Freund",
+            "Schapire"
+        ],
+        "b16": [
+            "Random forests",
+            "",
+            "",
+            "",
+            "Breiman"
+        ],
+        "b17": [
+            "One millisecond face alignment with an ensemble of regression trees",
+            "",
+            "",
+            "",
+            "Kazemi",
+            "Sullivan"
+        ],
+        "b18": [
+            "",
+            "",
+            "Solutions of ill-posed problems",
+            ""
+        ],
+        "b19": [
+            "Fast discriminative visual codebooks using randomized clustering forests",
+            "",
+            "",
+            "",
+            "Moosmann",
+            "Triggs",
+            "Jurie"
+        ],
+        "b20": [
+            "Seven ways to improve example-based single image super resolution",
+            "",
+            "",
+            "",
+            "Timofte",
+            "Rothe",
+            "Van Gool"
+        ],
+        "b21": [
+            "Naive bayes super-resolution forest",
+            "",
+            "",
+            "",
+            "Salvador",
+            "P\u00e9rez-Pellitero"
+        ],
+        "b22": [
+            "A database of human segmented natural images and its application to evaluating segmentation algorithms and measuring ecological statistics",
+            "",
+            "",
+            "",
+            "Martin",
+            "Fowlkes",
+            "Tal",
+            "Malik"
+        ],
+        "b23": [
+            "Face alignment at 3000 fps via regressing local binary features",
+            "",
+            "",
+            "",
+            "Ren",
+            "Cao",
+            "Wei",
+            "Sun"
+        ],
+        "b24": [
+            "Single Image Super-Resolution via Locally Regularized Anchored Neighborhood Regression and Nonlocal Means",
+            "",
+            "",
+            "",
+            "Jiang",
+            "Ma",
+            "Chen",
+            "Lu",
+            "Wang",
+            "Ma"
+        ],
+        "b25": [
+            "Alternating decision forests",
+            "",
+            "",
+            "",
+            "Schulter",
+            "Wohlhart",
+            "Leistner",
+            "Saffari",
+            "Roth",
+            "Bischof"
+        ],
+        "b26": [
+            "Alternating regression forests for object detection and pose estimation",
+            "",
+            "",
+            "",
+            "Schulter",
+            "Leistner",
+            "Wohlhart",
+            "Roth",
+            "Bischof"
+        ],
+        "b27": [
+            "Experiments with a new boosting algorithm",
+            "",
+            "",
+            "",
+            "Freund",
+            "Schapire"
+        ],
+        "b28": [
+            "Greedy function approximation: a gradient boosting machine",
+            "",
+            "",
+            "",
+            "Friedman"
+        ],
+        "b29": [
+            "Class-specific hough forests for object detection",
+            "",
+            "",
+            "",
+            "Gall",
+            "Lempitsky"
+        ],
+        "b30": [
+            "Image super-resolution via sparse representation",
+            "",
+            "",
+            "",
+            "Yang",
+            "Wright",
+            "Huang",
+            "Ma"
+        ],
+        "b31": [
+            "Super-resolution through neighbor embedding",
+            "",
+            "",
+            "",
+            "Chang",
+            "Yeung",
+            "Xiong"
+        ],
+        "b32": [
+            "",
+            "",
+            "Low-complexity single-image super-resolution based on nonnegative neighbor embedding",
+            ""
+        ],
+        "b33": [
+            "Fast direct super-resolution by simple functions",
+            "",
+            "",
+            "",
+            "Yang",
+            "Yang"
+        ],
+        "b34": [
+            "Learning multiple linear mappings for efficient single image superresolution",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Tao",
+            "Gao",
+            "Li",
+            "Xiong"
+        ],
+        "b35": [
+            "Adaptive local nonparametric regression for fast single image super-resolution",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Zhang",
+            "Zhang",
+            "Wang",
+            "Wang",
+            "Dai"
+        ],
+        "b36": [
+            "Optimized cartesian k-means",
+            "",
+            "",
+            "",
+            "Wang",
+            "Wang",
+            "Song",
+            "Xu",
+            "Shen",
+            "Li"
+        ],
+        "b37": [
+            "Image super-resolution based on dictionary learning and anchored neighborhood regression with mutual incoherence",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Gu",
+            "Zhang",
+            "Zhang",
+            "Dai"
+        ],
+        "b38": [
+            "CCR: Clustering and Collaborative Representation for Fast Single Image Super-Resolution",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Zhang",
+            "Zhang",
+            "Dai"
+        ],
+        "b39": [
+            "Learning a deep convolutional network for image super-resolution",
+            "",
+            "",
+            "",
+            "Dong",
+            "Loy",
+            "He",
+            "Tang"
+        ],
+        "b40": [
+            "Accelerating the super-resolution convolutional neural network",
+            "",
+            "",
+            "",
+            "Dong",
+            "Loy",
+            "Tang"
+        ],
+        "b41": [
+            "Accurate image super-resolution using very deep convolutional networks",
+            "",
+            "",
+            "",
+            "Kim",
+            "Lee",
+            "Lee"
+        ],
+        "b42": [
+            "",
+            "",
+            "Photo-realistic single image super-resolution using a generative adversarial network",
+            ""
+        ],
+        "b43": [
+            "Learning Hierarchical Decision Trees for Single Image Super-Resolution",
+            "",
+            "",
+            "",
+            "Huang",
+            "Siu"
+        ],
+        "b44": [
+            "Fast image interpolation via random forests",
+            "",
+            "",
+            "",
+            "Huang",
+            "Siu",
+            "Liu"
+        ],
+        "b45": [
+            "Naive bayes super-resolution forest",
+            "",
+            "",
+            "",
+            "Salvador",
+            "P\u00e9rez-Pellitero"
+        ],
+        "b46": [
+            "Example-based super-resolution",
+            "",
+            "",
+            "",
+            "Freeman",
+            "Jones",
+            "Pasztor"
+        ],
+        "b47": [
+            "Jointly Optimized Regressors for Image Super-resolution",
+            "",
+            "",
+            "",
+            "Dai",
+            "Timofte",
+            "Van Gool"
+        ],
+        "b48": [
+            "",
+            "",
+            "Cascaded Face Alignment via Intimacy Definition Feature",
+            ""
+        ],
+        "b49": [
+            "",
+            "",
+            "Regressor basis learning for anchored super-resolution",
+            ""
+        ],
+        "b50": [
+            "Support-vector networks",
+            "",
+            "",
+            "",
+            "Cortes",
+            "Vapnik"
+        ],
+        "b51": [
+            "New edge-directed interpolation",
+            "",
+            "",
+            "",
+            "Li",
+            "Orchard"
+        ],
+        "b52": [
+            "Image interpolation by adaptive 2-D autoregressive modeling and soft-decision estimation",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Wu"
+        ],
+        "b53": [
+            "An edge-guided image interpolation algorithm via directional filtering and data fusion",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Wu"
+        ],
+        "b54": [
+            "Modified edge-directed interpolation for images",
+            "",
+            "",
+            "",
+            "Tam",
+            "Kok",
+            "Siu"
+        ],
+        "b55": [
+            "LIBLINEAR: A library for large linear classification",
+            "",
+            "",
+            "",
+            "Fan",
+            "Chang",
+            "Hsieh",
+            "Wang",
+            "Lin"
+        ],
+        "b56": [
+            "Circulant binary embedding",
+            "",
+            "",
+            "",
+            "Yu",
+            "Kumar",
+            "Gong",
+            "Chang"
+        ],
+        "b57": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "b58": [
+            "Active Appearance Model Algorithm with K-Nearest Neighbor Classifier for Face Pose Estimation",
+            "",
+            "",
+            "",
+            "Wu",
+            "Kao",
+            "Jen",
+            "Chiang",
+            "Lai"
+        ]
+    },
+    {
+        "tab_0": "Table - 1-7 for classification and 8 for regression. The datasets used in the experiments are summarized in Table-1. We use standard performance evaluation metrics: error rate for classification and root mean squared error (RMSE) for regression, unless otherwise specified. : The properties of the standard machine-learning datasets used for classification and regression.The top 7 are used for classification (c) and the bottom 8 for regression (r). (3/4 means 75% training and 25% testing)Dataset#Train#Test#Feature#Classes or TargetDim(c)char74k6670774006462(c)gas sensor1112827821286(c)isolet6238155861726(c)letterorig1600040001626(c)pendigits749434981610(c)sensorless46800117004811(c)usps7291200725610(r)delta ailerons7129*3/47129/451(r)delta elevators5720380761(r)elevators87527847181(r)kin8nm8192*3/48192/481(r)price159*3/4159/4151(r)pyrim74*3/474/4271(r)stock950*3/4950/4101(r)WiscoinBreastCancer194*3/4194/4321",
+        "tab_1": "Table-2 and Table-3, JMPF+ADF achieves an average 27.86% improvement on the classification tasks, while JMPF+ARF achieves an average 26.88% improvement on the regression tasks. These results on diverse tasks clearly demonstrate the effectiveness of our proposed approach.dataset#\u210bRFADFJMPFJMPF+ADF12.261\u00b10.0212.173\u00b10.0142.147\u00b10.021 (05%)2.114\u00b10.016 (07%)char74k32.449\u00b10.0292.236\u00b10.0152.206\u00b10.027 (10%)2.143\u00b10.024 (12%)10 -152.452\u00b10.0162.232\u00b10.0212.209\u00b10.019 (10%)2.138\u00b10.017 (13%)15.656\u00b10.5345.238\u00b10.5394.211\u00b10.252 (26%)3.958\u00b10.508 (30%)gas sensor36.264\u00b10.0425.952\u00b10.3234.622\u00b10.299 (26%)4.416\u00b10.370 (30%)10 -356.470\u00b10.3325.751\u00b10.7924.775\u00b10.459 (26%)4.159\u00b10.324 (36%)16.932\u00b10.2816.208\u00b10.3386.153\u00b10.381 (11%)5.868\u00b10.239 (15%)isolet36.501\u00b10.1996.308\u00b10.3306.272\u00b10.332 (04%)5.932\u00b10.177 (09%)10 -257.005\u00b10.3626.528\u00b10.2616.381\u00b10.254 (09%)5.969\u00b10.205 (15%)16.371\u00b10.0994.418\u00b10.0824.114\u00b10.087 (35%)3.535\u00b10.111 (45%)letterorig36.889\u00b10.1995.196\u00b10.1274.864\u00b10.267 (29%)4.146\u00b10.192 (40%)10 -256.739\u00b10.2635.082\u00b10.0974.625\u00b10.257 (31%)4.032\u00b10.131 (40%)13.528\u00b10.1243.234\u00b10.1062.912\u00b10.069 (17%)2.850\u00b10.136 (19%)pendigits33.418\u00b10.1713.377\u00b10.1642.969\u00b10.120 (13%)2.915\u00b10.100 (15%)10 -253.499\u00b10.1843.283\u00b10.1843.054\u00b10.081 (13%)3.002\u00b10.086 (14%)11.824\u00b10.0180.972\u00b10.0280.324\u00b10.005 (82%)0.253\u00b10.009 (86%)sensorless31.026\u00b10.1580.391\u00b10.0070.293\u00b10.004 (71%)0.281\u00b10.003 (73%)10 -150.903\u00b10.1500.512\u00b10.2230.268\u00b10.054 (70%)0.244\u00b10.029 (73%)16.128\u00b10.1816.149\u00b10.2086.085\u00b10.216 (01%)5.964\u00b10.206 (03%)usps36.527\u00b10.2036.520\u00b10.1886.285\u00b10.101 (04%)6.206\u00b10.245 (05%)10 -256.548\u00b10.2256.441\u00b10.1956.391\u00b10.063 (02%)6.213\u00b10.112 (05%)datasetRFARFJMPFJMPF+ARFdelta ailerons2.970\u00b10.0012.967\u00b10.0061.952\u00b10.003 (34%)1.946\u00b10.002 (34%)10 -4delta elevators2.360\u00b10.0022.338\u00b10.0081.635\u00b10.001 (30%)1.610\u00b10.006 (32%)10 -3elevators0.638\u00b10.0010.635\u00b10.0010.619\u00b10.001 (03%)0.606\u00b10.001 (05%)10 -2kin8nm2.622\u00b10.0022.545\u00b10.0031.962\u00b10.003 (25%)1.667\u00b10.005 (36%)10 -1price7.281\u00b10.7556.663\u00b10.7945.460\u00b10.627 (25%)5.234\u00b10.666 (28%)10 1pyrim1.440\u00b10.0081.042\u00b10.3471.031\u00b10.017 (28%)0.631\u00b10.018 (56%)10 -1stock2.878\u00b10.0222.823\u00b10.0382.744\u00b10.019 (05%)2.678\u00b10.021 (07%)10 0Wiscoin breast cancer3.669\u00b10.0413.130\u00b10.0443.081\u00b10.008 (16%)3.036\u00b10.023 (17%)10 1Table-2: Comparison of classification performances on seven datasets, which can be found at UCI machine-learning repository: https://archive.ics.uci.edu/ml/datasets.html. RF: standard random forest, ADF: alternating decision forests[23], JMPF: proposed algorithm, JMPF+ADF: our proposed algorithm embedded into ADF. #\u210bis the number of randomly chosen hyperplane(s) on training a random forest. is the error scale. The percentages in brackets for JMPF and JMPF+ADF are the reduction rates in RMSE (root mean squared error) compared with the RF algorithm."
+    }
+]

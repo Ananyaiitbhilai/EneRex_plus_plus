@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# NER
+#python3  run_acener.py  \
+#    --model_type bertspanmarker  \
+#    --model_name_or_path  sciner-scibert \
+#    --output_dir sciner-scibert \
+#    --overwrite_output_dir  \
+#    --do_lower_case  \
+#    --data_dir scierc  \
+#    --do_test \
+#    --test_file enrex-test.json  \
+#    --per_gpu_eval_batch_size 32 \
+#    --output_results
+
+# RE
+python3  run_re.py \
+    --model_type bertsub  \
+    --model_name_or_path scire-scibert \
+    --do_lower_case  \
+    --data_dir scierc \
+    --max_pair_length 16 \
+    --per_gpu_eval_batch_size 32 \
+    --do_eval \
+    --test_file sciner-scibert/ent_pred_test.json  \
+    --use_ner_results \
+    --output_dir scire-scibert

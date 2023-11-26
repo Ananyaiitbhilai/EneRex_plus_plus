@@ -1,0 +1,274 @@
+[
+    {
+        "basename": "27a99c21a1324f087b2f144adc119f04137dfd87.grobid",
+        "fulltext": 12,
+        "footnote_size": 2,
+        "footnote_max": 2,
+        "reference": 24,
+        "authors": [
+            "Yang",
+            "Moczulski",
+            "Denil",
+            "De Freitas",
+            "Smola",
+            "Song",
+            "Wang",
+            "Google",
+            "Deepmind"
+        ]
+    },
+    {
+        "title": "Under review as a conference paper at ICLR 2015 Deep Fried Convnets",
+        "abstract": "The fully connected layers of a deep convolutional neural network typically contain over 90% of the network parameters, and consume the majority of the memory required to store the network. Reducing the number of parameters while preserving predictive performance is critically important for deploying deep neural networks in memory constrained environments such as GPUs or embedded devices. In this paper we show how kernel methods, in particular a single Fastfood layer, can be used to replace the fully connected layers in a deep convolutional neural network. This deep fried network is end-to-end trainable in conjunction with convolutional layers. Our new architecture substantially reduces the memory footprint of convolutional networks trained on MNIST and ImageNet with no drop in predictive performance.",
+        "Introduction": "A standard convolutional network is composed of two types of layers, each with very different properties. Convolutional layers, which contain a small fraction of the network parameters, represent most of the computational effort. In contrast, fully connected layers contain the vast majority of the parameters but are comparatively cheap to evaluate  #b10 . This imbalance between memory and computation suggests that the efficiency of these two types of layers should be addressed in different ways.  #b5  and  #b8  both describe methods for minimizing computational cost of evaluating a network at test time by replacing the dense convolutional filters with separable approximations. These approaches realize speed gains at test time but do not address the issue of training, since the approximations are made after the network has been fully trained. Additionally, neither approach addresses the issue of memory usage, since they both work with approximations of the convolutional layers, which represent only a small portion of the total storage required. Many other works have addressed the computational efficiency of convolutional networks in more specialized settings (eg.,  #b6  #b13 .In contrast to the above approaches,  #b4  demonstrate that there is significant redundancy in the parameterization of several deep learning models, and exploit this to reduce the number of parameters required. More specifically, their method represents the parameter matrix as a product of two low rank factors, and the training algorithm fixes one factor (called static parameters) and only updates the other factor (called dynamic parameters). However, the static parameters are not jointly trained with the dynamic parameters.  #b19 ;  #b21  are similar to  #b4  in that they use SVD to decompose the matrix to reduce the memory footprint. However, they only applied SVD to the trained model and SVD is a post processing step. In contrast with it, we are able to train the deep fried network from scratch.In this paper we show how the total memory required to represent a deep convolutional neural network can be substantially reduced without sacrificing predictive performance.Our approach works by replacing the fully connected layers of the network with a kernel machine, in particular the Fastfood method of  #b12 . Previous nonlinear kernel machines have not been able to scale to large datasets such as ImageNet (millions of data points and many classes), since their memory requirements are typically quadratic in the number of data points. Using Fastfood to represent a nonlinear kernel, we are able to retain essentially the full representation power of a kernel machine, while at the same time being much more efficient in computation and memory.Another innovation of our current work is a novel adaptive variant of Fastfood which allows us to jointly learn the kernel function along with the rest of the convolution parameters of the network. As a result, this novel network architecture, which we call a deep fried convolutional network, is able to achieve the same predictive performance as a standard convolutional network on ImageNet using approximately half the number of parameters. Further reduction in memory use is also possible with a marginal loss of performance.Our work is in line with recent interest in combining kernels with deep neural networks  #b7  #b0  #b2  #b15 . However, our proposed method presents significant advances over previous attempts, allowing us to gain in term of both accuracy and memory.The Doubly Stochastic Gradients method of  #b2  showed that effective use of randomization can allow kernel methods to scale to extremely large data sets, approaching the performance of deep learning methods on ImageNet using convolutional features. However, this approach operates on fixed convolution features and it can not jointly learn the kernel classifier and convolution filters.  #b15  showed how to learn a kernel function in an unsupervised manner which can take into account hierarchical convolution features. Unlike  #b15  we learn our kernel representation in a supervised way.There have been other attempts in replacing the fully connected layers from the neural network literature. The Network in Network architecture of  #b14  achieves state of the art results on several deep learning benchmarks by replacing the fully connected layers with global average pooling. A similar approach was used by  #b20  to win the ILSVRC 2014 object detection competition  #b18 .Although the global average pooling approach achieves impressive results, it has two significant drawbacks. First, feature transfer is more difficult with this approach. It is very common in practice to take a convolutional network trained on ImageNet and re-train the top layer on a different data set, re-using the features learned from ImageNet for the new task (potentially with fine-tuning), and this is difficult with global average pooling. This deficiency is noted by  #b20 , and motivates them to add an extra linear layer to the top of their network to enable them to more easily adapt and fine tune their network to other label sets. The second drawback of global average pooling is computation. Convolutional layers are much more expensive to evaluate than fully connected layers, so replacing fully connected layers with more convolutions can decrease model size but comes at the cost of increased evaluation time. In contrast, our approach decreases both model size and computational complexity.Recently  #b1  have also targeted memory usage of the the fully connected layers of convolutional networks. Their approach is based on applying a sparsity inducing regularizer during optimization which introduces many zero-weight connections that can be removed at test time. Although they achieve a substantial reduction in the total number of parameters, the reduction in memory usage is less dramatic since realizing memory gains requires them to maintain sparse data structures which introduce significant memory overhead. Moreover, their approach reduces memory consumption only at test time, whereas our memory reduction is also realized during training.",
+        "Random features for kernels": "The main bottleneck in scaling up kernel methods is the storage and computation of the kernel matrix, K, which is usually dense. Storing the matrix requires O(m 2 ) space, and computing it takes O(m 2 d) operations, where m is the number of data points and d is the dimension. An important insight, noted by  #b17 , is that the infinite kernel expansion can be approximated in an unbiased manner using a randomly drawn basis function. For shift-invariant kernels this relies on a classical result from harmonic analysis, Theorem 1 (Bochner). A continuous, shift-invariant kernel k(x, x ) = k(x -x ) on R d is positive definite if and only if k is the Fourier transform of a non-negative measure \u00b5(w).This measure, known as the spectral density, in turn implies the existence of a probability measure p(w) = \u00b5(w)/\u03b1 such thatk(x, x ) = \u03b1e -iw (x-x ) p(dw) = \u03b1E w [cos(w x) cos(w x ) + sin(w x) sin(w x )],where the imaginary part is dropped since both the kernel and distribution are real. Finally, by sampling n vectors i.i.d. from p and collecting them in a matrix W = (w 1 , . . . w n ) , this kernel can then be approximated as the inner-product of random features\u03c6(x) = \u03b1/n (cos(Wx), sin(Wx)) ,(1)where the cos and sin functions are applied element-wise to the vector Wx. Then approximating a kernel function with random features becomes a matter of deriving the correct distribution for w. Such distributions have been derived for many commonly used kernels such asSquared exponential kernel: exp - x -x 2 2 2 w SE \u223c N (0, diag( 2 ) -1 ) (2)In fact, the random feature representation of a kernel function is generally applicable to any positive definite kernel function, and not just limited to shift-invariant kernels. For instance, if W is a random Gaussian matrix and we use Rectified Linear units (ReLU's), \u03c6(x) = 1/n max(0, Wx),(3)k(x, x ) = E w [\u03c6(x) \u03c6(x )] = 1 2\u03c0 ||x||||y||(sin(\u03b8) + (\u03c0 -\u03b8) cos(\u03b8)), (4)where \u03b8 is the angle between x and x .",
+        "Deep Fried Convolutional Networks": "A convolutional network is typically composed of a cascade of alternating convolution and pooling layers, followed by several fully connected layers at the top of the network  #b11 . Compared to a standard multilayer perceptron, convolutional networks use much fewer parameters by tying connection weights over space; however, the fully connected layers at the top of the network do not achieve this savings. The fully connected layers typically account for more than 95% of the network parameters  #b10 . The parameters in these layers are often extremely redundant  #b4 . We propose to greatly reduce the memory footprint of the fully connected layers by replacing them with kernel random feature approach, called Fastfood  #b12 . We call this new architecture with Fastfood layer replacing the multilayer perceptron in convolutional neural network a deep fried convolutional network. An illustration of the new architecture can be found in Figure 1.",
+        "Fastfood Layer": "Despite the simplicity of the random feature approach to kernel approximation, the matrix W still requires O(nd) storage and computation. To further reduce the amount of storage and computation required,  #b12   of constructing the W matrix directly, Fastfood introduces an approximation of W as a product W = SHG\u03a0HB.(5) Here S, G, B are diagonal matrices and \u03a0 is a permutation. Notice S, G, B, and \u03a0 only require O(n) storage. H, in the above equation, is the Walsh-Hadamard matrix and is defined recursively asH 2 := 1 1 1 -1 and H 2d := H d H d H d -H d .The  2013), if we construct our random features with W in the same way as detailed in Equation 1, we can recover the Gaussian kernel in expectation and if we construct features using Equation 3 then we recover the arc-cosine kernel as described above.Each of the S, G and B parameters plays a different role in the Fastfood approximation  #b22 ):\u2022 B is the rescaling parameter of different input dimensions. By adapting B, we are using Automatic Relevance Determination on features. \u2022 G controls the bandwidth of the kernel and its spectral incoherence.\u2022 S represents different radical kernel types. For example, for the RBF kernel S follows Chi-squared distribution. By adapting S, we learn the correct kernel type.Standard Fastfood is essentially a fast random matrix matrix computation method, where the matrix W in Equation 5 is constructed to approximately behave like a matrix of iid Gaussian entries in a memory efficient way. In the standard Fastfood method the diagonal matrices S, G and B are drawn randomly from distributions chosen so as to approximate a specific kernel; however, as we show below, we can instead treat them as free parameters and optimize their values using backpropagation. This operation is equivalent to learning the kernel function.",
+        "Back propagation": "When the diagonal matrices S, G and B need to be learned from data, we can view Fastfood as a composite layer with three parametrized layers and additional fixed components. In this section we show how to use backpropagation to optimize the parameters in S, G and B in the Fastfood layer. Furthermore we will show that the O(n log d) computational advantage that Fastfood enjoys in the forward pass is preserved in the backward pass.Let Fastfood be the l-th layer of the network, then h l+1 = Wh l = SHG\u03a0HBh l , where h l and h l+1 are the input and output respectively. For simplicity, we assume W is a d \u00d7 d matrix and h l \u2208 R d\u00d7m , where m is the data batch size. Using backpropagation, assume we already have \u2202E \u2202h l+1 , where E is the objective function, then\u2202E \u2202S = diag \u2202E \u2202h l+1 (HG\u03a0HBh l ) (6)Since S is a diagonal matrix, we only need to calculate the derivative w.r.t the diagonal entries and this step requires only O(md) operations for a data batch of size m.Denote the partial products by h S = HG\u03a0HBh l , h H1 = G\u03a0HBh l , h G = \u03a0HBh l , h \u03a0 = HBh l and h H2 = Bh l . Then the gradients with respect to different parameters in the Fastfood layer can be computed recursively as\u2202E \u2202h S = S \u2202E \u2202h l+1 \u2202E \u2202h H1 = H \u2202E \u2202h S \u2202E \u2202G = diag \u2202E \u2202h H1 h G \u2202E \u2202h G = G \u2202E \u2202h H1 \u2202E \u2202h \u03a0 = \u03a0 \u2202E \u2202h G \u2202E \u2202h H2 = H \u2202E \u2202h \u03a0 , \u2202E \u2202B = diag \u2202E \u2202h H2 h l \u2202E \u2202h l = B \u2202E \u2202h H2Note that the operations in \u2202E \u2202h H1 and \u2202E \u2202h H2 are simply applications of the Hadamard transform, since H = H, and consequently can be computed in O(md log d) time. The operation in \u2202E \u2202h\u03a0 is an application of a permutation (the transpose of permutation matrix is a permutation matrix) and can be computed in O(md) time. All other operations are diagonal matrix multiplications. The back propagation algorithm can also push the gradients further down to the convolutional layers, allowing us to jointly train the Fastfood layers and convolutional layers.",
+        "Capacity Control via Dropout": "A key problem in deep networks is to regularize the layers. In particular, overfitting in the fully connected layers will greatly affect the performance of the overall system. One of the problems is that overfitting in one layer will prevent the previous layer from extracting useful features. This also affects the composite Fastfood layer, since a considerable amount of capacity can be stored in the scaling matrices G and S. In particular, we found in experiments that simple weight decay on the parameters S, G and B can be insufficient to control capacity in several cases.The composite Fastfood layer can be thought of as several individual cascaded layers. Only the layers with diagonal matrices are parameterised. It is possible to apply any complexity control technique to these individual layers, including dropout. This understanding provides us with a powerful intuition for adapting Fastfood while being able to control its complexity. This observation might seem trivial, however complexity control within the Fastfood layer is essential to achieve good performance.When replacing multiple fully connected layers with a single Fastfood layer, we find that one dropout layer does not suffice. Instead, we use dropout within the Fastfood. Applying dropout within the Fastfood layer is not different from using dropout in a fully connected layer, as h l+1 = SHG\u03a0HBh l decomposes into h l+2 =",
+        "MNIST Experiments": "We begin our experiments by studying a classic problem -optical character recognition using MNIST. To assess the efficacy of Fastfood, we need to consider two different scenarios.Firstly as a drop in replacement for the fully connected layer of a previously trained network; and second, when integrated into a joint training pipeline. Both aspects are reflected in Table 1.As a reference model we use the Caffe implementation of the LeNet convolutional network.1 It achieves an error rate of 0.87% on the MNIST dataset.",
+        "Fixed convolution layers": "We take the trained reference network and extract features from just after the final pooling layer to use as the new training data. Using these features we train a deep fried network consisting of a single Fastfood layer followed by a logistic regression. We use the rectified linear (ReLU) function for the Fastfood layer (corresponding to the arc-cosine kernel).We search the standard deviation of the random Gaussian matrix used in Fastfood within the set {0.001, 0.005, 0.01, 0.05} and vary the number of features that Fastfood uses among {1024, 2048}. We also train an MLP which mirrors the top layer structure of the original network using the same features, similar to the experiments of  #b2 .The results of this experiment can be seen in Table 1 (left). From this table we can see that the performance of the deep fried network is very similar to the original, but the number of parameters is significantly less. Somewhat paradoxically, the MLP trained on convolutional features actually achieves slightly better performance than the original network; however, we did not investigate this further, preferring to focus our efforts on more realistic experiments.Jointly trained layers In this experiment we jointly train all layers of the deep fried network, including the convolutional layers, which were held fixed in the previous experiment. Again we used the ReLu activation function and experimented with {1024, 2048} features in the Fastfood transform. These jointly trained deep fried networks are directly comparable to the original reference model.The results of this experiment can be seen in Table 1 (right). Using only a tiny portion of the parameters of the reference model we are able to improve on its performance using a deep fried network. Looking at the results, we also observed that in spite of their good performance, the deep fried networks were actually overfitting the training data. This happens as a result of increasing the number of features in the final softmax layer (500 in the original model, and 1024 or 2048 in the deep fried networks). To combat this we experimented with adding dropout between the Fastfood and softmax layers, which improves results across the board (lower part of the table ).The main message from these experiments is that the deep fried networks are able to obtain good performance but require only a small fraction of the number of parameters of the original network. The best deep fried result is obtained after an 11x reduction in the number of parameters as compared to the original network.",
+        "Imagenet Experiments": "We now examine how deep fried networks behave in a more realistic setting with a much larger dataset and many more classes. Specifically, we use the ImageNet ILSVRC-2012 dataset which has 1.2M training examples and 50k validation examples distributed across 1000 classes.We use the the Caffe ImageNet model2 as the reference model in these experiments  #b9 . This model is a modified version of AlexNet  #b11  Fixed convolutional layers Following our MNIST experiment, we first train a simple deep fried network on features extracted from the final pooling layer of the reference model. This setting mirrors the common use case for convolutional networks where they are first trained on ImageNet and then the lower layers are frozen and the top layers are re-trained on a different task.Although the reference model uses two fully connected layers, we use investigate replacing the two fully connected layers with a single layer of Fastfood. As in our previous experiments we also train an MLP with the same structure as the top layers of the reference model on the same data.We use dropout in all experiments in this section since it is used in the reference model and our earlier experiments found it to uniformly improve performance. We also observed that training on activations still leads to overfitting with the adaptive Fastfood layers. We found that moving dropout to the input of the deep fried network provided sufficient additional regularisation in this case, and our results incorporate this change.The results of this experiment are shown in Table 2 (left). Following  #b23  and  #b2  we observe that training on ImageNet activations results in significantly lower performance than the original network. Nonetheless we see that the deep fried networks are able to obtain comparable performance to an MLP trained on activations, but with a significant reduction in the number of parameters. The results of  #b2  surpass both the deep fried networks an the MLP on this experiment; however, their result uses nearly two orders of magnitude more parameters than their largest deep fried competitor.From this experiment we can see that the performance of the deep fried network is significantly improved by adapting the parameters of the Fastfood layer. This effect was not visible with MNIST, but adapting improves top-1 performance on ImageNet by more than 4%.Jointly trained layers Finally we train a deep fried network jointly with the convolutional layers of the reference model. With 16,384 features in the Fastfood layer we lose less than 0.3% top-1 validation performance, but the number of parameters in the network is reduced from 58.7M to 16.4M which corresponds to a factor of 3.6x. By further increasing the number of features to 32,768, and with careful application of capacity control within the Fastfood layer, we are able to perform 0.6% better than the reference model while using approximately half as many parameters. We note that the use of dropout regularization within the Fastfood layer is critical for achieving this performance.Nearly all of the parameters of the deep fried network reside in the final logistic regression layer, which still uses a dense linear transformation, and accounts for more than 99% of the parameters of the network. This is a side effect of the large number of classes in ImageNet.For a data set with fewer classes the advantage of deep fried convolutional networks would be even greater. Moreover, as shown by  #b4 , the last layer often contains considerable redundancy. We also note that the technique of  #b1  could be applied to the final layer of a deep fried network to further reduce memory consumption at test time.",
+        "Conclusion": "In this paper we proposed a new learning architecture called the deep fried convolutional network that can achieve a substantial reduction in memory footprint without sacrificing predictive performance in large scale image classification problems such as ImageNet. Further reductions in memory usage can also be achieved in exchange for <1% reduction in top-1 performance.Our approach is based on kernel methods, in particular the Fastfood method for kernel approximation. The deep fried convolutional network is derived by replacing the fully connected layers of a standard deep convolutional network with a single adaptive Fastfood transformation. We have also shown how the parameters of the Fastfood layer can be learned jointly with the convolutional layers of the network. We have shown that we can match accuracy of conventional fully connected layers at lower computational cost and a smaller number of parameters. This makes deep fried networks applicable to a large family of applications.Unlike previous works, our approach is computationally efficient and preserves the flexibility of fully connected layers for feature transfer (cf.  #b14  #b20 , it realizes memory savings both during training and a test time (cf.  #b1 , and does not require layerwise pretraining (cf.  #b3 .A natural avenue for future work is to investigate the effects of multiple stacked Fastfood layers which could potentially improve performance even further. Moreover, applying the sparsity regularisation of  #b1  to the final logistic regression layer in our deep fried networks could result in even further memory savings than either technique in isolation. We also observed in our experiments that careful application of capacity control is essential to achieve good performance with deep fried networks, and a more thorough investigation of how to introduce this control would be very useful."
+    },
+    {
+        "1": "https://github.com/BVLC/caffe/blob/master/examples/mnist/lenet.prototxt",
+        "2": "https://github.com/BVLC/caffe/tree/master/models/bvlc_reference_caffenet"
+    },
+    {
+        "b0": [
+            "Kernel methods for deep learning",
+            "",
+            "",
+            "",
+            "Cho",
+            "Saul"
+        ],
+        "b1": [
+            "",
+            "",
+            "Memory bounded deep convolutional networks",
+            ""
+        ],
+        "b2": [
+            "Scalable kernel methods via doubly stochastic gradients",
+            "",
+            "",
+            "",
+            "Dai",
+            "Xie",
+            "He",
+            "Liang",
+            "Raj",
+            "Balcan",
+            "Song"
+        ],
+        "b3": [
+            "Learning where to attend with deep architectures for image tracking",
+            "",
+            "",
+            "",
+            "Denil",
+            "Bazzani",
+            "Larochelle",
+            "De Freitas"
+        ],
+        "b4": [
+            "Predicting parameters in deep learning",
+            "",
+            "",
+            "",
+            "Denil",
+            "Shakibi",
+            "Babak",
+            "Dinh",
+            "Laurent",
+            "Ranzato",
+            "Aurelio",
+            "Freitas"
+        ],
+        "b5": [
+            "Exploiting linear structure within convolutional networks for efficient evaluation",
+            "",
+            "",
+            "",
+            "Denton",
+            "Zaremba",
+            "Wojciech",
+            "Bruna",
+            "Lecun",
+            "Fergus"
+        ],
+        "b6": [
+            "Hardware accelerated convolutional neural networks for synthetic vision systems",
+            "",
+            "",
+            "",
+            "Farabet",
+            "Martini",
+            "Berin",
+            "Akselrod",
+            "Polina",
+            "Talay",
+            "Sel\u00e7uk",
+            "Lecun",
+            "Culurciello"
+        ],
+        "b7": [
+            "Kernel methods match deep neural networks on timit",
+            "",
+            "",
+            "",
+            "Huang",
+            "Po-Sen",
+            "Avron",
+            "Haim",
+            "Sainath",
+            "Sindhwani",
+            "Vikas",
+            "Ramabhadran",
+            "Bhuvana"
+        ],
+        "b8": [
+            "Speeding up convolutional neural networks with low rank expansions",
+            "",
+            "",
+            "",
+            "Jaderberg",
+            "Vedaldi",
+            "Zisserman"
+        ],
+        "b9": [
+            "",
+            "",
+            "Convolutional architecture for fast feature embedding",
+            ""
+        ],
+        "b10": [
+            "",
+            "",
+            "One weird trick for parallelizing convolutional neural networks",
+            ""
+        ],
+        "b11": [
+            "Imagenet classification with deep convolutional neural networks",
+            "",
+            "",
+            "",
+            "Krizhevsky",
+            "Sutskever",
+            "Ilya",
+            "Hinton"
+        ],
+        "b12": [
+            "Fastfood -approximating kernel expansions in loglinear time",
+            "",
+            "",
+            "",
+            "Le",
+            "Sarl\u00f3s",
+            "Tam\u00e1s",
+            "Smola"
+        ],
+        "b13": [
+            "",
+            "",
+            "Highly efficient forward and backward propagation of convolutional neural networks for pixelwise classification",
+            ""
+        ],
+        "b14": [
+            "Kernel methods match deep neural networks on timit",
+            "",
+            "",
+            "",
+            "Lin",
+            "Yan"
+        ],
+        "b15": [
+            "Convolutional kernel networks",
+            "",
+            "",
+            "",
+            "Mairal",
+            "Koniusz",
+            "Piotr",
+            "Harchaoui",
+            "Zaid",
+            "Schmid"
+        ],
+        "b16": [
+            "Learning by stretching deep networks",
+            "",
+            "",
+            "",
+            "Pandey",
+            "Dukkipati"
+        ],
+        "b17": [
+            "Random features for large-scale kernel machines",
+            "",
+            "",
+            "",
+            "Rahimi",
+            "Recht"
+        ],
+        "b18": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "b19": [
+            "Low-rank matrix factorization for deep neural network training with high-dimensional output targets",
+            "",
+            "",
+            "",
+            "Sainath",
+            "Kingsbury",
+            "Sindhwani",
+            "Vikas",
+            "Arisoy",
+            "Ebru",
+            "Ramabhadran",
+            "Bhuvana"
+        ],
+        "b20": [
+            "",
+            "",
+            "Going deeper with convolutions",
+            ""
+        ],
+        "b21": [
+            "Restructuring of deep neural network acoustic models with singular value decomposition",
+            "",
+            "",
+            "",
+            "Xue",
+            "Li",
+            "Gong"
+        ],
+        "b22": [
+            "",
+            "",
+            "A la carte-learning fast kernels",
+            ""
+        ],
+        "b23": [
+            "How transferable are features in deep neural networks?",
+            "",
+            "",
+            "",
+            "Yosinski",
+            "Clune",
+            "Jeff",
+            "Bengio",
+            "Yoshua",
+            "Lipson"
+        ]
+    },
+    {
+        "tab_0": "The structure of a deep fried convolutional network. The convolution and pooling layers are identical to those in a standard convnet. However, the fully connected layers at the top are replaced by a Fastfood layer that performs a randomized non-linear mapping into a high-dimensional feature space approximating the arccos kernel from Section 2.Represent as a vectorSoftmaxConvolutional and pooling layersFastFoodFigure 1:introduced a method named Fastfood which reduces computation and storage to O(n log d) and O(n) respectively. Specifically, instead",
+        "tab_2": "Table 1 :1SHGh l+1 and h l+1 = \u03a0HBh l Comparison between a reference convolutional network with one fully connected layer and two deep fried networks on the MNIST dataset. Left: We trained a convolutional network (the reference model), discarded the fully connected layer, and retrained it using a new fully connected layer (MLP) and two different deep fried networks. Right: Joint training of a deep fried network. The difference of 25,500 parameters amounts to the number of coefficients used in the convolutional layer. Suffixes differentiate between different configurations. A indicates that the parameters of the Fastfood layer are adapted, and D indicates that dropout is used during training.(7)",
+        "tab_3": "Table 2 :2, and achieves 42.6% top-1 error on the ILSVRC-2012 validation set. The initial layers of this model are a cascade of convolution and pooling layers with interspersed normalization. The last several layers of the network take the form of an MLP and follow a 9216-4096-4096-1000 architecture. The final layer is a logistic regression layer with 1000 output classes. All layers of this network use the ReLU nonlinearity, and dropout is used in the fully connected layers to prevent overfitting.There are total of 58,649,184 parameters in the reference model, of which 58,621,952 are in the fully connected layers and only 27,232 are in the convolutional layers. The parameters of fully connected layer take up 99.9% of the total parameters. We show that our deep fried architecture can greatly reduce the memory footprint of this model. Performance on ILSVRC 2012. MLP indicates that we re-train the same 9216-4096-4096-1000 MLP as in the original network with the convolutional weights fixed. Our method is Fastfood-16 and Fastfood-32, using 16,384 and 32,768 Fastfood features respectively. Reference Model shows the accuracy of the jointly trained Caffe reference model.Dai et al. (2014) report results of max-voting with an ensemble of 10 models. The result ofCollins & Kohli (2014) is based on the the Caffe AlexNet model (similar but not identical to the Caffe reference model) and achieves \u223c4x reduction in memory usage, slightly smaller than Fastfood-16 but with inferior performance.ImageNet (fixed) Dai et al. (2014) MLP Fastfood-16-D Fastfood-32-D Fastfood-16-AD Fastfood-32-AD Reference Model 42.59% Error 44.50% 10x163M Params 47.76% 58.6M 50.09% 16.4M 50.53% 32.8M 45.30% 16.4M 43.77% 32.8M 58.7MImageNet (joint) Collins & Kohli (2014) Fastfood-16-D Fastfood-32-D Fastfood-16-AD Fastfood-32-AD Reference ModelError Params 44.40% -46.88% 16.4M 46.63% 32.8M 42.90% 16.4M 41.93% 32.8M 42.59% 58.7M"
+    }
+]

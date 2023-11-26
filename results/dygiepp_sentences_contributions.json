@@ -1,0 +1,371 @@
+{
+    "02567fd428a675ca91a0c6786f47f3e35881bcbd.grobid": [
+        "Deep Label Distribution Learning With Label Ambiguity .",
+        "We visualize the model features in a low-dimensional space .",
+        "The proposed DLDL is more amenable to small datasets or sparse labels than C-ConvNet and R-ConvNet .",
+        "We empirically showed that DLDL produces robust and competitive performances than traditional classification or regression deep models on several popular visual recognition tasks .",
+        "Experimental results show that the proposed approach produces significantly better results than state-of-the-art methods for age estimation and head pose estimation ."
+    ],
+    "02b3d1d162080d9aefd3fc30a0bcc9a843073b5d.grobid": [
+        "The contributions of our work are as follows:\u2022 We explored , extended and tried to unify some of the current research on large scale LM.\u2022 Specifically , we designed a Softmax loss which is based on character level CNNs , is efficient to train , and is as precise as a full Softmax which has orders of magnitude more parameters.\u2022 Our study yielded significant improvements to the state-of-the-art on a well known , large scale LM task : from 51.3 down to 30.0 perplexity for single models whilst reducing the number of parameters by a factor of 20.\u2022 We show that an ensemble of a number of different models can bring down perplexity on this task to 23.7 , a large improvement compared to current state-of-art.\u2022 We share the model and recipes in order to help and motivate further research in this area .",
+        "This data set is much larger than PTB ( one thousand fold , 800k word vocabulary and 1B words training data ) and far more challenging .",
+        "Thus , a large , regularized LSTM LM , with projection layers and trained with an approximation to the true Softmax with importance sampling performs much better than N-grams .",
+        "Further , given current hardware trends and vast amounts of text available on the Web , it is much more straightforward to tackle large scale modeling than it used to be ."
+    ],
+    "0398552184f80db111e9c28bf533b395f233ac00.grobid": [],
+    "05d2700846c0323f79c1344aca5333994c7c03a5.grobid": [
+        "Some of the techniques that were found beneficial are : maxout networks with annealed dropout rates ; networks with a very large number of outputs trained on 2000 hours of data ; joint modeling of partially unfolded recurrent neural networks and convolutional nets by combining the bottleneck and output layers and retraining the resulting model ; and lastly , sophisticated language model rescoring with exponential and neural network LMs .",
+        "We have presented a set of improvements to our English Switchboard system that lowered the error rate substantially compared to our previous best result   # b14 ."
+    ],
+    "0626908dd710b91aece1a81f4ca0635f23fc47f3.grobid": [
+        "We benchmark our methods on the ILSVRC 2012 classification challenge validation set demonstrate substantial gains over the state of the art : 21.2 % top-1 and 5.6 % top-5 error for single frame evaluation using a network with a computational cost of 5 billion multiply-adds per inference and with using less than 25 million parameters .",
+        "The computational cost of Inception is also much lower than VGGNet or its higher performing successors   # b5 .",
+        "Also , improvements in the network quality resulted in new application domains for convolutional networks in cases where AlexNet features could not compete with hand engineered , crafted solutions , e.g. proposal generation in detection   # b3 .Although",
+        "Furthermore , VGGNet employed about 3x more parameters than AlexNet .",
+        "Still , the complexity of the Inception architecture makes it more difficult to make changes to the network ."
+    ],
+    "0678a8abea82793993cd89383319da75f6dc4be3.grobid": [
+        "It replaces the fullyconnected layers of a standard CNN ( e.g. AlexNet   # b11 ) with convolutional layers .",
+        "This allows us to utilize CNNs that have stronger representation power with little computational overhead .",
+        "ProNet outperforms previous state-of-the-art significantly on PASCAL VOC 2012 and MS COCO datasets for object classification and point-based localization .."
+    ],
+    "081531984770a74e87dbd68907061b4b0f3631bf.grobid": [
+        "Results on publicly available datasets demonstrate that the proposed algorithms surpass current state-of-theart performance in both accuracy and efficiency .. Image and video super-resolution ( SR ) are long-standing challenges of signal processing ."
+    ],
+    "0834e74304b547c9354b6d7da6fa78ef47a48fa8.grobid": [
+        "It has carefully designed objective functions that preserve both the first-order and second-order proximities , which are complementary to each other .",
+        "The method optimizes a carefully designed objective function that preserves both the local and global network structures .",
+        "The results suggest that the LINE model outperforms other competitive baselines in terms of both effectiveness and efficiency .",
+        "The algorithm tackles the limitation of the classical stochastic gradient decent and improves the effectiveness and efficiency of the inference.\u2022 We conduct extensive experiments on real-world information networks ."
+    ],
+    "0a3381f0432c5cfe491c718349d7a44e5814592c.grobid": [
+        "The experiments showed that success on error correction does not necessarily mean success on error detection , as the current best correction system ( P1+P2+S1+S2 ) is not the same as the best shared task detection system ( CAMB ) .",
+        "In addition , the neural sequence tagging model , specialised for error detection , was able to outperform all other participating systems .",
+        "As part of future work , it would be beneficial to investigate the effect of automatically generated training data for error detection ( e.g. ,   # b38 ) .We evaluated the performance of existing error correction systems from CoNLL-14 on the task of error detection ."
+    ],
+    "0a6c36de8726b6feaab586046ddc1d1a008f44f9.grobid": [],
+    "0c47cad9729c38d9db1f75491b1ee4bd883a5d4e.grobid": [],
+    "0dc9eb7d17f2def56ad930945f2521653f04c3fa.grobid": [
+        "The computational advantages of SNM over both maximum entropy and RNN LM estimation are probably its main strength , promising an approach that has the same flexibility in combining arbitrary features effectively and yet should scale to very large amounts of data as gracefully as n-gram LMs do ..",
+        "When using skip-gram features the models are able to match the state-of-the-art recurrent neural network ( RNN ) LMs ; combining the two modeling techniques yields the best known result on the benchmark .",
+        "A first empirical evaluation on the One Billion Word Benchmark   # b11   shows that SNM n-gram LMs perform almost as well as the well-established KN models .",
+        "Chelba et al. , 2013 ] shows that SNM n-gram LMs perform almost as well as the well-established Kneser-Ney ( KN ) models ."
+    ],
+    "107010b7f2abe3c0c9df62bcef35eb77f6fc76df.grobid": [
+        "We further evaluate the approach extensively for an image classification task , and present results on traditional deep learning image data sets-such as MNIST ( LeCun et al. , 1998 ) and SVHN   # b44 -as well as on Office benchmarks   # b48 , where domain-adversarial learning allows obtaining a deep architecture that considerably improves over previous state-of-the-art accuracy .",
+        "The evaluation is performed for synthetic data as well as for the sentiment analysis problem in natural language processing , where DANN improves the state-of-the-art marginalized Stacked Autoencoders ( mSDA ) of   # b9   on the common Amazon reviews benchmark ."
+    ],
+    "1130d8fdd931225c2d7563c3808367726cfa1c3a.grobid": [
+        "In Section 2.2 , we show that we can achieve this decomposition by imposing a categorical prior on the latent code using adversarial training .",
+        "We further show how the PixelGAN autoencoder with a categorical prior can be directly used in semi-supervised settings and achieve competitive semi-supervised classification results on the MNIST , SVHN and NORB datasets .."
+    ],
+    "11356cd6bb0f2776a88cd584ff108470414c6594.grobid": [
+        "Our empirical analysis of the resulting submanifold sparse convolutional networks shows that they perform on par with state-of-the-art methods whilst requiring substantially less computation ..",
+        "Indeed , exploiting sparsity is paramount when analyzing , for instance , RGB-D videos which are sparsely populated 4D structures .",
+        "We introduce a sparse convolutional operation tailored to processing sparse data that differs from prior work on sparse convolutional networks in that it operates strictly on submanifolds , rather than \" dilating \" the observation with every layer in the network .",
+        "Mathematically , some of these implementations are identical to a regular convolutional network , but they require fewer computational resources in terms of FLOPs   # b0   and/or in terms of memory   # b1 .",
+        "We have shown that VSC convolutions lead to substantial computational savings whilst maintain state-of-theart accuracies on two datasets : a dataset comprising one-dimensional manifolds embedded in two-dimensional space , and a dataset comprising two-dimensional surfaces embedded in threedimensional space .",
+        "Traditional convolutional network implementations are optimized for data that lives on densely populated grids , and can not process sparse data efficiently .",
+        "For instance , handwriting is made up of one-dimensional lines in two-dimensional space , pictures made by RGB-D cameras are three-dimensional point clouds , and OFF models form two-dimensional surfaces in 3D space ."
+    ],
+    "11da0c54ba904a1cb31a09d10da55f73e8825c61.grobid": [
+        "Experimental results show that our model outperforms existing sentence encoding-based approaches by a large margin .."
+    ],
+    "1235dd37312cb20aced0e97d953f6379d8a0c7d4.grobid": [
+        "Indeed , we find that this model still marginally outperforms the ' blind ' , text-only model overall , when the images involved are foils rather than actual images ."
+    ],
+    "14318685b5959b51d0f1e3db34643eb2855dc6d9.grobid": [],
+    "16051bbe3a7f7c77a952ebf76722ea655e8906ca.grobid": [
+        "Furthermore , a fine-tuned FARF model can compare to or ( in many cases ) outperform some recent stateof-the-art deep-learning-based algorithms ..",
+        "Since RF is used as a dictionarylearning-based tool , it inherits many properties from the conventional dictionary-learning-based algorithms on feature extraction .",
+        "Therefore , in our method , we use the original features rather than the compressed features generated by PCA as worked in   # b0   # b1   # b3   # b4   # b7   # b27 , so that more accurate regression and higher image quality improvement can be achieved .",
+        "Experiment results on several public benchmark datasets show that our FARF method can achieve an average gain of about 0.3 dB , compared to traditional RF-based methods ."
+    ],
+    "160563abbd75265b19afc8b4169bab9e1eb33d97.grobid": [],
+    "175f74a09241b6cb5101a2a09978095720db7d5f.grobid": [
+        "Inspired by these recent discoveries , we note that many state-of-the-art deep SR architectures can be reformulated as a single-state recurrent neural network ( RNN ) with finite unfoldings .",
+        "Extensive experiments on benchmark datasets have demonstrated that the proposed DSRN performs favorably against state-of-the-art SR models in terms of both efficiency and accuracy .",
+        "To demonstrate the effectiveness of the proposed method , we compare DSRN with other recent image SR approaches on four common benchmarks   # b3   # b18   # b29   # b46   as well as on the DIV2 K dataset from the \" New Trends in Image Restoration and Enhancement workshop and challenge on image super-resolution ( NTIRE SR 2017 ) \"   # b0 .",
+        "We apply this experience in designing the SR architecture in our compact RNN view by adding an additional state , rendering our model a Dual-State Recurrent Network ( DSRN ) , where the two states operate at different spatial resolutions .",
+        "Extensive quantitative and qualitative evaluations on benchmark datasets and on a recent challenge demonstrate that the proposed DSRN performs favorably against state-of-the-art algorithms in terms of both memory consumption and predictive accuracy ..",
+        "Based on this , we extend existing methods by considering a dual-state design ; the two hidden states of our proposed DSRN operate at different spatial resolutions ."
+    ],
+    "1778e32c18bd611169e64c1805a51abff341ca53.grobid": [
+        "The singlechannel attention weight can be viewed as a single-channel interaction tensor .",
+        "We introduce Interactive Inference Network ( IIN ) , a novel class of neural network architectures that is able to achieve high-level understanding of the sentence pair by hierarchically extracting semantic features from interaction space .",
+        "NATURAL LANGUAGE INFERENCE OVER INTERACTION SPACE .",
+        "By ablating each component in DIIN and changing the dimensionality , we show the effectiveness of each component in DIIN.Though we have the initial exploration of natural language inference in interaction space , the full potential is not yet clear .",
+        "In this work , we demonstrate the feasibility that natural language inference task can be tackled directly through extracting semantic feature in interaction space ."
+    ],
+    "178275dbdcfa267e41a9d5efe386ee5874c6d23f.grobid": [
+        "However , optimizing RNNs is known to be harder compared to feed-forward neural networks .",
+        "We also discuss how our regularization is related to expectation linear dropout   # b11 , \u03a0-model   # b9   and activity regularization Merity et al. ( 2017b ) , and empirically show that our method provides non-trivial gains over these related methods which we explain furthermore in our ablation study ( Section 5 ) ..",
+        "However , they are harder to optimize compared to feed-forward networks due to challenges like variable length input sequences , repeated application of the same transition operator at each time step , and largely-dense embedding matrix that depends on the vocabulary size .",
+        "To address these challenges ,   # b28   proposed to apply dropout only to the nonrecurrent connections in multi-layer RNNs ."
+    ],
+    "178631e0f0e624b1607c7a7a2507ed30d4e83a42.grobid": [
+        "HMM-RNN systems   # b5   have also seen a recent revival [ 6 , # b7 , but do not currently perform as well as deep networks .",
+        "This approach exploits the larger state-space and richer dynamics of RNNs compared to HMMs , and avoids the problem of using potentially incorrect alignments as training targets ."
+    ],
+    "18168aea48a22f6fe2fe407c0ff70083cba225a7.grobid": [
+        "In   # b10 , the skip connections are added to divide the network into sequential blocks .",
+        "In the first network , we use 5 layers of 3 \u00d7 3 convolution with stride 3 .",
+        "Comparison with deep residual networks   # b10   One may use different types of skip connections in our network , a straightforward alternate is that in   # b10 .",
+        "4 ) Experimental results demonstrate the advantages of our network over other recent state-of-the-art methods on image denoising and super-resolution , setting new records on these topics .. Training with symmetric skip connections As mentioned above , using skip connections mainly has two benefits : ( 1 ) passing image detail forwardly , which helps recovering clean images and ( 2 ) passing gradient backwardly , which helps finding better local minimum .",
+        "A benefit of our model is that our skip connections have element-wise correspondence , which can be very important in pixel-wise prediction problems .",
+        "Experimental results and our analysis show that our network achieves better performance than state-of-the-art methods on image denoising and super-resolution .",
+        "Experimental results show that our network achieves better performance than all previously reported state-of-the-art methods ..",
+        "Image Restoration Using Very Deep Convolutional Encoder-Decoder Networks with Symmetric Skip Connections ."
+    ],
+    "193089d56758ab88391d846edd08d359b1f9a863.grobid": [
+        "To summarize , our contributions are:\u2022 We propose a siamese network that has two losses : identification loss and verification loss .",
+        "The two models have their respective advantages and limitations due to different loss functions .",
+        "It outperforms the state of the art on two popular person re-ID benchmarks and shows potential ability to apply on the generic instance retrieval task ."
+    ],
+    "193b518bc3025804c6d587c74cbc154d91478417.grobid": [
+        "Based on this baseline model , we show comparisons using adversarial adaptation in the feature and output spaces .",
+        "Furthermore , we show that the multi-level adversarial learning improves the results over single-level adaptation .",
+        "Similar efforts have been made for semantic segmentation via adversarial learning in the feature space   # b2   # b12 .",
+        "We tackle the domain adaptation problem for semantic segmentation via adversarial learning in the output space .",
+        "For instance , even if images from two domains are very different in appearance , their segmentation outputs share a significant amount of similarities , e.g. , spatial layout and local context ( see Figure 1 ) .",
+        "We show that the proposed method performs favorably against the stateof-the-art methods in terms of accuracy and visual quality ..",
+        "Overall , our method performs favorably against state-of-the-art algorithms on numerous benchmark datasets under different settings .",
+        "Experimental results show that the proposed method performs favorably against numerous baseline models and the state-of-the-art algorithms .",
+        "Due to the high labor cost of annotating segmentation ground truth , there has been great interest in large-scale synthetic datasets with annotations , e.g. , GTA5   # b31   and SYN-THIA   # b32 ."
+    ],
+    "1d0dcb458aa4d30b51f7c74b159be687f39120a0.grobid": [
+        "Extensive experimental analyses and results on three popular datasets demonstrate significant performance improvements of our model over all published state-of-the-art methods .",
+        "Deep learning based methods have demonstrated significant performance improvements over the traditional methods .",
+        "Experimental results on three benchmark datasets demonstrate the superiority of the proposed model over current state-of-the-art methods ..",
+        "Experimental results on three popular datasets show that our algorithm significantly outperforms many state-of-the-art ones ..",
+        "Therefore , many researchers attempt to leverage deep models in person ReID   # b0   # b10   # b53   # b46   # b42   # b61   # b13   # b56   # b43   # b57 ."
+    ],
+    "1f08598381af9146d0fd9a61b30d0e51a7331689.grobid": [
+        "Despite this , much current research in deep reinforcement learning concerns itself with improving performance within the computational budget of a single machine , and the question of how to best harness more resources is comparatively underexplored ."
+    ],
+    "2138a7127429d67746ec78de46d6820fee0e548e.grobid": [
+        "Then this concatenated vector is fed through a fully connected layer with nonlinear activation function \u03c3 , which updates the forward representation of the current node to be used at the next step of the algorithm ( line 6 ) .",
+        "Equally importantly , we present an attention mechanism to learn the alignments between nodes and sequence elements to better cope with large graphs.\u2022 Experimental results show that our model achieves state-of-the-art performance on three recently introduced graph-to-sequence tasks and significantly outperforms existing graph neural networks , Seq2Seq , and Tree2Seq models ..",
+        "Experimental results on three tasks demonstrate that our model significantly outperforms existing graph neural networks , Seq2Seq , and Tree2Seq baselines on both synthetic and real application datasets ."
+    ],
+    "21a1654b856cf0c64e60e58258669b374cb05539.grobid": [
+        "YOLO still lags behind state-of-the-art detection systems in accuracy .",
+        "This unified model has several benefits over traditional methods of object detection .",
+        "Compared to state-of-the-art detection systems , YOLO makes more localization errors but is less likely to predict false positives on background .",
+        "When trained on natural images and tested on artwork , YOLO outperforms top detection methods like DPM and R-CNN by a wide margin .",
+        "Furthermore , YOLO achieves more than twice the mean average precision of other real-time systems .",
+        "Unlike sliding window and region proposal-based techniques , YOLO sees the entire image during training and test time so it implicitly encodes contextual information about classes as well as their appearance .",
+        "It outperforms other detection methods , including DPM and R-CNN , when generalizing from natural images to other domains like artwork ..",
+        "YOLO makes less than half the number of background errors compared to Fast R-CNN ."
+    ],
+    "232b43584b2236669c0a53702ad89ab10c3886ea.grobid": [
+        "Furthermore , IQN allows us to expand the class of control policies to a large class of risk-sensitive policies connected to distortion risk measures .",
+        "C51 outperformed all previous improvements to DQN on a set of 57 Atari 2600 games in the Arcade Learning Environment   # b4 , which we refer to as the Atari-57 benchmark .",
+        "First , samplebased convergence results have been recently shown for a class of categorical distributional RL algorithms   # b32 .",
+        "Could existing sample-based RL convergence results be extended to the QR-based algorithms?Second , can the contraction mapping results for a fixed grid of quantiles given by   # b9   be extended to the more general class of approximate quantile functions studied in this work ?",
+        "We demonstrate improved performance on the 57 Atari 2600 games in the ALE , and use our algorithm 's implicitly defined distributions to study the effects of risk-sensitive policies in Atari games .."
+    ],
+    "23d2d3a6ffebfecaa8930307fdcf451c147757c8.grobid": [
+        "In three realworld tasks , i.e. poem generation , speech language generation and music generation , SeqGAN significantly outperforms the compared baselines in various metrics including human expert judgement ..",
+        "In our synthetic data experiments , we used an oracle evaluation mechanism to explicitly illustrate the superiority of SeqGAN over strong baselines .",
+        "In Figure 3(a ) , the g-steps is much larger than the d-steps and epoch number k , which means we train the generator for many times until we update the discriminator .",
+        "In our synthetic data environment , SeqGAN significantly outperforms the maximum likelihood methods , scheduled sampling and PG-BLEU ."
+    ],
+    "24730424236724d3f798dec02901e7a1f1c4710e.grobid": [
+        "We evaluated our proposed method on public benchmark datasets for regression and classification tasks , and experiments showed that JMPF remarkably outperforms other state-of-the-art random-forest-based approaches .",
+        "Secondly , the results show that JMPF consistently outperforms ADF and RF , irrespective of the number of trees used .",
+        "Experiment results show that JMPF can achieve more accurate clustering/classification performance on random forests , and applying JMPF to image super-resolution can achieve superior quality , compared to state-of-the-art methods .",
+        "Conclusions are given in Section V.   It can be seen from Fig. 1(b ) that , for each split-node , the optimal hyperplane with more generalization capability is the one which can achieve maximum purity in clustering samples into two groups .",
+        "The computational complexity of JMPF is similar to that of the standard random forest .",
+        "Section III will evaluate our proposed method and compare its performance with recent state-of-the-art random-forest-based approaches on regression and classification tasks .",
+        "Experiment results on several public benchmark datasets also showed that the JMPF-based image super-resolution scheme is consistently superior to recent state-of-the-art image super-resolution algorithms .. Recently , random forest   # b5   # b16   has been employed as an efficient classification or regression tool on a large variety of computer-vision applications , such as object recognition   # b29 , face alignment   # b17   # b23   # b48 , data clustering   # b19 , image super-resolution   # b10   # b21 , and so on ."
+    ],
+    "249b3b7421d3cdb932eecfe4b67203e0e46806b2.grobid": [
+        "The proposed architecture can replace any stacked LSTM only under one weak restriction-the size of states should be identical across all layers .",
+        "The CAS-LSTM architecture provides consistent performance gains over the stacked LSTM in all benchmark tasks : natural language inference , paraphrase identification , sentiment classification , and machine translation .",
+        "Our method is easy-to-implement , effective , and can replace conventional stacked LSTMs without much modification of the overall architecture .",
+        "We dub this architecture Cellaware Stacked LSTM ( CAS-LSTM ) and show from experiments that our models bring significant performance gain over the standard LSTMs on benchmark datasets for natural language inference , paraphrase detection , sentiment classification , and machine translation .",
+        "Our models outperformed plain LSTM-based models in all experiments and were competitive other state-of-the-art models .",
+        "Especially in SNLI , SST-2 , and Quora Question Pairs datasets , our models outperform or at least are on par with the state-of-the-art models .",
+        "From experiments we show that the CAS-LSTMs consistently outperform typical stacked LSTMs , opening the possibility of performance improvement of architectures based on stacked LSTMs ."
+    ],
+    "25a784f7f8c94c42821ee078587fc38dffcd00a4.grobid": [
+        "Our method achieves APs of 95.7 , 94.9 and 89.7 on easy , medium and hard WIDER FACE val dataset respectively , which surpass the previous state-of-the-arts , especially on the hard subset .",
+        "To address this issue , we propose to mine hard examples at image level in parallel with anchor level .",
+        "Stem from the recent successful development of deep neural networks , massive CNN-based face detection approaches   # b6   # b16   # b29   # b44   # b46   have been proposed and achieved the state-of-the-art performance ."
+    ],
+    "25f5df29342a04936ba0d308b4d1b8245a7e8f5c.grobid": [
+        "The contribution of this paper is to implicitly model long-range dependencies between variables in structured prediction tasks such as articulated pose estimation .",
+        "While there exists recent work 2 which shows that supervising very deep networks at intermediate layers aids in learning   # b19   # b35 , they have mostly been restricted to classification problems .",
+        "We find , through experiments , that large receptive fields on the belief maps are crucial for learning long range spatial relationships and remaps described are closely related to beliefs produced in message passing inference in graphical models .",
+        "Problems with spatial dependencies between variables arise in multiple domains of computer vision such as semantic image labeling , single image depth prediction and object detection and future work will involve extending our architecture to these problems ."
+    ],
+    "269730dbbabed8b8b5ba720e44a4c31b1f51e8f1.grobid": [
+        "Compared to memory-based approaches   # b18   # b17   # b12   # b10   # b20 , QRN can better encodes locality information because it does not use a global memory access controller ( circle nodes in Figure 2 ) , and the query updates are performed locally ."
+    ],
+    "270e65acc071b9e4e2a632720130c0e10cb6fa08.grobid": [
+        "Like CNN , the computation in the same tree-depth can be parallelized effectively ; and therefore NTI is scalable and suitable for large-scale sequence processing .",
+        "Sequential LSTM models seem to learn syntactic structure from the natural language however their generalization on unseen text is relatively poor comparing with models that exploit syntactic tree structure ( Bowman et al. , 2015b).Unlike sequential models , recursive neural networks compose word phrases over syntactic tree structure and have shown improved performance in sentiment analysis   # b27 ."
+    ],
+    "2777cd26b2c257843273fe41ad4c5b8cdf1b1b75.grobid": [
+        "NAN consistently outperforms existing state-of-the-art solutions on our MHP and several other datasets , and serves as a strong baseline to drive the future research for multi-human parsing .. One of the primary goals of intelligent human-computer interaction is understanding the humans in visual scenes .",
+        "It in total includes 25,403 human images with pixel-wise annotations of 58 semantic categories .",
+        "Each sub-task is simpler than the original multi-human parsing task , and is more easily addressed by the corresponding sub-net .",
+        "We also proposed a novel deep Nested Adversarial Network ( NAN ) model to address this challenging problem and performed detailed evaluations of the proposed method with current state-of-the-arts on MHP v2.0 and several other datasets .",
+        "The results demonstrate the superiority of NAN on multi-human parsing over the state-of-the-arts ."
+    ],
+    "27a99c21a1324f087b2f144adc119f04137dfd87.grobid": [
+        "However , this approach operates on fixed convolution features and it can not jointly learn the kernel classifier and convolution filters .  ",
+        "Convolutional layers are much more expensive to evaluate than fully connected layers , so replacing fully connected layers with more convolutions can decrease model size but comes at the cost of increased evaluation time .",
+        "Moreover , applying the sparsity regularisation of   # b1   to the final logistic regression layer in our deep fried networks could result in even further memory savings than either technique in isolation .",
+        "As a result , this novel network architecture , which we call a deep fried convolutional network , is able to achieve the same predictive performance as a standard convolutional network on ImageNet using approximately half the number of parameters .",
+        "Many other works have addressed the computational efficiency of convolutional networks in more specialized settings ( eg . ,   # b6   # b13 .In contrast to the above approaches ,   # b4   demonstrate that there is significant redundancy in the parameterization of several deep learning models , and exploit this to reduce the number of parameters required .",
+        "# b5   and   # b8   both describe methods for minimizing computational cost of evaluating a network at test time by replacing the dense convolutional filters with separable approximations .",
+        "Our new architecture substantially reduces the memory footprint of convolutional networks trained on MNIST and ImageNet with no drop in predictive performance .."
+    ],
+    "27aa0f3ec934925265f93fac7ff1cd1d70ceb618.grobid": [
+        "We therefore propose a more efficient multi-task tri-training model , which outperforms both traditional tri-training and recent alternatives in the case of sentiment analysis .",
+        "For the two examined NLP tasks classic tri-training works the best and even outperforms a recent state-of-the-art method .",
+        "In this paper , we re-evaluate classic general-purpose bootstrapping approaches in the context of neural networks under domain shifts vs. recent neural approaches and propose a novel multi-task tri-training method that reduces the time and space complexity of classic tri-training .",
+        "More importantly , we arrive at the somewhat surprising conclusion that classic tri-training , with some additions , outperforms the state of the art .",
+        "We make the somewhat surprising observation that classic tri-training outperforms task-agnostic state-of-the-art semi-supervised learning   # b22   and recent neural adaptation approaches   # b14   # b39 .In addition , we propose multi-task tri-training , which reduces the main deficiency of tri-training , namely its time and space complexity .",
+        "c ) We perform an extensive evaluation of bootstrapping 1 algorithms compared to state-of-the-art approaches on two benchmark datasets .",
+        "Strong Baselines for Neural Semi-Supervised Learning under Domain Shift ."
+    ],
+    "2a86bcdfb1d817ddb76ba202319f8267a36c0f62.grobid": [
+        "Our method achieves 48.8 % mAP and 66.6 % CorLoc on VOC 2007 which is more than 5 % absolute improvement compared with previous best performed methods .",
+        "Recently , due to the development of Convolutional Neural Network ( CNN ) [ 1 ] ,   # b13   and the availability of large scale datasets with detailed boundingbox-level annotations   # b14 ,   # b15 ,   # b16 , there have been great leap forwards in object detection   # b17 ,   # b18 ,   # b19 ,   # b20 ,   # b21 ,   # b22 .",
+        "Some researches have shown that treating CNNs pre-trained on large scale datasets as offthe-shelf proposal feature extractors can obtain much better performance than traditional hand-designed features   # b23 ,   # b24 ,   # b25 ,   # b26 .",
+        "some promising results have been obtained by MIL networks for WSOD , they do not perform as well as fully supervised ones   # b17 ,   # b18 ,   # b19 ."
+    ],
+    "2f04ba0f74df046b0080ca78e56898bd4847898b.grobid": [
+        "Second is the outstanding illumination invariance of our detector , which is mainly owing to the extension of channel types to LUV color space and gradient-related channels .",
+        "On two challenging face databases , AFW and FDDB , the proposed multi-view face detector shows competitive performance against state-of-the-art detectors in both detection accuracy and speed .",
+        "One evident strength lies in detecting faces with extreme poses .",
+        "Following the learning pipelines in Viola-Jones framework , the multi-view face detector using aggregate channel features shows competitive performance against state-of-the-art algorithms on AFW and FDDB testsets , while runs at 42 FPS on VGA images ..",
+        "Comparative results : When inspecting detections of the proposed face detector and other algorithms on the testsets , some patterns can be found to explain why our detector outperforms others .",
+        "Considering the large performance gain and similar speed , the proposed method can replace Viola-Jones detector for face detection in the wild ..",
+        "Note that we use much fewer training data than SURF multiview   # b12   whilst still outperforming their performance .",
+        "As we mainly concentrate our efforts to the feature representation rather than learning algorithms in this paper , we not only just adopt the aggregate channel features in face detection , but also try to explore the full potential of this novel representation ."
+    ],
+    "2f56b1ac5b9faac9527b6814778925e9242cf5fd.grobid": [
+        "Moreover , the gains from OHEM are complementary to recent improvements in object detection , such as multiscale testing   # b15   and iterative bounding-box regression   # b12 ."
+    ],
+    "2f97ee95cad6a1f13596b108072b846c6f747d4e.grobid": [
+        "The best single system uses a ResNet architecture acoustic model with RNNLM rescoring , and achieves a word error rate of 6.9 % on the NIST 2000 Switchboard task .",
+        "In language modeling , recurrent models appear to improve over classical N-gram models through the generalization ability of continuous word representations   # b16 .",
+        "An attention mechanism in the LACE CNN which differentially weights distant context   # b19   3 .",
+        "In comparison to standard feed-forward MLPs or DNNs , these acoustic models have the ability to model a large amount of acoustic context with temporal invariance , and in the case of convolutional models , with frequency invariance as well ."
+    ],
+    "322a7dad274f440a92548faa8f2b2be666b2d01f.grobid": [],
+    "325af39d281d5903a269c01fab8f53d7400a4c49.grobid": [
+        "Our approach differs from   # b16   primarily in the type of body-part proposals and the structure of the spatio-temporal graph .",
+        "We demonstrate that a sparse model with a few spatial edges performs competitively with a fully-connected model while being much more efficient .",
+        "Our approach improves over state-of-the-art while being substantially faster compared to other related work . .",
+        "Notably , a simple model that operates in top-down/bottom-up fashion exceeds the performance of a fully-connected model while being 24x faster at inference time ( cf .",
+        "Finally , we contribute a new challenging dataset for evaluation of articulated body joint tracking in crowded realistic environments with multiple overlapping people .",
+        "In contrast to   # b11   # b21   this model is suitable for scenes with an unknown number of subjects and reasons jointly across multiple people incorporating inter-person exclusion constraints and propagating strong observations to neighboring frames .",
+        "Convolutional networks have emerged as an effective approach to localizing body joints of people in images   # b27   # b28   # b20   # b13   and have also been extended for joint estimation of body configurations over time   # b11 , and 3D pose estimation in outdoor environments in multi-camera setting   # b9 11].Current approaches are increasingly effective for estimating body configurations of single people   # b27   # b28   # b20   # b4   # b11   achieving high accuracies on this task , but are still failing on fast moving and articulated limbs ."
+    ],
+    "33261d252218007147a71e40f8367ed152fa2fe0.grobid": [
+        "Despite being an interesting approach , this method is outperformed by other competing methods .",
+        "However , this approach is only compared with   # b5   which operates in a simplified setting and has not been applied in more realistic conditions nor evaluated against the best performing methods .",
+        "Our approach is competitive with the current stateof-the-art on the recent benchmark WEBQUES-TIONS   # b1   without using any lexicon , rules or additional system for part-of-speech tagging , syntactic or dependency parsing during training as most other systems do .."
+    ],
+    "3448e6a5039417dc1ae890efeca3bef5390ace7c.grobid": [
+        "We thus design a novel compressed interaction network ( CIN ) to replace the cross network in the DCN .",
+        "In addition , DNNs model feature interactions at the bit-wise level , which is different from the traditional FM framework which models feature interactions at the vector-wise level .",
+        "Our results demonstrate that xDeepFM outperforms state-of-the-art models .",
+        "We show that the degree of feature interactions increases at each layer , and features interact at the vector-wise level rather than the bit-wise level.\u2022 We conduct extensive experiments on three real-world dataset , and the results demonstrate that our xDeepFM outperforms several state-of-the-art models significantly .",
+        "We conduct comprehensive experiments and the results demonstrate that our xDeepFM outperforms stateof-the-art models consistently on three real-world datasets ."
+    ],
+    "35734e8724559fb0d494e5cba6a28ad7a3d5dd4d.grobid": [
+        "We argue instead that the primary cause of neural networks ' vulnerability to adversarial perturbation is their linear nature .",
+        "In many cases , a wide variety of models with different architectures trained on different subsets of the training data misclassify the same adversarial example ."
+    ],
+    "364c1a3df58d87cb40ab33fdf3831cf2862f3570.grobid": [
+        "To achieve good results , however , these models have been combined with additional features such as word overlap or BM25 scores .",
+        "Using the popular benchmark TREC QA data , we show that the relatively simple aNMM model can significantly outperform other neural network models that have been used for the question answering task , and is competitive with models that are combined with additional features .",
+        "We adopt value-shared weighting scheme instead of position-shared weighting scheme for combing different matching signals and incorporate question term importance learning using a question attention network .",
+        "RQ2 By combining additional features , could our model outperform state-of-the-art models for question answering ?",
+        "Without this combination , these models perform significantly worse than methods based on linguistic feature engineering .",
+        "Unlike previous methods including CNN as in   # b34   # b18   and LSTM as in   # b25 , which only show inferior results without combining additional features , our model can achieve better performance than the state-of-art method using linguistic feature engineering without additional features .",
+        "When aNMM is combined with additional features , it outperforms all baselines ..",
+        "We adopt value-shared weighting scheme instead of position-shared weighting scheme for combining different matching signals and incorporate question term importance learning using question attention network ."
+    ],
+    "3842ee1e0fdfeff936b5c49973ff21adfaaf3929.grobid": [
+        "We first outline a novel generalized framework for adversarial adaptation , which subsumes recent state-of-the-art approaches as special cases , and we use this generalized view to better relate the prior approaches .",
+        "On the other hand , asymmetric mappings can better model the difference in low level features than symmetric ones .",
+        "We show that ADDA is more effective yet considerably simpler than competing domain-adversarial methods , and demonstrate the promise of our approach by exceeding state-of-the-art unsupervised adaptation results on standard cross-domain digit classification tasks and a new more difficult cross-modality object classification task .."
+    ],
+    "38cc89399dd6f5aaab1654f27ab3c9eeade12a36.grobid": [
+        "We also imposed a temporal smoothness constraint on the predicted 3D poses during training to ensure that our predictions are smooth over a sequence .",
+        "-Effectively imposing temporal consistency constraint on the predicted 3D poses during training so that the errors in the predictions are distributed smoothly over the sequence.-Using only the previous frames to understand temporal context so that it can be deployed online and real-time .."
+    ],
+    "38e2f851b705faa0d0a698ed9885bd6834440073.grobid": [
+        "Our approach extends MAML to model a distribution over prior model parameters , which leads to an appealing simple stochastic adaptation procedure that simply injects noise into gradient descent at meta-test time .",
+        "In particular , our method builds on model-agnostic meta-learning ( MAML )   # b8 , a few shot metalearning algorithm that uses standard gradient descent to adapt the model at meta-test time to a new few-shot task , and trains the model parameters at meta-training time to enable rapid adaptation , essentially optimizing for a neural network initialization that is well-suited for few shot learning ."
+    ],
+    "3aa21de1a7c97e0458e10ed5730ce160bb436caa.grobid": [
+        "The first challenge is how to represent a mesh model , which is essentially an irregular graph , in a neural network and still be capable of extracting shape details effectively from a given color image represented in a 2D regular grid .",
+        "We carefully design our network structure and propose a very deep cascaded graph convolutional neural network with \" shortcut \" connections .",
+        "As a pioneer study , in this work , we specifically work on objects that can be approximated using 3D mesh with genus 0 by deforming an ellipsoid with a fixed size ."
+    ],
+    "3acc07f7f8951617276cf99483ed02aeb0a6eeac.grobid": [
+        "During the last half decade , convolutional neural networks ( CNNs ) have triumphed over semantic segmentation , which is a core task of various emerging industrial applications such as autonomous driving and medical imaging .",
+        "How can we avoid the assumption that the source and target domains share the same prediction function in a transformed domain-invariant feature space ?",
+        "Our approach effectively eludes the assumption about the existence of a common prediction function for both domains in a transformed feature space .",
+        "Recent advances in computer graphics make it possible to train CNN models on photo-realistic synthetic data with computer-generated annotations .",
+        "Such tasks are easier to solve than the pixel-wise label assignment .",
+        "Section 4 ) tell us no. Learning a decision function for structured prediction is more involved than classification because it has to resolve the predictions in an exponentially large label space .",
+        "Our method outperforms several competing methods that do domain adaptation from simulated images to real photos of urban traffic scenes .",
+        "In experiments , our method significantly outperforms the baselines as well as the only known existing approach to the same problem ..",
+        "These are easy to estimate because images of urban traffic scenes have strong idiosyncrasies ( e.g. , the size and   spatial relations of buildings , streets , cars , etc . ) ."
+    ],
+    "3ca3993b1f3536b15112f759067f62e999c5d38f.grobid": [
+        "In the remainder of the paper , we first discuss related work , describe our approach , and compare it against the state-ofthe-art on the three available datasets ..",
+        "We show that using object segmentation performs better for this task compared to a standard sliding window detector , in particular in presence of partial occlusion ."
+    ],
+    "3cf31ecb2724b5088783d7c96a5fc0d5604cbf41.grobid": [
+        "The resulting parsers have very simple architectures , and match or surpass the state-of-the-art accuracies on English and Chinese ..",
+        "Other works , notably   # b5   and   # b24 , propose more sophisticated feature representations , in which the feature engineering is replaced with architecture engineering ."
+    ],
+    "3daa086acd367dc971a2dc1382caba2031294233.grobid": [
+        "Our formulation is robust to false-positive detections as well as imperfect bounding boxes which do not cover the entire human , in contrast to other instance segmentation methods based on object detectors   # b9   # b19   # b20   # b25   # b33 .",
+        "In contrast with proposal-driven methods such as MNC , our approach assigns each pixel to only one instance , is robust against non-ideal bounding boxes , and often produces better boundaries due to the Instance CRF which is trained endto-end ."
+    ],
+    "408e8eecc14c5cc60bbdfc486ba7a7fc97031788.grobid": [
+        "For example , unsupervised feature learning is known to be beneficial for image restoration   # b5   and recent results show that it outperforms supervised feature learning also on descriptor matching   # b6 .In this work we combine the power of a discriminative objective with the major advantage of unsupervised feature learning : cheap data acquisition .",
+        "The feature representation learned by our algorithm achieves classification results matching or outperforming the current state-of-the-art for unsupervised learning on several popular datasets ( STL-10 , CIFAR-10 , Caltech-101 ) .. Convolutional neural networks ( CNNs ) trained via backpropagation were recently shown to perform well on image classification tasks with millions of training images and thousands of categories   # b0   # b1 .",
+        "We confirm this both theoretically and empirically , showing that this approach matches or outperforms all previous unsupervised feature learning methods on the standard image classification benchmarks STL-10 , CIFAR-10 , and Caltech-101 .."
+    ],
+    "4365eb43a635bc6431dfaf3af1f7bf7bf55522cc.grobid": [
+        "Our detector shows competitive results on PASCAL VOC 07/12 and MS COCO compared to other state-of-the-art detectors , even with model ensemble approaches .",
+        "Compared to specific object detection , such as face , pedestrian and vehicle detection , general object detection often faces more challenges due to the large inter-class appearance differences .",
+        "Although R-FCN has achieved higher detection speed while keeping the detection performance , the global structure information is ignored by the positionsensitive score maps .",
+        "With the revival of Convolutional Neural Networks   # b14   ( CNN ) , CNN-based object detection pipelines   # b7   # b8   # b15   # b21   have been proposed consecutively and made impressive improvements in generic benchmarks , e.g. PASCAL VOC   # b4   and MS COCO   # b16 ."
+    ],
+    "436b07bebaa1d1f05ef85415e10374048d25334d.grobid": [
+        "On large language modeling and machine translation benchmarks , these models achieve significantly better results than state-of-the-art at lower computational cost ."
+    ],
+    "44078d0daed8b13114cffb15b368acc467f96351.grobid": [
+        "The deep features are projected onto a low-dimensional space using the embedding matrix learned during training ( note that the projection involves only matrix multiplication ) .",
+        "Experiments on the challenging IJB-A dataset show that the proposed algorithm performs close to the state of the art methods in verification and identification metrics , while requiring much less training data and training/test time .",
+        "As shown in Table 2 , our raw CNN features after media pooling perform better than most compared methods across both the verification and identification protocols of the IJB-A dataset , with the exception of the template adaptation method by Crosswhite et al.   # b25   which is discussed below .",
+        "Furthermore , we demonstrate the robustness of deep features to challenges including age , pose , blur and clutter by performing simple clustering experiments on both IJB-A and LFW datasets .."
+    ],
+    "45429c281e30f9e87ebcd1ae42e0656d2ead24d1.grobid": [
+        "We compare against state-of-the-art visual synthesis systems   # b4   # b20 , and show that our method outperforms these approaches regarding both quantitative evaluations and human perception studies .",
+        "We show that through a new , robust adversarial learning objective together with new multi-scale generator and discriminator architectures , we can synthesize photo-realistic images at 2048 \u00d7 1024 resolution , which are more visually appealing than those computed by previous methods   # b4   # b20 ."
+    ],
+    "455da02e5048dffb51fb6ab5eb8aeca5926c9d9a.grobid": [
+        "This method yields a speedup of over one hundred times over R-CNN .",
+        "We show that the SPP-nets can boost various networks that are deeper and larger ( Sec. 3.1.2 - 3.1.4 ) over the no-SPP counterparts .",
+        "These feature maps generated by deep convolutional layers are analogous to the feature maps in traditional methods   # b26 ,   # b27 .",
+        "In processing test images , our method is 24 - 102 \u00d7 faster than the R-CNN method , while achieving better or comparable accuracy on Pascal VOC 2007 .",
+        "In a series of controlled experiments on the ImageNet 2012 dataset , we demonstrate that SPP improves four different CNN architectures in existing publications   # b2 ,   # b3 ,   # b4   ( or their modifications ) , over the no-SPP counterparts .",
+        "Experiments show that this multi-size training converges just as the traditional single-size training , and leads to better testing accuracy .",
+        "Further , driven by our detection framework , we find that multi-view testing on feature maps with flexibly located/sized windows ( Sec. 3.1.5 ) can increase the classification accuracy .",
+        "With these advantages , SPP-net should in general improve all CNN-based image classification methods ."
+    ]
+}

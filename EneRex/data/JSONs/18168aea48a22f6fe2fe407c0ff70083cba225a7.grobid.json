@@ -1,0 +1,359 @@
+[
+    {
+        "basename": "18168aea48a22f6fe2fe407c0ff70083cba225a7.grobid",
+        "fulltext": 16,
+        "footnote_size": 0,
+        "reference": 34,
+        "authors": [
+            "Mao",
+            "Shen",
+            "Yang"
+        ]
+    },
+    {
+        "title": "Image Restoration Using Very Deep Convolutional Encoder-Decoder Networks with Symmetric Skip Connections",
+        "abstract": "In this paper, we propose a very deep fully convolutional encoding-decoding framework for image restoration such as denoising and super-resolution. The network is composed of multiple layers of convolution and de-convolution operators, learning end-to-end mappings from corrupted images to the original ones. The convolutional layers act as the feature extractor, which capture the abstraction of image contents while eliminating noises/corruptions. De-convolutional layers are then used to recover the image details. We propose to symmetrically link convolutional and de-convolutional layers with skip-layer connections, with which the training converges much faster and attains a higher-quality local optimum. First, The skip connections allow the signal to be back-propagated to bottom layers directly, and thus tackles the problem of gradient vanishing, making training deep networks easier and achieving restoration performance gains consequently. Second, these skip connections pass image details from convolutional layers to de-convolutional layers, which is beneficial in recovering the original image. Significantly, with the large capacity, we can handle different levels of noises using a single model. Experimental results show that our network achieves better performance than all previously reported state-of-the-art methods.",
+        "Introduction": "The task of image restoration is to recover an clean image from its corrupted observation, which is known to be an ill-posed inverse problem. By accommodating different types of corruption distributions, the same mathematical model applies to problems such as image denoising and superresolution. Recently, deep neural networks (DNNs) have shown their superior performance in image processing and computer vision tasks, ranging from high-level recognition, semantic segmentation to low-level denoising, super-resolution, deblur, inpainting and recovering raw images from compressed images. Despite the progress that DNNs achieve, there still are some problems. For example, can a deeper network in general achieve better performance; can we design a single model to handle different levels of corruption.Observing recent superior performance of DNNs on image processing tasks, we propose a convolutional neural network (CNN)-based framework for image restoration. We observe that in order to obtain good restoration performance, it is beneficial to train a very deep model. Meanwhile, we show that it is possible to achieve good performance with a single network when processing multiple different levels of corruptions due to the benefits of large-capacity networks. Specifically, the proposed framework learns end-to-end fully convolutional mappings from corrupted images to the clean ones. The network is composed of multiple layers of convolution and de-convolution operators. As deeper networks tend to be more difficult to train, we propose to symmetrically link convolutional and de-convolutional layers with skip-layer connections, with which the training converges much faster and attains a higher-quality local optimum.Our main contributions are briefly outlined as follows:1) A very deep network architecture, which consists of a chain of symmetric convolutional and deconvolutional layers, for image restoration is proposed in this paper. The convolutional layers act as the feature extractor which encode the primary components of image contents while eliminating the corruption. The deconvolutional layers then decode the image abstraction to recover the image content details.2) We propose to add skip connections between corresponding convolutional and de-convolutional layers. These skip connections help to back-propagate the gradients to bottom layers and pass image details to the top layers, making training of the end-to-end mapping more easier and effective, and thus achieve performance improvement while the network going deeper.3) Relying on the large capacity and fitting ability of our very deep network, we propose to handle different level of noises/corruption using a single model. To our knowledge, this is the first approach that achieves good accuracy for processing different levels of noises with a single model. 4) Experimental results demonstrate the advantages of our network over other recent state-of-the-art methods on image denoising and super-resolution, setting new records on these topics.",
+        "Related work": "Extensive work has been done on image restoration in the literature. See detail reviews in a survey  #b20 . Traditional methods such as Total variation  #b23  #b22 , BM3D algorithm  #b4  and dictionary learning based methods  #b30  #b9  #b1  have shown very good performance on image restoration topics such as image denoising and super-resolution. Since image restoration is in general an ill-posed problem, the use of regularization  #b33  #b8  has been proved to be essential.An active (and probably more promising) category for image restoration is the DNN based methods. Stacked denoising auto-encoder  #b28  is one of the most well-known DNN models which can be used for image restoration. Xie et al.  #b31  combined sparse coding and DNN pre-trained with denoising auto-encoder for low-level vision tasks such as image denoising and inpainting. Other neural networks based methods such as multi-layer perceptron  #b0  and CNN  #b14  for image denoising, as well as DNN for image or video super-resolution  #b3  #b29  #b6  #b13  and compression artifacts reduction  #b5  have been actively studied in these years.Burger et al.  #b0  presented a patch-based algorithm learned with a plain multi-layer perceptron. They also concluded that with large networks, large training data, neural networks can achieve state-of-the-art image denoising performance. Jain and Seung  #b14  proposed fully convolutional CNN for denoising. They found that CNN provide comparable or even superior performance to wavelet and Markov Random Field (MRF) methods. Cui et al.  #b3  employed non-local self-similarity (NLSS) search on the input image in multi-scale, and then used collaborative local auto-encoder for super-resolution in a layer by layer fashion. Dong et al.  #b6  proposed to directly learn an end-to-end mapping between the low/high-resolution images. Wang et al.  #b29  argued that domain expertise represented by the conventional sparse coding can be combined to achieve further improved results. In general, DNN-based methods learn restoration parameters directly from data, which tends to been more effective in real-world image restoration applications. An advantage of DNN methods is that these methods are purely data driven and no assumption about the noise distributions are made.",
+        "Very deep RED-Net for Image Restoration": "The proposed framework mainly contains a chain of convolutional layers and symmetric deconvolutional layers, as shown in Figure 1. We term our method \"RED-Net\"-very deep Residual Encoder-Decoder Networks.",
+        "Architecture": "The framework is fully convolutional and deconvolutional. Rectification layers are added after each convolution and deconvolution. The convolutional layers act as feature extractor, which preserve the primary components of objects in the image and meanwhile eliminating the corruptions. The deconvolutional layers are then combined to recover the details of image contents. The output of Figure 1: The overall architecture of our proposed network. The network contains layers of symmetric convolution (encoder) and deconvolution (decoder). Skip shortcuts are connected every a few (in our experiments, two) layers from convolutional feature maps to their mirrored deconvolutional feature maps. The response from a convolutional layer is directly propagated to the corresponding mirrored deconvolutional layer, both forwardly and backwardly. the deconvolutional layers is the \"clean\" version of the input image. Moreover, skip connections are also added from a convolutional layer to its corresponding mirrored deconvolutional layer. The passed convolutional feature maps are summed to the deconvolutional feature maps element-wise, and passed to the next layer after rectification.For low-level image restoration problems, we use neither pooling nor unpooling in the network as usually pooling discards useful image details that are essential for these tasks. Motivated by the VGG model  #b26 , the kernel size for convolution and deconvolution is set to 3 \u00d7 3, which has shown excellent image recognition performance. It is worth mentioning that the size of input image can be arbitrary since our network is essentially a pixel-wise prediction. The input and output of the network are images of the same size w \u00d7 h \u00d7 c, where w, h and c are width, height and number of channels. In this paper, we use c = 1 although it is straightforward to apply to images with c > 1. We found that using 64 feature maps for convolutional and deconvolutional layers achieves satisfactory results, although more feature maps leads to slightly better performance. Deriving from the above architecture, we propose two networks, which are 20-layer and 30-layer respectively.",
+        "Deconvolution decoder": "Architectures combining layers of convolution and deconvolution  #b21  #b11  have been proposed for semantic segmentation lately. In contrast to convolutional layers, in which multiple input activations within a filter window are fused to output a single activation, deconvolutional layers associate a single input activation with multiple outputs.One can simply replace deconvolution with convolution, which results in a architecture that is very similar to recently proposed very deep fully convolutional neural networks  #b18  #b6 . However, there exist essential differences between a fully convolution model and our model. In the fully convolution case, the noise is eliminated step by step, i.e., the noise level is reduced after each layer. During this process, the details of the image content may be lost. Nevertheless, in our network, convolution preserves the primary image content. Then deconvolution is used to compensate the details.We compare the 5-layer and 10-layer fully convolutional network with our network (combining convolution and deconvolution, but without skip connection). For fully convolutional networks, we use padding and up-sample the input to make the input and output the same size. For our network, the first 5 layers are convolutional and the second 5 layers are deconvolutional. All the other parameters for training are the same, i.e., trained with SGD and learning rate of 10 -6 , noise level \u03c3 = 70. In terms of PSNR, using deconvolution works better than the fully convolutional counterpart. We see that, the fully convolutional network reduces noise layer by layer, and our network preserve primary image contents by convolution and recover some details by using deconvolution. Detailed results are in the supplementary materials.",
+        "Skip connections": "An intuitive question is that, is deconvolution able to recover image details from the image abstraction only? We find that in shallow networks with only a few layers of convolution, deconvolution is able to Figure 2: An example of a building block in the proposed framework. The rectangle in solid and dotted lines denote convolution and deconvolution respectively. \u2295 denotes element-wise sum of feature maps. recover the details. However, when the network goes deeper or using operations such as max pooling, deconvolution does not work so well, possibly because too much details are already lost in the convolution. The second question is that, when our network goes deeper, does it achieve performance gain? We observe that deeper networks often suffer from gradients vanishing and become hard to train-a problem that is well addressed in the literature.To address the above two problems, inspired by highway networks  #b27  and deep residual networks  #b10 , we add skip connections between two corresponding convolutional and deconvolutional layers as shown in Figure 1. A building block is shown in Figure2. There are two reasons for using such connections. First, when the network goes deeper, as mentioned above, image details can be lost, making deconvolution weaker in recovering them. However, the feature maps passed by skip connections carry much image detail, which helps deconvolution to recover a better clean image. Second, the skip connections also achieve benefits on back-propagating the gradient to bottom layer, which makes training deeper network much easier as observed in  #b27  and  #b10 . Note that our skip layer connections are very different from the ones proposed in  #b27  and  #b10 , where the only concern is on the optimization side. In our case, we want to pass information of the convolutional feature maps to the corresponding deconvolutional layers.Instead of directly learning the mappings from input X to the output Y , we would like the network to fit the residual  #b10  of the problem, which is denoted as F(X) = Y -X. Such a learning strategy is applied to inner blocks of the encoding-decoding network to make training more effective. Skip connections are passed every two convolutional layers to their mirrored deconvolutional layers. Other configurations are possible and our experiments show that this configuration already works very well. Using such shortcuts makes the network easier to be trained and gains restoration performance via increasing network depth.The very deep highway networks  #b27  are essentially feed-forward long short-term memory (LSTMs) with forget gates; and the CNN layers of deep residual network  #b10  are feed-forward LSTMs without gates. Note that our deep residual networks are in general not in the format of standard feed-forward LSTMs.",
+        "Discussions": "Training with symmetric skip connections As mentioned above, using skip connections mainly has two benefits: (1) passing image detail forwardly, which helps recovering clean images and (2) passing gradient backwardly, which helps finding better local minimum. We design experiments to show these observations. We first compare two networks trained for denoising noises of \u03c3 = 70. In the first network, we use 5 layers of 3 \u00d7 3 convolution with stride 3. The input size of training data is 243 \u00d7 243, which results in a vector after 5 layers of convolution. Then deconvolution is used to recover the input. The second network uses the same settings as the first one, except for adding skip connections. The results are show in Figure 3(a). We can observe that it is hard for deconvolution to recover details from only a vector encoding the abstraction of the input, which shows that the ability on recovering image details for deconvolution is limited. However, if we use skip connections, the network can still recover the input, because details are passed to topper layers in the network.We also train five networks to show that using skip connections help to back-propagate gradient in training to better fit the end-to-end mapping, as shown in Figure 3   As we can see, the training loss increases when the network going deeper without shortcuts (similar phenomenon is also observed in  #b10 ), but we obtain smaller loss when using skip connections.Comparison with deep residual networks  #b10  One may use different types of skip connections in our network, a straightforward alternate is that in  #b10 . In  #b10 , the skip connections are added to divide the network into sequential blocks. A benefit of our model is that our skip connections have element-wise correspondence, which can be very important in pixel-wise prediction problems. We carry out experiments to compare the two types of skip connections. Here the block size indicates the span of the connections. The results are shown in Figure 3 (c). We can observe that our connections often converge to a better optimum, demonstrating that element-wise correspondence can be important.Dealing with different levels of noises/corruption An important question is, can we handle different levels of corruption with a single model. Almost all existing methods need to train different models for different levels of corruption and estimate the corruption level at first. We use a trained model in  #b0 , to denoise different levels of noises with \u03c3 being 10, 30, 50 and 70. The obtained average PSNR on the 14 images are 29.95dB, 27.81dB, 18.62dB and 14.84dB, respectively. The results show that the parameters trained on a single noise level can not handle different levels of noises well. Therefore, in this paper, we aim to train a single model for recovering different levels of corruption, which are different noise levels in the task of image denoising and different scaling parameters in image super-resolution. The large capacity of the network is the key to this success.",
+        "Training": "Learning the end-to-end mapping from corrupted images to clean ones needs to estimate the weights \u0398 represented by the convolutional and deconvolutional kernels. This is achieved by minimizing the Euclidean loss between the outputs of the network and the clean image. In specific, given a collection of N training sample pairs X i , Y i , where X i is a corrupted image and Y i is the clean version as the groundtruth. We minimize the following Mean Squared Error(MSE):L(\u0398) = 1 n N n=1 F(X i ; \u0398) -Y i 2 F .(1)We implement and train our network using Caffe  #b15 . In practice, we find that using Adam  #b16  with learning rate 10 -4 for training converges faster than traditional stochastic gradient descent (SGD). The base learning rate for all layers are the same, different from  #b6  #b14 , in which a smaller learning rate is set for the last layer. This trick is not necessary in our network.As general settings in the literature, we use gray-scale image for denoising and the luminance channel for super-resolution in this paper. 300 images from the Berkeley Segmentation Dataset (BSD)  #b19  are used to generate the training set. For each image, patches of size 50 \u00d7 50 are sampled as ground truth. For denoising, we add additive Gaussian noise to the patches multiple times to generate a large training set (about 0.5M). For super-resolution, we first down-sample a patch and then up-sample it to its original size, obtaining a low-resolution version as the input of the network.",
+        "Testing": "Although trained on local patches, our network can perform denoising and super-resolution on images of arbitrary size. Given a testing image, one can simply go forward through the network, which is able to obtain a better performance than existing methods. To achieve more smooth results, we propose to process a corrupted image on multiple orientations. Different from segmentation, the filter kernels in our network only eliminate the corruptions, which is not sensitive to the orientation of image contents. Therefore, we can rotate and mirror flip the kernels and perform forward multiple times, and then average the output to get a more smooth image. We see that this can lead to slightly better denoising and super-resolution performance.",
+        "Experiments": "In this section, we provide evaluation of denoising and super-resolution performance of our models against a few existing state-of-the-art methods. Denoising experiments are performed on two datasets: 14 common benchmark images  #b32  #b2  #b17  #b8  and the BSD200 dataset. We test additive Gaussian noises with zero mean and standard deviation \u03c3 = 10, 30, 50 and 70 respectively. BM3D  #b4 , NCSR  #b7 , EPLL  #b33 , PCLR  #b2 , PDPD  #b32  and WMMN  #b8  are compared with our method. For super-resolution, we compare our network with SRCNN  #b6 , NBSRF  #b24 , CSCN  #b29 , CSC  #b9 , TSE  #b12  and ARFL+  #b25  on three dataset: Set5, Set14 and BSD100. The scaling parameter are tested with 2, 3 and 4.Peak Signal-to-Noise Ratio (PSNR) and Structural SIMilarity (SSIM) index are calculated for evaluation. For our method, which is denoted as RED-Net, we implement three versions: RED10 contains 5 convolutional and deconvolutional layers without shortcuts, RED20 contains 10 convolutional and deconvolutional layers with shortcuts, and RED30 contains 15 convolutional and deconvolutional layers with shortcuts.",
+        "Image Denoising": "Evaluation on the 14 images Table 1 presents the PSNR and SSIM results of \u03c3 10, 30, 50, and 70. We can make some observations from the results. First of all, the 10 layer convolutional and deconvolutional network has already achieved better results than the state-of-the-art methods, which demonstrates that combining convolution and deconvolution for denoising works well, even without any skip connections. Moreover, when the network goes deeper, the skip connections proposed in this paper help to achieve even better denoising performance, which exceeds the existing best method WNNM  #b8  by 0.32dB, 0.43dB, 0.49dB and 0.51dB on noise levels of \u03c3 being 10, 30, 50 and 70 respectively. While WNNM is only slightly better than the second best existing method PCLR  #b2  by 0.01dB, 0.06dB, 0.03dB and 0.01dB respectively, which shows the large improvement of our model. Last, we can observe that the more complex the noise is, the more improvement our model achieves than other methods. Similar observations can be made on the evaluation of SSIM. Evaluation on BSD200 For testing efficiency, we convert the images to gray-scale and resize them to smaller ones on BSD-200. Then all the methods are run on these images to get average PSNR and SSIM results of \u03c3 10, 30, 50, and 70, as shown in Table 2. For existing methods, their denoising performance does not differ much, while our model achieves 0.38dB, 0.47dB, 0.49dB and 0.42dB higher of PSNR over WNNM.",
+        "Image super-resolution": "The evaluation on Set5 is shown in Table 3. Our 10-layer network outperforms the compared methods already, and we achieve better performance with deeper networks. The 30-layer network exceeds the second best method CSCN for 0.52dB, 0.56dB and 0.47dB on scale 2, 3 and 4 respectively. The evaluation on Set14 is shown in Table 4. The improvement on Set14 in not as significant as that on Set5, but we can still observe that the 30 layer network achieves higher PSNR than the second best CSCN for 0.23dB, 0.06dB and 0.1dB. The results on BSD100, as shown in Table 5, is similar than that on Set5. The second best method is still CSCN, the performance of which is not as good as our 10 layer network. Our deeper network obtains much more performance gain than the others.",
+        "Evaluation with a single model": "To construct the training set, we extract image patches with different noise levels and scaling parameters for denoising and super-resolution. Then a 30-layer network is trained for the two tasks respectively. The evaluation results are shown in Table 6   levels of corruption, we can observe that the performance of our network only slightly degrades comparing to the case in which using separate models for denoising and super-resolution. This may be due the fact that the network has to fit much more complex mappings. Except that CSCN works slightly better on super-resolution with scales 3 and 4, our network still beats the existing methods, showing that our network works much better in image denoising and super-resolution even using only one single model to deal with complex corruption.",
+        "Conclusions": "In this paper we have proposed a deep encoding and decoding framework for image restoration. Convolution and deconvolution are combined, modeling the restoration problem by extracting primary image content and recovering details. More importantly, we propose to use skip connections, which helps on recovering clean images and tackles the optimization difficulty caused by gradient vanishing, and thus obtains performance gains when the network goes deeper. Experimental results and our analysis show that our network achieves better performance than state-of-the-art methods on image denoising and super-resolution.X.-J. Mao's contribution was made when visiting The University of Adelaide. This work was in part supported by ARC Future Fellowship (FT120100969). Correspondence should be addressed to C. Shen. "
+    },
+    {},
+    {
+        "b0": [
+            "Image denoising: Can plain neural networks compete with BM3D?",
+            "",
+            "",
+            "",
+            "Burger",
+            "Schuler",
+            "Harmeling"
+        ],
+        "b1": [
+            "Clustering-based denoising with locally learned dictionaries",
+            "",
+            "",
+            "",
+            "Chatterjee",
+            "Milanfar"
+        ],
+        "b2": [
+            "External patch prior guided internal clustering for image denoising",
+            "",
+            "",
+            "",
+            "Chen",
+            "Zhang",
+            "Yu"
+        ],
+        "b3": [
+            "Deep network cascade for image super-resolution",
+            "",
+            "",
+            "",
+            "Cui",
+            "Chang",
+            "Shan",
+            "Zhong",
+            "Chen"
+        ],
+        "b4": [
+            "Image denoising by sparse 3-d transform-domain collaborative filtering",
+            "",
+            "",
+            "",
+            "Dabov",
+            "Foi",
+            "Katkovnik",
+            "Egiazarian"
+        ],
+        "b5": [
+            "Compression artifacts reduction by a deep convolutional network",
+            "",
+            "",
+            "",
+            "Dong",
+            "Deng",
+            "Loy",
+            "Tang"
+        ],
+        "b6": [
+            "Image super-resolution using deep convolutional networks",
+            "",
+            "",
+            "",
+            "Dong",
+            "Loy",
+            "He",
+            "Tang"
+        ],
+        "b7": [
+            "Nonlocally centralized sparse representation for image restoration",
+            "",
+            "",
+            "",
+            "Dong",
+            "Zhang",
+            "Shi",
+            "Li"
+        ],
+        "b8": [
+            "Weighted nuclear norm minimization with application to image denoising",
+            "",
+            "",
+            "",
+            "Gu",
+            "Zhang",
+            "Zuo",
+            "Feng"
+        ],
+        "b9": [
+            "Convolutional sparse coding for image super-resolution",
+            "",
+            "",
+            "",
+            "Gu",
+            "Zuo",
+            "Xie",
+            "Meng",
+            "Feng",
+            "Zhang"
+        ],
+        "b10": [
+            "Deep residual learning for image recognition",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b11": [
+            "Decoupled deep neural network for semi-supervised semantic segmentation",
+            "",
+            "",
+            "",
+            "Hong",
+            "Noh",
+            "Han"
+        ],
+        "b12": [
+            "Single image super-resolution from transformed self-exemplars",
+            "",
+            "",
+            "",
+            "Huang",
+            "Singh",
+            "Ahuja"
+        ],
+        "b13": [
+            "Bidirectional recurrent convolutional networks for multi-frame super-resolution",
+            "",
+            "",
+            "",
+            "Huang",
+            "Wang",
+            "Wang"
+        ],
+        "b14": [
+            "Natural image denoising with convolutional networks",
+            "",
+            "",
+            "",
+            "Jain",
+            "Seung"
+        ],
+        "b15": [
+            "",
+            "",
+            "Convolutional architecture for fast feature embedding",
+            ""
+        ],
+        "b16": [
+            "Adam: A method for stochastic optimization",
+            "",
+            "",
+            "",
+            "Kingma",
+            "Ba"
+        ],
+        "b17": [
+            "Image denoising via adaptive soft-thresholding based on non-local samples",
+            "",
+            "",
+            "",
+            "Liu",
+            "Xiong",
+            "Zhang",
+            "Gao"
+        ],
+        "b18": [
+            "Fully convolutional networks for semantic segmentation",
+            "",
+            "",
+            "",
+            "Long",
+            "Shelhamer",
+            "Darrell"
+        ],
+        "b19": [
+            "A database of human segmented natural images and its application to evaluating segmentation algorithms and measuring ecological statistics",
+            "",
+            "",
+            "",
+            "Martin",
+            "Fowlkes",
+            "Tal",
+            "Malik"
+        ],
+        "b20": [
+            "A tour of modern image filtering: New insights and methods, both practical and theoretical",
+            "",
+            "",
+            "",
+            "Milanfar"
+        ],
+        "b21": [
+            "Learning deconvolution network for semantic segmentation",
+            "",
+            "",
+            "",
+            "Noh",
+            "Hong",
+            "Han"
+        ],
+        "b22": [
+            "An iterative regularization method for total variation-based image restoration",
+            "",
+            "",
+            "",
+            "Osher",
+            "Burger",
+            "Goldfarb",
+            "Xu",
+            "Yin"
+        ],
+        "b23": [
+            "Nonlinear total variation based noise removal algorithms",
+            "",
+            "",
+            "",
+            "Rudin",
+            "Osher",
+            "Fatemi"
+        ],
+        "b24": [
+            "Naive bayes super-resolution forest",
+            "",
+            "",
+            "",
+            "Salvador",
+            "Perez-Pellitero"
+        ],
+        "b25": [
+            "Fast and accurate image upscaling with super-resolution forests",
+            "",
+            "",
+            "",
+            "Schulter",
+            "Leistner",
+            "Bischof"
+        ],
+        "b26": [
+            "",
+            "",
+            "Very deep convolutional networks for large-scale image recognition",
+            ""
+        ],
+        "b27": [
+            "Training very deep networks",
+            "",
+            "",
+            "",
+            "Srivastava",
+            "Greff",
+            "Schmidhuber"
+        ],
+        "b28": [
+            "Extracting and composing robust features with denoising autoencoders",
+            "",
+            "",
+            "",
+            "Vincent",
+            "Larochelle",
+            "Bengio",
+            "Manzagol"
+        ],
+        "b29": [
+            "Deep networks for image super-resolution with sparse prior",
+            "",
+            "",
+            "",
+            "Wang",
+            "Liu",
+            "Yang",
+            "Han",
+            "Huang"
+        ],
+        "b30": [
+            "Learning super-resolution jointly from external and internal examples",
+            "",
+            "",
+            "",
+            "Wang",
+            "Yang",
+            "Wang",
+            "Chang",
+            "Yang",
+            "Huang"
+        ],
+        "b31": [
+            "Image denoising and inpainting with deep neural networks",
+            "",
+            "",
+            "",
+            "Xie",
+            "Xu",
+            "Chen"
+        ],
+        "b32": [
+            "Patch group based nonlocal self-similarity prior learning for image denoising",
+            "",
+            "",
+            "",
+            "Xu",
+            "Zhang",
+            "Zuo",
+            "Zhang",
+            "Feng"
+        ],
+        "b33": [
+            "From learning models of natural image patches to whole image restoration",
+            "",
+            "",
+            "",
+            "Zoran",
+            "Weiss"
+        ]
+    },
+    {
+        "tab_0": "Table 1 :1Average PSNR and SSIM results of \u03c3 10, 30, 50, 70 for the 14 images.PSNR",
+        "tab_1": "Table 2 :2Average PSNR and SSIM results of \u03c3 10, 30, 50, 70 on 200 images from BSD.PSNR",
+        "tab_2": "Table 3 :3Average PSNR and SSIM results on Set5.PSNRSRCNN NBSRF CSCNCSCTSEARFL+ RED10 RED20 RED30s = 236.6636.7637.1436.6236.5036.8937.4337.6237.66s = 332.7532.7533.2632.6632.6232.7233.4333.8033.82s = 430.4930.4431.0430.3630.3330.3531.1231.4031.51SSIMs = 20.95420.95520.9567 0.9549 0.95370.95590.95900.95970.9599s = 30.90900.91040.9167 0.9098 0.90940.90940.91970.92290.9230s = 40.86280.86320.8775 0.8607 0.86230.85830.87940.88470.8869",
+        "tab_3": "Table 4 :4and Table 7. Although training with different Average PSNR and SSIM results on Set14.PSNRSRCNN NBSRF CSCNCSCTSEARFL+ RED10 RED20 RED30s = 232.4532.4532.7132.3132.2332.5232.7732.8732.94s = 329.3029.2529.5529.1529.1629.2329.4229.6129.61s = 427.5027.4227.7627.3027.4027.4127.5827.8027.86SSIMs = 20.90670.90710.9095 0.9070 0.90360.90740.91250.91380.9144s = 30.82150.82120.8271 0.8208 0.81970.82010.83180.83430.8341s = 40.75130.75110.7620 0.7499 0.75180.74830.76540.76970.7718",
+        "tab_4": "Table 5 :5Average PSNR and SSIM results on BSD100 for super-resolution.PSNRSRCNN NBSRF CSCNCSCTSEARFL+ RED10 RED20 RED30s = 231.3631.3031.5431.2731.1831.3531.8531.9531.99s = 328.4128.3628.5828.3128.3028.3628.7928.9028.93s = 426.9026.8827.1126.8326.8526.8627.2527.3527.40SSIMs = 20.88790.88760.8908 0.8876 0.88550.88850.89530.89690.8974s = 30.78630.78560.7910 0.7853 0.78430.78510.79750.79930.7994s = 40.71030.71100.7191 0.7101 0.71080.70910.72380.72680.7290",
+        "tab_5": "Table 6 :6Average PSNR and SSIM results for image denoising using a single 30-layer network. 14 images BSD200 \u03c3 = 10 \u03c3 = 30 \u03c3 = 50 \u03c3 = 70 \u03c3 = 10 \u03c3 = 30 \u03c3 = 50 \u03c3 = 70PSNR34.4929.0926.7525.2033.3827.8825.6924.36SSIM0.93680.84140.77160.71570.92800.79800.71190.6544",
+        "tab_6": "Table 7 :7Average PSNR and SSIM results for image super-resolution using a single 30 layer network.Set5Set14BSD100s = 2s = 3s = 4s = 2s = 3s = 4s = 2s = 3s = 4PSNR37.5633.7031.3332.8129.5027.7231.9628.8827.35SSIM 0.9595 0.9222 0.8847 0.9135 0.8334 0.7698 0.8972 0.7993 0.7276"
+    }
+]

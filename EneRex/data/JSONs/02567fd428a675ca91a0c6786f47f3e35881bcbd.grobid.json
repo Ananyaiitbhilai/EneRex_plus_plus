@@ -1,0 +1,561 @@
+[
+    {
+        "basename": "02567fd428a675ca91a0c6786f47f3e35881bcbd.grobid",
+        "fulltext": 15,
+        "footnote_size": 1,
+        "footnote_max": 1,
+        "reference": 54,
+        "authors": [
+            "Gao",
+            "Xing",
+            "Xie",
+            "Wu",
+            "Geng"
+        ]
+    },
+    {
+        "title": "Deep Label Distribution Learning With Label Ambiguity",
+        "abstract": "Convolutional Neural Networks (ConvNets) have achieved excellent recognition performance in various visual recognition tasks. A large labeled training set is one of the most important factors for its success. However, it is difficult to collect sufficient training images with precise labels in some domains such as apparent age estimation, head pose estimation, multi-label classification and semantic segmentation. Fortunately, there is ambiguous information among labels, which makes these tasks different from traditional classification. Based on this observation, we convert the label of each image into a discrete label distribution, and learn the label distribution by minimizing a Kullback-Leibler divergence between the predicted and groundtruth label distributions using deep ConvNets. The proposed DLDL (Deep Label Distribution Learning) method effectively utilizes the label ambiguity in both feature learning and classifier learning, which help prevent the network from over-fitting even when the training set is small. Experimental results show that the proposed approach produces significantly better results than state-of-the-art methods for age estimation and head pose estimation. At the same time, it also improves recognition performance for multi-label classification and semantic segmentation tasks.",
+        "I. INTRODUCTION": "C ONVOLUTIONAL Neural Networks (ConvNets) have achieved state-of-the-art performance on various visual recognition tasks such as image classification  #b0 , object detection  #b1  and semantic segmentation  #b2 . The availability of a huge set of training images is one of the most important factors for their success. However, it is difficult to collect sufficient training images with unambiguous labels in domains such as age estimation  #b3 , head pose estimation  #b4 , multi-label classification and semantic segmentation. Therefore, exploiting deep learning methods with limited samples and ambiguous labels has become an attractive yet challenging topic.Why is it difficult to collect a large and accurately labeled training set? Firstly, it is difficult (even for domain experts) B.-B. Gao, C.-W. Xie and J. Wu are with the National Key Laboratory for Novel Software Technology, Nanjing University, Nanjing 210023, China (e-mail: gaobb@lamda.nju.edu.cn; xiecw@lamda.nju.edu.cn; wujx@lamda. nju.edu.cn).C. Xing and X. Geng are with the MOE Key Laboratory of Computer Network and Information Integration, School of Computer Science and Engineering, Southeast University, Nanjing 211189, China (e-mail: xingchao@seu.edu.cn; xgeng@seu.edu.cn).to provide exact labels to some tasks. For example, the pixels close to object boundaries are very difficult to label for annotators in semantic segmentation. In addition, pixel labeling is a time-consuming task that may limit the amount of training samples. Another example is that people's apparent age and head pose is difficult to describe with an accurate number. Secondly, it is very hard to gather complete and sufficient data. For example, it is difficult to build an age dataset covering people from 1 to 85 years old, and ensure that every age in this range has enough associated images. Similar difficulties arise in head pose estimation, where head poses are usually collected at a small set of angles with a 10 \u2022 or 15 \u2022 increment. Thus, the publicly available age, head pose and semantic segmentation datasets are small scale compared to those in image classification tasks.These aforementioned small datasets have a common characteristic, i.e., label ambiguity, which refers to the uncertainty among the ground-truth labels. On one hand, label ambiguity is unavoidable in some applications. We usually predict another person's age in a way like \"around 25\", which indicates using not only 25, but also neighboring ages to describe the face. And, different people may have different guesses towards the same face. Similar situations also hold for other types of tasks. The labels of pixels at object boundaries are difficult to annotate because of the inherent ambiguity of these pixels in semantic segmentation. On the other hand, label ambiguity can also happen if we are not confident in the labels we provide for an image. In the multi-label classification task, some objects are clearly visible but difficult to recognize. This type of objects are annotated as Difficult in the PASCAL Visual Object Classes (VOC) classification challenge  #b5 , e.g., the chair in the third image of the first row in Fig. 1.There are two main types of labeling methods: single-label recognition (SLR) and multi-label recognition (MLR). SLR assumes one image or pixel has one label and MLR assumes that one image or pixel may be assigned multiple labels. Both SLR and MLR aim to answer the question of which labels can be used to describe an image or pixel, but they can not describe the label ambiguity associated with it. Label ambiguity will help improve recognition performance if it can be reasonably exploited. In order to utilize label correlation (which may be considered as a consequence of label ambiguity in some applications), Geng et al. proposed a label distribution learning (LDL) approach for age estimation  #b3  and head pose estimation  #b6 . Recently, some improvements of LDL have been proposed. Xing et al. proposed two algorithms named LDLogitBoost and AOSO-LDLogitBoost to learn general models to relax the maximum entropy model in traditional LDL methods  #b7 . Furthermore, He et al. generated age label distributions through weighted linear combination of the input image's label and its context-neighboring samples  #b8 . However, these methods are suboptimal because they only utilize the correlation of neighboring labels in classifier learning, but not in learning the visual representations.Deep ConvNets have natural advantages in feature learning. Existing ConvNet frameworks can be viewed as classification and regression models based on different optimization objective functions. In many cases, the softmax loss and 2 loss are used in deep ConvNet models for classification  #b9  and regression problems  #b10 , respectively. The softmax loss maximizes the estimated probability of the ground-truth class without considering other classes, and the 2 loss minimizes the squared difference between the estimated values of the network and the ground-truth. These methods have achieved satisfactory performance in some domains such as image classification, human pose estimation and object detection. However, existing deep learning methods cannot utilize the label ambiguity information. Moreover, a well-known fact is that learning a good ConvNet requires a lot of images.In order to solve the issues mentioned above, we convert both traditional SLR and MLR problems to label distribution learning problems. Every instance is assigned a discrete label distribution y according to its ground-truth. better performance than the state-of-the-art methods on age and head pose estimation tasks. DLDL also improves the performance for multi-label classification and semantic segmentation. The rest of this paper is organized as follows. We first review the related work in Section II. Then, Section III proposes the DLDL framework, including the DLDL problem definition, DLDL theory, label distribution construction and training details. After that, the experiments are reported in Section IV. Finally, Section V presents discussions and the conclusion is given in Section VI.",
+        "II. RELATED WORK": "In the past two decades, many efforts have been devoted to visual recognition, including at least image classification, object detection, semantic segmentation, and facial attribute (apparent age and head pose) estimation. These works can be divided into two streams. Earlier research was mainly based on hand-crafted features, while more recent ones are usually deep learning methods. In this section, we briefly review these related approaches.Methods based on hand-crafted features usually include two stages. The first stage is feature extraction. The second stage learns models for recognition, detection or estimation using these features. SVM, random forest  #b11  and neural networks have commonly been used during the learning stage. In addition, Geng et al. proposed the label distribution learning approach to utilize the correlation among adjacent labels, which further improved performance on age estimation  #b3  and head pose estimation  #b6 .Although important progresses have been made with these features, the hand-crafted features render them suboptimal for particular tasks such as age or head pose estimation. More recently, learning feature representation has shown great advantages. For example, Lu et al.  #b12  tried to learn costsensitive local binary features for age estimation.Deep learning has substantially improved upon the stateof-the-art in image classification  #b9 , object detection  #b1 , semantic segmentation  #b2  and many other vision tasks. In many cases, the softmax loss is used in deep models for classification  #b9 . Besides classification, deep ConvNets have also been trained for regression tasks such as head pose estimation  #b13  and facial landmark detection  #b14 . In regression problems, the training procedure usually optimizes a squared 2 loss function. Satisfactory performance has also been obtained by using Tukey's biweight function in human pose estimation  #b10 . In terms of model architecture, deep ConvNet models which use deeper architecture and smaller convolution filters (e.g., VGG-Nets  #b15  and VGG-Face  #b16 ) are very powerful. Nevertheless, these deep learning methods do not make use of the presence of label ambiguity in the training set, and usually require a large amount of training data.A latest approach, in Inception-v3  #b17 , is based on label smoothing (LS). Instead of only using the ground-truth label, they utilize a mixture of the ground-truth label and a uniform distribution to regularize the classifier. However, LS is limited to the uniform distribution among labels rather than mining labels' ambiguous information. We believe that label ambiguity is too important to ignore. If we make good use of the ambiguity, we expect the required number of training images for some tasks could be effectively reduced.In this paper, we focus on how to exploit the label ambiguity in deep ConvNets. Age and head pose estimation from still face images are suitable applications of the proposed research. In addition, we also extend our works to multi-label classification and semantic segmentation.",
+        "III. THE PROPOSED DLDL APPROACH": "In this section, we firstly give the definition of the DLDL problem. Then, we present the DLDL theory. Next, we propose the construction methods of label distribution for different recognition tasks. Finally, we briefly introduce the DLDL architecture and training details.",
+        "A. The deep label distribution learning problem": "Given an input image, we are interested in estimating a category output y (e.g., age or head pose angles). For two input images X 1 and X 2 with ground-truth labels y 1 and y 2 , X 1 and X 2 are supposed to be similar to each other if the correlation of y 1 and y 2 is strong, and vice versa. For example, the correlation between faces aged 32 and 33 should be stronger than that between faces aged 32 and 64, in terms of facial details that reflect the age (e.g., skin smoothness). In other words, we expect high correlation among input images with similar outputs. The label distribution learning approach  #b3 ,  #b6  exploited such correlations in the machine learning phase, but used features that are extracted ignoring these correlations. The proposed DLDL approach, however, is an end-to-end deep learning method which utilizes such correlation information in both feature learning and classifier learning. We will also extend DLDL to handle other types of label ambiguity beyond correlation.To fulfill this goal, instead of outputting a single value y for an input X, DLDL quantizes the range of possible y values into several labels. For example, in age estimation, it is reasonable to assume that 0 < y \u2264 85, and it is a common practice to estimate integer values for ages. Thus, we can define the set L = {1, 2, . . . , 85} as the ordered label set for age estimation. The task of DLDL is then to predict a label distribution y \u2208 R 85 , where y i is the estimated probability that X should be predicted to be i years old. By estimating an entire label distribution, the deep learning machine is forced to take care of the ambiguity among labels.Specifically, the input space of our framework is X = R h\u00d7w\u00d7d , where h, w and d are the height, width, and number of channels of the input image, respectively. DLDL predicts a label distribution vector y \u2208 R |Y | , where Y = {l 1 , l 2 , . . . , l C } is the label set defined for a specific task (e.g., the L above). We assume Y is complete, i.e., any possible y value has a corresponding member in Y . A training data set with N instances is then denoted as D = {(X 1 , y 1 ), \u2022 \u2022 \u2022 , (X N , y N )}. We use boldface lowercase letters like y to denote vectors, and the i-th element of y is denoted as y i . The goal of DLDL is to directly learn a conditional probability mass function \u0177 = p(y|X; \u03b8) from D, where \u03b8 is the parameters in the framework.",
+        "B. Deep label distribution learning": "Given an instance X with label distribution y, we assume that x = \u03c6(X; \u03b8) is the activation of the last fully connected layer in a deep ConvNet. We use a softmax function to turn these activations into a probability distribution, that is,\u0177j = exp(x j ) t exp(x t ) .(1)Given a training data set D, the goal of DLDL is to find \u03b8 to generate a distribution \u0177 that is similar to y.There are different criteria to measure the similarity or distance between two distributions. For example, if the Kullback-Leibler (KL) divergence is used as the measurement of the similarity between the ground-truth and predicted label distribution, then the best parameter \u03b8 * is determined by\u03b8 * = argmin \u03b8 k y k ln y k \u0177k = argmin \u03b8 - k y k ln \u0177k . (2)Thus, we can define the loss function as:T = - k y k ln \u0177k .(3)Stochastic gradient descent is used to minimize the objective function Eq. 3. For any k and j,\u2202T \u2202 \u0177k = - y k \u0177k ,(4)and the derivative of softmax (Eq. 1) is well known, as\u2202 \u0177k \u2202x j = \u0177k \u03b4 {k=j} -\u0177j ,(5)where \u03b4 {k=j} is 1 if k = j, and 0 otherwise. According to the chain rule, for any fixed j, we have\u2202T \u2202x j = k \u2202T \u2202 \u0177k \u2202 \u0177k \u2202x j = -y j + \u0177j k y k = -y j + \u0177j . (6)Thus, the derivative of T with respect to \u03b8 is\u2202T \u2202\u03b8 = (\u0177 -y) \u2202x \u2202\u03b8 . (7)Once \u03b8 is learned, the label distribution \u0177 of any new instance X can be generated by a forward run of the network. If the expected class label is a single one, DLDL outputsl i * \u2208 Y , where i * = argmax i \u0177i .(8)Prediction with multiple labels is also allowed, which could be a set {l i |\u0177 i > \u03be} where \u03be \u2208 [0, 1] is a predefined threshold.If the expected output is a real number, DLDL predicts the expectation of \u0177i , asi \u0177i l i ,(9)where l i \u2208 Y . This indicates that DLDL is suitable for both classification and regression tasks.",
+        "C. Label distribution construction": "The ground-truth label distribution y is not available in most existing datasets, which must be generated under proper assumptions. A desirable label distribution y = (y 1 , y 2 , . . . , y C ) must satisfy some basic principles: (1) y should be a probability distribution. Thus, we have y i \u2208 [0, 1] andC i=1 y i = 1.(2) The probability values y i should have difference among all possible labels associated with an image. In other words, a less ambiguous category must be assigned high probability and those more ambiguous labels must have low probabilities. In this section, we propose the way to construct label distributions for age estimation, head pose estimation, multi-label classification and semantic segmentation.For age estimation, we assume that the probabilities should concentrate around the ground-truth age y. Thus, we quantize y to get y using a normal distribution. For example, the apparent age of a face is labeled by hundreds of users. The ground-truth (including a mean \u00b5 and a standard deviation \u03c3) is calculated from all the votes. For this problem, we find the range of the target y (e.g., 0 < y \u2264 85), quantize it into a complete and ordered label set L = {l 1 , l 2 , . . . , l C }, where C is the label set size and l i \u2208 R are all possible predictions for y. A label distribution y is then (y 1 , y 2 , . . . , y C ), where y i is the probability that y = l i (i.e., y i = Pr(y = l i ) for 1 \u2264 i \u2264 C). Since we use equal step size in quantizing y, the normal p.d.f. (probability density function) is a natural choice to generate the ground-truth y from \u00b5 and \u03c3:y j = p(l j |\u00b5, \u03c3) k p(l k |\u00b5, \u03c3) , (10)wherep(l j |\u00b5, \u03c3) = 1 \u221a 2\u03c0\u03c3 exp - (lj -\u00b5) 2 2\u03c3 2. Fig. 1a shows a face and its corresponding label distribution. For problems where \u03c3 is unknown, we will show that a reasonably chosen \u03c3 also works well in DLDL.For head pose estimation, we need to jointly estimate pitch and yaw angles. Thus, learning joint distribution is also necessary in DLDL. Suppose the label set isL = {l jk |j = 1, \u2022 \u2022 \u2022 , n 1 , k = 1, \u2022 \u2022 \u2022 , n 2 }, where l jk is a pair of values. That is, we want to learn the joint distribution of two variables. Then, the label distribution y can be represented by an n 1 \u00d7n 2 matrix, whose (j, k)-th element is y jk . For example, when we use two angles (pitch and yaw) to describe a head pose, l jk is a pair of pitch and yaw angles. Given an instance X with ground-truth mean \u00b5 and covariance matrix \u03a3, we calculate its label distribution asy jk = p(l jk ) j k p(l jk ) ,(11)where p(l jk ) =1 2\u03c0|\u03a3| 1 2 exp -1 2 (l jk -\u00b5) T \u03a3 -1 (l jk -\u00b5) .In the above, we assume \u03a3 = \u03c3 2 0 0 \u03c3 2 , that is, the covariance matrix is diagonal. Fig. 1b shows a joint label distribution with head pose pitch = 0 \u2022 and yaw = 60 \u2022 .For multi-label classification, a multi-label image always contains at least one object of the class of interest. There are usually multiple labels for an image. These labels are grouped into three different levels, including Positive, Negative and Difficult in the PASCAL VOC dataset  #b5 . A label is Positive means an image contains objects from that category, and Negative otherwise. Difficult indicates that an object is clearly visible but difficult to recognize. Existing multi-label methods often view Difficult as Negative, which leads to the loss of useful information. It is not reasonable either if we simply treat Difficult as Positive. Therefore, a nature choice is to use label ambiguity. We define different probabilities for different types of labels, asp P > p D > p N ,(12)for Positive, Difficult and Negative labels, respectively. Furthermore, an 1 normalization is applied to ensureC i=1 y i = 1: y j = p(l j ) k p(l k ) ,(13)where p(l k ) equals p P , p D or p N if the label l k is Positive, Difficult or Negative, respectively. The label distribution is shown for a multi-label image in Fig. 1c.For semantic segmentation, we need to label a pixel as belonging to one class if it is a pixel inside an object of that class, or as the background otherwise. Let y ijk denote the annotation of the (i, j)-th pixel, where k = {0, 1, . . . , C} (assuming there are C categories and 0 for background). Fully Convolutional Networks (FCN) have been an effective solution to this task. In FCN  #b2 , a ground-truth label l means that y ijl = 1 and y ijk = 0 for all k = l. However, it is very difficult to specify ground-truth labels for pixels close to object boundaries, because labels of these pixels are inherently ambiguous. We propose a mechanism to describe the label ambiguity in the boundaries. Considering a Gaussian kernel matrix f K\u00d7K , we replace the original label distribution y with y , asy ijk = K i =1 K j =1 f i j \u00d7 y i +(i-1)S-P,j +(j-1)S-P,k . (14)where f i j \u2265 0,K i =1 K j =1 f i j = 1,K is the kernel size, P and S are padding and stride sizes. In our experiment, we set K = 5, P = 2 and S = 1, and the generated label distribution isy ijk = y ijk k y ijk . (15)Fig. 1d gives the semantic label distribution for a bird image which shows that the ambiguity is encoded in the label distributions.",
+        "D. The DLDL architecture and training details": "We use a deep ConvNet and a training set D to learn a \u0177 as the estimation of y. The structure of our network is based on popular deep models such as ZF-Net  #b18  and VGG-Nets  #b15 . The ZF-Net consists five convolution layers, followed by three fully connected layers. The VGG-Nets architecture includes 16 or 19 layers. We modify the last fully connected layer's output based on the task and replace the original softmax loss function with the KL loss function. In addition, we use the parameter ReLU  #b19  for ZF-Net. In our network, the input is an order three tensor X h\u00d7w\u00d7d and the output \u0177 may be a vector (age estimation and multi-label classification), a matrix (head pose estimation) or a tensor (semantic segmentation).In this paper, we train the deep models in two ways: Training from scratch. For ZF-Net, the initialization is performed randomly, based on a Gaussian distribution with zero mean and 0.01 standard deviation, and biases are initialized to zero. The coefficient of the parameter ReLU is initialized to 0.25. The dropout is applied to the last two fully connected layers with rate 0.5. The coefficient of weight decay is set to 0.0005. Optimization is done by Stochastic Gradient Descent (SGD) using mini-batches of 128 and the momentum coefficient is 0.9. The initial learning rate is set to 0.01. The total number of epochs is about 20.Fine-tuning. Three pre-trained models including VGG-Nets (16-layers and 19-layers) and VGG-Face (16-layers) are used to fine-tune for different tasks. We remove these pretrained models' classification layer and loss layer, and put in our label distribution layer which is initialized by the Gaussian distribution N (0, 0.01) and the KL loss layer. The learning rates of the convolutional layers, the first two fully-connected layers and the label distribution layer are initialized as 0.001, 0.001 and 0.01, respectively. We fine-tune all layers by back propagation through the whole net using mini-batches of 32. The total number of epochs is about 10 for age estimation and 20 for multi-label classification.",
+        "IV. EXPERIMENTS": "We evaluate DLDL on four tasks, i.e., age estimation, head pose estimation, multi-label classification and semantic segmentation. Our implementation is based on MatConvNet  #b20 . 1All our experiments are carried out on a NVIDIA K40 GPU with 12GB of onboard memory.",
+        "A. Age estimation": "Datasets. Two age estimation datasets are used in our experiments. The first is Morph  #b21 , which is one of the largest publicly available age datasets. There are 55,134 face images from more than 13,000 subjects. Ages range from 16 to 77. Since no TRAIN/TEST split is provided, 10-fold crossvalidation is used for Morph.The second dataset is from the apparent age estimation competition, the first competition track of the ICCV ChaLearn LAP 2015 workshop  #b22 . Compared with Morph, this dataset (ChaLearn) consists of images collected in the wild, without any position, illumination or quality restriction. The only condition is that each image contains only one face. The dataset has 4,699 images, and is split into 2,476 training (TRAIN), 1,136 validation (VAL) and 1,087 testing (TEST) images. The apparent age (i.e., how old does this person look like) of each image is labeled by multiple individuals. The age of face images range from 3 to 85. For each image, its mean age and the corresponding standard deviation are given. Since the ground-truth for TEST images are not published, we train on the TRAIN split and evaluate on the VAL split of ChaLearn images.Baselines. To demonstrate the effectiveness of DLDL, we firstly consider two related methods as baselines: Conv-Net+LS (KL) and ConvNet+LD (\u03b1-div). The former uses label smoothing (LS)  #b17  as ground-truth and KL divergence as loss function. The latter uses label distribution (LD) as ground-truth and \u03b1 divergence  #b23  as loss function, which isT = -2 k ( \u221a y k -\u0177k ) 2 . (16)In addition, we also compare DLDL with the following baseline methods:\u2022 BFGS-LDL Geng et al. proposed the label distribution learning approach (IIS-LLD) for age and head pose estimation. They used traditional image features. To further improve IIS-LLD, Geng et al.  #b24  proposed a BFGS-LDL algorithm by using the effective quasi-Newton optimization method BFGS.  We define Y = {1, 2, . . . , 85} for both datasets. The label distribution of each image is generated using Eq. 10. The mean \u00b5 is provided in both Morph and ChaLearn. The standard deviation \u03c3, however, is provided in ChaLearn but not in Morph. We simply set \u03c3 = 2 in Morph. Experiments for different methods are conducted under the same data splits.Evaluation criteria. Mean Absolute Error (MAE) and Cumulative Score (CS) are used to evaluate the performance of age estimation. MAE is the average difference between the predicted and the real age:M AE = 1 N N n=1 | ln -l n |,(17)where ln and l n are the estimated and ground-truth age of the n-th testing image, respectively. CS is defined as the accuracy rate of correct estimation:CS g = C g N \u00d7 100%,(18)where C g is the number of correct estimation, i.e., testing images that satisfy | ln -l n | \u2264 g. In our experiment, g \u2208 {1, 2, . . . , 30}. In addition, a special measurement (namederror) is defined by the ChaLearn competition, computed as Results. Table I lists results on both datasets. The upper part shows results in the literature. The middle part shows the baseline results. The lower part shows the results of the proposed approach. The first term in the parenthesis behind each method is the loss function corresponding to the method. Max or Exp represent predicting according to Eq. 8 or 9, respectively. Since cross-validation is used in Morph, we also provide its standard deviations.= 1 N N n=1 1 -exp - ( ln -l n ) 2 2\u03c3 2 n . (19)From Table I, we can see that DLDL consistently outperforms baselines and other published methods. The difference between DLDL (KL, Max) and its competitor C-ConvNet (softmax, Max) is 0.51 on Morph. This gap is more than 6 times the sum of their standard deviations (0.03+0.05), showing statistically significant differences. The advantage of DLDL over R-ConvNet, C-ConvNet and ConvNet+LS suggests that learning label distribution is advantageous in deep end-to-end models. DLDL has much better results than BFGS-LDL, which shows that the learned deep features are more powerful than manually designed ones. Compared to ConvNet+LD (\u03b1-div), DLDL (KL) achieves lower MAE on both datasets. It indicates that KL-divergence is better than \u03b1-divergence for measuring the similarity of two distributions in this context.We find that C-ConvNet and R-ConvNet are not stable. The R-ConvNet ( 1 ) method, although being the second best method for ChaLearn, is inferior to C-ConvNet (softmax, Exp) for Morph. In addition, we also find that Eq. 9 is better than Eq. 8 in many cases, which suggests that Eq. 9 is more suitable than Eq. 8 for age estimation.    I for those methods involving Max (Eq. 8) and Exp (Eq. 9) (higher is better, best viewed in color).   Fine-tuning DLDL. Instead of training DLDL from scratch, we also fine-tune the network of VGG-Face  #b16 . On the small scale ChaLearn dataset, the MAE of DLDL is reduced from 5.34 to 3.51, yielding a significant improvement. The -error of DLDL is reduced from 0.44 to 0.31, which is close to the best competition result 0.28  #b29  on the validation set. In  #b30 , external training images (260,282 additional external training images with real age annotation) were used. DLDL only uses the ChaLearn dataset's 2,476 training images and is the best among ChaLearn teams that do not use external data  #b22 . In the competition, the best external-data-free -error is 0.48, which is worse than DLDL's. However, the idea in  #b30  to use external data is useful for further reducing DLDL's estimation error.Fig. 3a and Fig. 3b show the CS curves on ChaLearn and Morph datasets. At every error level, our DLDL finetuned VGG-Face always achieves the best accuracy among all methods. It is noteworthy that the CS curves of DLDL (KL, Max) and ConvNet (\u03b1-div, Max) are very close to that of the DLDL+VGG-Face (KL, Max) on Morph even without lots of external data and very deep model. This observation supports the idea that using DLDL can achieve competitive performance even with limited training samples.In Fig. 4, we show some examples of face images from the ChaLearn validation set and predicted label distributions by DLDL (KL, Exp). In many cases, our solution is able to accurately predict the apparent age of faces. Failures may come from two causes. The first is the failure to detect or align the face. The second is some extreme conditions of face images such as occlusion, low resolution, heavy makeup and old photos.",
+        "B. Head pose estimation": "Datasets. We use three datasets in head pose estimation: Pointing'04  #b31 , BJUT-3D  #b32  and Annotated Facial Landmarks in the Wild (AFLW)  #b33 . In them, head pose is determined by two angles: pitch and yaw. Pointing'04 discretizes the pitch into 9 angles {0\u2022 , \u00b115 \u2022 , \u00b130 \u2022 , \u00b160 \u2022 , \u00b190 \u2022 } and the yaw into 13 angles {0 \u2022 , \u00b115 \u2022 , \u00b130 \u2022 , \u00b145 \u2022 , \u00b160 \u2022 , \u00b175 \u2022 , \u00b190 \u2022 }.When the pitch angel is +90 \u2022 or -90 \u2022 , the yaw angle is always set to 0 \u2022 . Thus, there are 93 poses in total. The head images are taken from 15 different human subjects in two different time periods, resulting in 15\u00d72\u00d793 = 2, 790 images.BJUT-3D contains 500 3D faces (250 male and 250 female people), acquired by a CyberWare Laser Scanner in an engineered environment. 9 pitch angles {0\u2022 , \u00b110 \u2022 , \u00b120 \u2022 , \u00b130 \u2022 , \u00b140 \u2022 } and 13 yaw angles {0 \u2022 , \u00b110 \u2022 , \u00b120 \u2022 , \u00b130 \u2022 , \u00b140 \u2022 , \u00b150 \u2022 , \u00b160 \u2022 } are used.There are in total 93 poses in this dataset, similar to that in Pointing'04. Therefore, 500 \u00d7 93 = 46, 500 face images are obtained.Unlike Pointing'04 and BJUT-3D, the AFLW is a real-world face database. Head pose is coarsely obtained by fitting a mean 3D face with the POSIT algorithm  #b34 . The dataset contains Implementation details. The head region is provided by bounding box annotations in Pointing'04 and AFLW. The BJUT-3D does not contain background regions. Therefore, we will not perform any preprocessing.In DLDL, we set \u03c3 = 15 \u2022 in Pointing'04 and \u03c3 = 5 \u2022 in BJUT-3D for constructing label distributions. For AFLW, ground-truth of head pose angles are given as real numbers. Ground-truth (pitch and yaw) angles are divided from -90 \u2022 to +90 \u2022 in steps of 3 \u2022 , so we get 61 \u00d7 61 = 3, 721 (pitch, yaw) pair category labels. We set \u03c3 = 3 \u2022 for AFLW. Since the discrete Jeffrey's divergence is used in LDL  #b6 , we implement BFGS-LDL with the Kullback-Leibler divergence. All experiments are performed under the same setting, including data splits, input size and network architecture.To validate the effectiveness of DLDL for head pose estimation, we use the same baselines as age estimation. Our experiments show that Eq. 9 has lower accuracy than Eq. 8. Hence, we use Eq. 8 in this section.Evaluation criteria. Three types of prediction values are evaluated: pitch, yaw, and pitch+yaw, where pitch+yaw jointly estimates the pitch and yaw angles. Two different measurements are used, which is MAE (Eq. 17 In particular, the MAE of pitch+yaw is calculated as the Euclidean distance between the predicted (pitch, yaw) pair and the ground-truth pair; the Acc of pitch+yaw is calculated by regarding each (pitch, yaw) pair as a class. For R-ConvNet, we only report its MAE but not Acc, because its predicted value are continuous real numbers. All methods are tested with 5-fold cross validation for Pointing'04 and BJUT-3D Results. Tables II, III and IV show results on Pointing'04, BJUT-3D and AFLW, respectively. Pointing'04 is small scale with only 2,790 images. We observe that BFGS-LDL (with hand-crafted features) has much lower MAE and much higher accuracy than deep learning methods C-ConvNet, R-ConvNet and ConvNet+LS. One reasonable conjecture is that C-ConvNet, R-ConvNet and ConvNet+LS are not well-learned with only small number of training images. DLDL, however, successfully learns the head pose. For example, its accuracy for pitch+yaw is 73.15% (and C-ConvNet is only 42.97%). That is, DLDL is able to perform deep learning with few training images, while C-ConvNet R-ConvNet and ConvNet+LS have failed for this task.On BJUT-3D and AFLW which have enough training data, we observe that many deep learning methods show higher performance than BFGS-LDL. DLDL achieves the best performance: it has much lower MAE and higher accuracy than other methods. Another observation is also worth mentioning. Although R-ConvNet is better than C-ConvNet when label is dense such as age estimation and head pose estimation on AFLW, it is obviously worse than C-ConvNet on BJUT-3D and pointing'04 for head pose estimation which have sparse labels. In other words, the performance of C-ConvNet and R-ConvNet are not very robust, while the proposed method consistently achieves excellent performance.(+77 \u2022 ,-4 \u2022 ) (-16 \u2022 ,-1 \u2022 ) (-1 \u2022 ,-30 \u2022 ) (+30 \u2022 ,+8 \u2022 ) (+4 \u2022 ,-4 \u2022 ) (-36 \u2022 ,+13 \u2022 ) (-87 \u2022 ,-3 \u2022 ) (-61 \u2022 ,-58 \u2022 ) (+63 \u2022 ,+12 \u2022 ) (+80 \u2022 ,-27Fig. 3c shows the pitch+yaw CS curves on the AFLW dataset. There is an obvious gap between DLDL and baseline methods at every error level. Fig. 5 shows the predicted label distributions for different head poses on the AFLW testing set using the DLDL model. Our approach can estimate head pose with low errors but may fail under some extreme conditions. It is noteworthy that DLDL may produce more incorrect estimations when both yaw and pitch are large (e.g., \u00b190 \u2022 ). The reason might be that there are much fewer training examples for large angles than for other angles.",
+        "C. Multi-label classification": "Datasets. We evaluate our approach for multi-label classification on the PASCAL VOC dataset  #b5 : PASCAL VOC2007 and VOC2012. There are 9,963 and 22,531 images in them, respectively. Each image is annotated with one or several labels, corresponding to 20 object categories. These images are divided into three subsets including TRAIN, VAL and TEST sets. We train on the TRAINVAL set and evaluate on the TEST set. The evaluation metric is average precision (AP) and mean average precision (mAP), complying with the PASCAL challenge protocols.We denote our methods as Images-Fine-tuning-DLDL (IF-DLDL) and Proposals-Fine-tuning-DLDL (PF-DLDL) when ConvNets are fine-tuned by images and proposals of images, respectively. Details of these two variants are explained later in this section. We compare the proposed approaches with the following methods:\u2022 VGG+SVM  #b15 . This method densely extracted 4,096 dimensional ConvNet features at the penultimate layer of VGG-Nets pre-trained on ImageNet. These features from different scales (smallest image side Q \u2208 {256, 384, 512, 640, 768}) were aggregated by average pooling. Then, these averaged features from two networks (\"Net-D\" containing 16 layers and \"Net-E\" containing 19 layers) were further fused by stacking. Finally,  #b15  2 normalized the resulting image features and used these features to train a linear SVM classifier for multi-label classification.\u2022 HCP  #b36 . HCP proposed to solve the multi-label object recognition task by extracting object proposals from the images. The method used image label and square loss to fine-tune a pre-trained ConvNet. Then, BING  #b37  or EdgeBoxes  #b38  was used to extract object proposals, which were used to fine-tune the ConvNet again. Finally, scores of these proposals were max-pooled to obtain the prediction.\u2022 Fev+Lv  #b39 . This approach transformed the multilabel object recognition problem into a multi-class multiinstance learning problem. Two views (label view and feature view) were extracted for each proposal of images. Then, these two views were encoded by a Fisher vector for each image. \u2022 IF-VGG-2 and IF-VGG-KL. We fine-tune the VGG-Nets with square loss and multi-label cross-entropy loss  #b40  and use them as our IF-DLDL's baselines. They are trained using the same setting.Implementation details. According to the ground-truth labels, we set different probabilities for all possible labels on PASCAL VOC dataset. In our experiments, p P = 1, p D = 0.3, p N = 0. Finally, similar to label smoothing, a uniform distribution u i = /20 is added to y, where = 0.01. IF-DLDL. Following  #b15 , each training image is individually rescaled by randomly sampling in the range [256,512]. We randomly crop 256 \u00d7 256 patches from these resized images. We also adjust the pooling kernel in the pool5 layer from 3 \u00d7 3 to 4 \u00d7 4. Max-pooling and Avg-pooling are used at pool5 to train two ConvNets. We obtain four ConvNet models thought fine-tuning \"Net-D\" and \"Net-E\". At the prediction stage, the smaller side of each image is scaled to a fixed length Q \u2208 {256, 320, 384, 448, 512}. Each scaled image is fed to the fine-tuned ConvNets to obtain the 20-dim probability outputs. These probability outputs from different scales and different models are averaged to form the final prediction.PF-DLDL. Following  #b41 , we further fine-tune IF-DLDL models with proposals of images to boost performance. For each training image, we employ EdgeBoxes  #b38  to produce a set of proposal bounding boxes which are grouped into m clusters by the normalized cut algorithm  #b45 . For each cluster, the top k proposals with higher predictive scores generated by EdgeBoxes are resized into square shapes (i.e., 256 \u00d7 256). As a result, we can obtain mk proposals for an image. Finally, these mk resized proposals are fed into a fine-tuned IF-DLDL model to obtain prediction scores and these scores are fused by max-pooling to form the prediction distribution of the image. This process can be learned by using an end-to-end way. In our implementation, we set m = 15, k = 1 and m = 15, k = 30 at the training and the prediction stage, respectively. Similar to IF-DLDL, we also average fuse prediction scores of different models to generate the final prediction.Results. In Table V, we compare single model results (average AP of all classes) on VOC2007. Our PF-DLDL defeats all the other methods. Compared with Fev+Lv  #b39 , 1.7% improvement can be achieved by PF-DLDL even without using the bounding box annotation. Compared with HCP-VGG  #b41 , our PF-DLDL can achieve 92.3% mAP, which is significantly higher than their 90.9%. This further indicates that it is very important to learn a label distribution.Table VI and VII report details of all experimental results on VOC2007 and VOC2012, respectively. It can be seen that IF-DLDL outperforms IF-VGG-2 by 1.1% for VOC2007 and 1.3% for VOC2012, which indicates that the KL loss function is more suitable than 2 loss for measuring the similarity of two label distributions. Furthermore, IF-DLDL improves IF-VGG-KL for about 0.2-0.3 points in mAP, which suggests that learning a label distribution is beneficial. More importantly, PF-DLDL can achieve 93.4% for VOC2007 and 92.4% for VOC2012 in mAP when we average fuse output scores of four PF-DLDL models.Our framework shows good performance especially for scene categories such as \"chair\", 'table\" and \"sofa\". Although PF-DLDL significantly outperforms IF-DLDL in mAP, PF-DLDL has higher computational cost than IF-DLDL on both training and testing stages. Since IF-DLDL does not need region proposals or bounding box information, it may be effectively and efficiently implemented for practical multilabel application such as multi-label image retrieval  #b46 . It is also possible that by adopting new techniques (such as the region proposal method using gated unit in  #b47 , which has higher accuracy that ours on VOC tasks), the accuracy of our DLDL methods can be further improved.  ",
+        "V. DISCUSSIONS": "In this section, we try to understand the generalization performance of DLDL through feature visualization, and to analyze why DLDL can achieve high accuracy with limited training data. In addition, a study of the hyper-parameter is also provided.Feature visualization. We visualize the model features in a low-dimensional space. Early layers learn low-level features (e.g., edge and corner) and latter layers learn high level features (e.g., shapes and objects) in a deep ConvNet  #b18 . Hence, we extract the penultimate layer features (4,096dimensional) on Morph, ChaLearn, Pointing'04 and AFLW validation sets. To obtain the 2-dimensional embeddings of the extracted high dimensional features, we employ a popular dimension reduction algorithm t-SNE  #b51 . The low-dimensional embeddings of validation images from the above four datasets are shown in Fig. 6. The first row shows the 2-dim embeddings of hand-crafted features (BIF for Morph and Chalearn, HOG for Pointing'04 and AFLW) and the second row shows that of the DLDL features. These figures are colored by their semantic category. It can be observed that clear semantic clusterings (old or young for age datasets, left or right, up or down for head pose datasets) appear in deep features but do not in handcrafted features.Reduce over-fitting. DLDL can effectively reduce overfitting when the training set is small. This effect can be explained by the label ambiguity. Considering an input sample X with one single label l. In traditional deep ConvNet, y l = 1 and y k = 0 for all k = l. In DLDL, the label distribution y contains many non zeros elements. The diversity of labels helps reduce over-fitting. Moreover, the objective function (Eq. 3) of DLDL can be rewritten as In Eq. 20, the first term is the tradition ConvNet loss function.The second term maximize the log-likelihood of the ambiguous labels. Unlike existing data augmentation techniques such as random cropping on the images, DLDL augments data on the label side. In Fig. 8, MAE is shown as a function of the number of epochs on two age datasets (ChaLearn and Morph) and two head pose datasets (BJUT-3D and AFLW). On ChaLearn Robust performance. One notable observation is that C-ConvNet and R-ConveNet is unstable. Fig. 8c shows the MAE for pitch+yaw, a complicated estimation of the joint distribution. This is a very sparse label set because the interval of adjacent class (pitch or yaw) is 10 \u2022 . R-ConvNet has difficulty in estimating this output, yielding errors that are roughly 20 times higher than DLDL and C-ConvNet. On the other hand, C-ConvNet easily fall into over-fitting when there are not enough training data (e.g, Fig. 8a and Fig. 8d). The proposed DLDL is more amenable to small datasets or sparse labels than C-ConvNet and R-ConvNet.Analyze the hyper-parameter. DLDL's performance may be affected by the label distribution. Here, we take age estimation (Morph) and head pose estimation (Pointing'04) for examples. \u03c3 is a common hyper-parameter in these tasks if it is not provided in the ground-truth. We have empirically set \u03c3 = 2 in Morph, and \u03c3 = 15 \u2022 in Pointing'04 in our experiments. In order to study the impact of \u03c3, we test DLDL with different \u03c3 values, changing from 0 to 3\u03c3 with 0.5\u03c3 interval. Fig. 9 shows the MAE performance on Morph and Pointing'04 with different \u03c3. We can see that a proper \u03c3 is important for low MAE. But generally speaking, a \u03c3 value that is close to the interval between neighboring labels is a good choice. Because the shape of all curves are V-shape like, it is also very convenient to find an optimal \u03c3 value using the cross-validation strategy.",
+        "VI. CONCLUSION": "We observe that current deep ConvNets cannot successfully learn good models when there are not enough training data and/or the labels are ambiguous. We propose DLDL, a deep label distribution learning framework to solve this issue by exploiting label ambiguity. In DLDL, each image is labeled by a label distribution, which can utilize label ambiguity in both feature learning and classifier learning. DLDL consistently improves the network training process in our experiments, by preventing it from over-fitting when the training set is small. We empirically showed that DLDL produces robust and competitive performances than traditional classification or regression deep models on several popular visual recognition tasks.However, constructing a reasonable label distribution is still challenging due to the diversity of label space for different recognition tasks. It is an interesting direction to extend DLDL to more recognition problems by constructing different label distributions."
+    },
+    {
+        "1": "http://www.vlfeat.org/matconvnet/"
+    },
+    {
+        "b0": [
+            "ImageNet classification with deep convolutional neural networks",
+            "",
+            "",
+            "",
+            "Krizhevsky",
+            "Sutskever",
+            "Hinton"
+        ],
+        "b1": [
+            "Rich feature hierarchies for accurate object detection and semantic segmentation",
+            "",
+            "",
+            "",
+            "Girshick",
+            "Donahue",
+            "Darrell",
+            "Malik"
+        ],
+        "b2": [
+            "Fully convolutional networks for semantic segmentation",
+            "",
+            "",
+            "",
+            "Long",
+            "Shelhamer",
+            "Darrell"
+        ],
+        "b3": [
+            "Facial age estimation by learning from label distributions",
+            "",
+            "",
+            "",
+            "Geng",
+            "Yin",
+            "Zhou"
+        ],
+        "b4": [
+            "Head pose estimation from a 2D face image using 3D face morphing with depth parameters",
+            "",
+            "",
+            "",
+            "Kong",
+            "Mbouna"
+        ],
+        "b5": [
+            "The PASCAL visual object classes (VOC) challenge",
+            "",
+            "",
+            "",
+            "Everingham",
+            "Van Gool",
+            "Williams",
+            "Winn",
+            "Zisserman"
+        ],
+        "b6": [
+            "Head pose estimation based on multivariate label distribution",
+            "",
+            "",
+            "",
+            "Geng",
+            "Xia"
+        ],
+        "b7": [
+            "Logistic boosting regression for label distribution learning",
+            "",
+            "",
+            "",
+            "Xing",
+            "Geng",
+            "Xue"
+        ],
+        "b8": [
+            "Data-dependent label distribution learning for age estimation",
+            "",
+            "",
+            "",
+            "He",
+            "Li",
+            "Zhang",
+            "Wu",
+            "Geng",
+            "Zhang",
+            "Yang",
+            "Zhuang"
+        ],
+        "b9": [
+            "Deep residual learning for image recognition",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b10": [
+            "Robust optimization for deep regression",
+            "",
+            "",
+            "",
+            "Belagiannis",
+            "Rupprecht",
+            "Carneiro",
+            "Navab"
+        ],
+        "b11": [
+            "Real time head pose estimation with random regression forests",
+            "",
+            "",
+            "",
+            "Fanelli",
+            "Gall",
+            "Van Gool"
+        ],
+        "b12": [
+            "Cost-sensitive local binary feature learning for facial age estimation",
+            "",
+            "",
+            "",
+            "Lu",
+            "Liong",
+            "Zhou"
+        ],
+        "b13": [
+            "Real-time head orientation from a monocular camera using deep neural network",
+            "",
+            "",
+            "",
+            "Ahn",
+            "Park",
+            "Kweon"
+        ],
+        "b14": [
+            "Deep convolutional network cascade for facial point detection",
+            "",
+            "",
+            "",
+            "Sun",
+            "Wang",
+            "Tang"
+        ],
+        "b15": [
+            "Very deep convolutional networks for large-scale image recognition",
+            "",
+            "",
+            "",
+            "Simonyan",
+            "Zisserman"
+        ],
+        "b16": [
+            "Deep face recognition",
+            "",
+            "",
+            "",
+            "Parkhi",
+            "Vedaldi",
+            "Zisserman"
+        ],
+        "b17": [
+            "Rethinking the inception architecture for computer vision",
+            "",
+            "",
+            "",
+            "Szegedy",
+            "Vanhoucke",
+            "Ioffe",
+            "Shlens",
+            "Wojna"
+        ],
+        "b18": [
+            "Visualizing and understanding convolutional networks",
+            "",
+            "",
+            "",
+            "Zeiler",
+            "Fergus"
+        ],
+        "b19": [
+            "Delving deep into rectifiers: Surpassing human-level performance on imagenet classification",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b20": [
+            "MatConvNet: Convolutional neural networks for MATLAB",
+            "",
+            "",
+            "",
+            "Vedaldi",
+            "Lenc"
+        ],
+        "b21": [
+            "Morph: A longitudinal image database of normal adult age-progression",
+            "",
+            "",
+            "",
+            "Ricanek",
+            "Tesafaye"
+        ],
+        "b22": [
+            "Chalearn looking at people 2015: Apparent age and cultural event recognition datasets and results",
+            "",
+            "",
+            "",
+            "Escalera",
+            "Fabian",
+            "Pardo",
+            "Bar\u00f3",
+            "Gonzalez",
+            "Escalante",
+            "Misevic",
+            "Steiner",
+            "Guyon"
+        ],
+        "b23": [
+            "",
+            "",
+            "Divergence measures and message passing",
+            ""
+        ],
+        "b24": [
+            "Label distribution learning",
+            "",
+            "",
+            "",
+            "Geng"
+        ],
+        "b25": [
+            "Face detection without bells and whistles",
+            "",
+            "",
+            "",
+            "Mathias",
+            "Benenson",
+            "Pedersoli",
+            "Van Gool"
+        ],
+        "b26": [
+            "A learning framework for age rank estimation based on face images with scattering transform",
+            "",
+            "",
+            "",
+            "Chang",
+            "Chen"
+        ],
+        "b27": [
+            "Age estimation by multi-scale convolutional network",
+            "",
+            "",
+            "",
+            "Yi",
+            "Lei",
+            "Li"
+        ],
+        "b28": [
+            "A deep analysis on age estimation",
+            "",
+            "",
+            "",
+            "Huerta",
+            "Fern\u00e1ndez",
+            "Segura",
+            "Hernando",
+            "Prati"
+        ],
+        "b29": [
+            "DEX: Deep EXpectation of apparent age from a single image",
+            "",
+            "",
+            "",
+            "Rothe",
+            "Timofte",
+            "Gool"
+        ],
+        "b30": [
+            "Deep expectation of real and apparent age from a single image without facial landmarks",
+            "",
+            "",
+            "",
+            "Rothe",
+            "Timofte",
+            "Van Gool"
+        ],
+        "b31": [
+            "Estimating face orientation from robust detection of salient facial structures",
+            "",
+            "",
+            "",
+            "Gourier",
+            "Hall",
+            "Crowley"
+        ],
+        "b32": [
+            "BJUT-3D large scale 3D face database and information processing",
+            "",
+            "",
+            "",
+            "Yin",
+            "Sun",
+            "Wang",
+            "Ge"
+        ],
+        "b33": [
+            "Annotated facial landmarks in the wild: A large-scale, real-world database for facial landmark localization",
+            "",
+            "",
+            "",
+            "Koestinger",
+            "Wohlhart",
+            "Roth",
+            "Bischof"
+        ],
+        "b34": [
+            "Model-based object pose in 25 lines of code",
+            "",
+            "",
+            "",
+            "Dementhon",
+            "Davis"
+        ],
+        "b35": [
+            "Head pose estimation in the wild using approximate view manifolds",
+            "",
+            "",
+            "",
+            "Sundararajan",
+            "Woodard"
+        ],
+        "b36": [
+            "CNN: single-label to multi-label",
+            "",
+            "",
+            "",
+            "Wei",
+            "Xia",
+            "Huang",
+            "Ni",
+            "Dong",
+            "Zhao",
+            "Yan"
+        ],
+        "b37": [
+            "BING: binarized normed gradients for objectness estimation at 300fps",
+            "",
+            "",
+            "",
+            "Cheng",
+            "Zhang",
+            "Lin",
+            "Torr"
+        ],
+        "b38": [
+            "Edge boxes: Locating object proposals from edges",
+            "",
+            "",
+            "",
+            "Zitnick",
+            "Doll\u00e1r"
+        ],
+        "b39": [
+            "Exploit bounding box annotations for multi-label object recognition",
+            "",
+            "",
+            "",
+            "Yang",
+            "Zhou",
+            "Zhang",
+            "Gao",
+            "Wu",
+            "Cai"
+        ],
+        "b40": [
+            "Deep convolutional ranking for multilabel image annotation",
+            "",
+            "",
+            "",
+            "Gong",
+            "Jia",
+            "Leung",
+            "Toshev",
+            "Ioffe"
+        ],
+        "b41": [
+            "HCP: A flexible CNN framework for multi-label image classification",
+            "",
+            "",
+            "",
+            "Wei",
+            "Xia",
+            "Lin",
+            "Huang",
+            "Ni",
+            "Dong",
+            "Zhao",
+            "Yan"
+        ],
+        "b42": [
+            "Subcategoryaware object classification",
+            "",
+            "",
+            "",
+            "Dong",
+            "Xia",
+            "Chen",
+            "Feng",
+            "Huang",
+            "Yan"
+        ],
+        "b43": [
+            "Contextualizing object detection and classification",
+            "",
+            "",
+            "",
+            "Song",
+            "Chen",
+            "Huang",
+            "Hua",
+            "Yan"
+        ],
+        "b44": [
+            "Learning and transferring mid-level image representations using convolutional neural networks",
+            "",
+            "",
+            "",
+            "Oquab",
+            "Bottou",
+            "Laptev",
+            "Sivic"
+        ],
+        "b45": [
+            "Normalized cuts and image segmentation",
+            "",
+            "",
+            "",
+            "Shi",
+            "Malik"
+        ],
+        "b46": [
+            "Instance-Aware hashing for multi-label image retrieval",
+            "",
+            "",
+            "",
+            "Lai",
+            "Yan",
+            "Shu",
+            "Wei",
+            "Yan"
+        ],
+        "b47": [
+            "Regional gating neural networks for multi-label image classification",
+            "",
+            "",
+            "",
+            "Zhao",
+            "Li",
+            "Chen",
+            "Liu",
+            "Jiang",
+            "Xue"
+        ],
+        "b48": [
+            "Semantic contours from inverse detectors",
+            "",
+            "",
+            "",
+            "Hariharan",
+            "Arbel\u00e1ez",
+            "Bourdev",
+            "Maji",
+            "Malik"
+        ],
+        "b49": [
+            "Efficient inference in fully connected CRFs with gaussian edge potentials",
+            "",
+            "",
+            "",
+            "Kr\u00e4henb\u00fchl",
+            "Koltun"
+        ],
+        "b50": [
+            "Semantic image segmentation with deep convolutional nets and fully connected CRFs",
+            "",
+            "",
+            "",
+            "Chen",
+            "Papandreou",
+            "Kokkinos",
+            "Murphy",
+            "Yuille"
+        ],
+        "b51": [
+            "His research interests include computer vision and machine learning. Chao Xing received the B.S. degree in software engineering from Southeast University",
+            "",
+            "",
+            "",
+            "Van Der Maaten",
+            "Hinton"
+        ],
+        "b52": [
+            "He is currently a postgraduate student in the Department of",
+            "",
+            "",
+            ""
+        ],
+        "b53": [
+            "D. degree in computer science from the Georgia Institute of Technology. He was an Assistant Professor with the Nanyang Technological University",
+            "",
+            "",
+            ""
+        ]
+    },
+    {
+        "tab_1": "Table I COMPARISONSIOF DIFFERENT METHODS FOR AGE ESTIMATION.DescriptionMorph MAEChaLearn MAE -errorIIS-LDL [4]5.67\u00b10.15--CPNN [4]4.87\u00b10.31--ST+CSHOR [27] 13.82--M-S ConvNets [28]3.63--ConvNets [29] 13.31--VGG (softmax, Exp) [30] 3-6.080.51VGG (softmax, Exp) [30] 2,3-3.220.28VGG (softmax, Exp) [31] 2,32.683.250.28BFGS-LDL (KL, Max)3.94\u00b10.057.810.57BFGS-LDL (KL, Exp)3.85\u00b10.056.790.53C-ConvNet (softmax, Max)3.02\u00b10.059.480.63C-ConvNet (softmax, Exp)2.86\u00b10.057.950.58R-ConvNet ( 2)3.17\u00b10.045.940.50R-ConvNet ( 1)2.88\u00b10.035.620.47R-ConvNet ( -ins)2.89\u00b10.045.710.48ConvNet+LS (KL, Max)2.96\u00b10.138.640.59ConvNet+LS (KL, Exp)5.02\u00b10.13 11.580.77ConvNet+LD (\u03b1-div, Max)2.57\u00b10.045.950.47ConvNet+LD (\u03b1-div, Exp)2.57\u00b10.045.690.46DLDL (KL, Max)2.51\u00b10.035.490.44DLDL (KL, Exp)2.52\u00b10.035.340.44DLDL+VGG-Face (KL, Max) 3 2.42\u00b10.013.620.32DLDL+VGG-Face (KL, Exp) 3 2.43\u00b10.013.510.311 Used 80% of Morph images for training and 20% for evaluation; 2 Used additional external face images (i.e., IMDB-WIKI); 3 Used pre-trained model (i.e., VGG-Nets or VGG-Face).",
+        "tab_2": "Table II COMPARISONSIIOF DIFFERENT METHODS FOR HEAD POSE ESTIMATION ON THE Pointing'04 DATASET.Table III COMPARISONS OF DIFFERENT METHODS FOR HEAD POSE ESTIMATION ON THE BJUT-3D DATASET.MethodsDescriptionPitchMAE (lower is better) Yaw Pitch+YawPitchAcc (higher is better) Yaw Pitch+YawLDL-wJ [7]2.69\u00b10.15 4.24\u00b10.176.45\u00b10.2986.24\u00b10.97 73.30\u00b11.36 64.27\u00b11.82BFGS-LDL (KL)1.99\u00b10.19 4.00\u00b10.205.68\u00b10.1388.78\u00b10.11 74.37\u00b10.13 66.42\u00b10.11C-ConvNet (softmax) 5.28\u00b10.65 6.02\u00b10.44 10.56\u00b10.7473.15\u00b12.74 62.90\u00b11.81 42.97\u00b11.67R-ConvNet ( 2 )6.11\u00b10.33 6.61\u00b10.17 10.13\u00b10.26---BaselinesR-ConvNet ( 1 )5.94\u00b10.71 5.90\u00b10.399.43\u00b10.79---R-ConvNet ( -ins)5.77\u00b10.45 6.66\u00b10.199.04\u00b10.40---ConvNet+LS (KL)5.23\u00b10.39 5.87\u00b10.53 10.42\u00b10.6672.62\u00b11.01 62.90\u00b12.76 41.83\u00b12.20ConvNet+LD (\u03b1-div)1.94\u00b10.20 3.68\u00b10.165.34\u00b10.1790.00\u00b10.77 76.27\u00b10.82 69.00\u00b10.89OursDLDL (KL)1.69\u00b10.32 3.16\u00b10.074.64\u00b10.2491.65\u00b11.13 79.57\u00b10.57 73.15\u00b10.72MethodsDescriptionPitchMAE (lower is better) Yaw Pitch+YawPitchAcc (higher is better) Yaw Pitch+YawBFGS-LDL (KL)0.19\u00b10.02 0.33\u00b10.040.51\u00b10.0598.15\u00b10.19 96.69\u00b10.38 94.95\u00b10.54C-ConvNet (Softmax)0.06\u00b10.01 0.09\u00b10.020.14\u00b10.0399.45\u00b10.09 99.16\u00b10.16 98.64\u00b10.23R-ConvNet ( 2 )1.83\u00b10.01 2.17\u00b10.033.15\u00b10.03---BaselinesR-ConvNet ( 1 )1.25\u00b10.06 1.37\u00b10.092.11\u00b10.09---R-ConvNet ( -ins)1.21\u00b10.07 1.42\u00b10.072.09\u00b10.10---ConvNet+LS (KL)0.05\u00b10.01 0.08\u00b10.010.12\u00b10.0199.55\u00b10.06 99.28\u00b10.08 98.86\u00b10.10ConvNet+LD (\u03b1-div)0.07\u00b10.01 0.12\u00b10.020.19\u00b10.0299.31\u00b10.04 98.82\u00b10.20 98.15\u00b10.21OursDLDL (KL)0.02\u00b10.01 0.07\u00b10.010.09\u00b10.0199.81\u00b10.04 99.27\u00b10.08 99.09\u00b10.09about 24k faces in real-world images. We select 23,409 faces to ensure pitch and yaw angles within [-90 \u2022 , 90 \u2022 ].",
+        "tab_3": "Table IV MAEIVAND ACC (% OF IMAGES WITH \u00b115 \u2022 ERROR) FOR DIFFERENT METHODS ON THE AFLW DATASET.DescriptionMAE (lower is better) Acc (higher is better) Pitch Yaw Pitch+Yaw Pitch Yaw Pitch+YawAVM [36]-16.75--60.75-BFGS-LDL (KL)7.21 8.7212.6990.62 86.8179.80C-ConvNet (softmax) 7.87 9.3413.6587.75 83.7975.04R-ConvNet ( 2 )6.57 8.4411.8892.84 84.7679.56R-ConvNet ( 1 )6.01 7.0710.3494.60 89.6285.45R-ConvNet ( -ins)5.96 7.1310.3594.94 90.0086.21ConvNet+LS (KL)7.69 9.1013.3388.34 85.0076.47ConvNet+LD (\u03b1-div) 6.55 7.0210.7792.80 91.8886.14DLDL (KL)5.75 6.609.7895.41 92.8989.27following [7]. For AFLW, 15,561 face images are randomlychosen for training, and the remaining 7,848 for evaluation.The setup is similar to the recent literature [36] (14,000 imagesfor training and the rest 7,041 images for testing).",
+        "tab_4": "Table VVSINGLE MODEL CLASSIFICATION MAP (IN %) ON VOC2007 (TRAINVAL/TEST). THE * SIGN INDICATES GROUND-TRUTH BOUNDING BOX INFORMATION WAS USED DURING TRAINING.Methods DescriptionNet-D Net-D Net-E Net-E Max Avg Max AvgFev+Lv-20-VD* [40] 90.6---HCP-VGG [42]90.9---VGG+SVM [16]89.3-89.3-BaselinesIF-VGG-289.8 89.5 89.7 89.8IF-VGG-KL90.0 90.3 90.3 90.2OursIF-DLDL PF-DLDL90.1 90.5 90.6 90.7 92.3 92.1 92.5 92.2",
+        "tab_5": "Table VI COMPARISONSVIOF THE CLASSIFICATION RESULTS (IN %) OF STATE-OF-THE-ART APPROACHES ON VOC2007 (TRAINVAL/TEST). * INDICATES METHODS USING GROUND-TRUTH BOUNDING BOX INFORMATION FOR TRAINING.Table VII COMPARISONS OF THE CLASSIFICATION RESULTS (IN %) OF STATE-OF-THE-ART APPROACHES ON VOC2012 (TRAINVAL/TEST). * INDICATES METHODS USING GROUND-TRUTH BOUNDING BOX INFORMATION FOR TRAINING.Methods Descriptionaero bike bird boat bottle bus car cat chair cow table dog horse mbike person plant sheep sofa train tv mAPAGS* [43]82.2 83.0 58.4 76.1 56.4 77.5 88.8 69.1 62.2 61.8 64.2 51.3 85.4 80.2 91.1 48.1 61.7 67.7 86.3 70.9 71.1AMM* [44]84.5 81.5 65.0 71.4 52.2 76.2 87.2 68.5 63.8 55.8 65.8 55.6 84.8 77.0 91.1 55.2 60.0 69.7 83.6 77.0 71.3HCP-2000C [37]96.0 92.1 93.7 93.4 58.7 84.0 93.4 92.0 62.8 89.1 76.3 91.4 95.0 87.8 93.1 69.9 90.3 68.0 96.8 80.6 85.2Fev+Lv-20-VD* [40] 97.9 97.0 96.6 94.6 73.6 93.9 96.5 95.5 73.7 90.3 82.8 95.4 97.7 95.9 98.6 77.6 88.7 78.0 98.3 89.0 90.6HCP-VGG [42]98.6 97.1 98.0 95.6 75.3 94.7 95.8 97.3 73.1 90.2 80.0 97.3 96.1 94.9 96.3 78.3 94.7 76.2 97.9 91.5 90.9VGG+SVM [16]98.9 95.0 96.8 95.4 69.7 90.4 93.5 96.0 74.2 86.6 87.8 96.0 96.3 93.1 97.2 70.0 92.1 80.3 98.1 87.0 89.7BaselinesIF-VGG-298.9 95.7 97.3 95.5 65.0 92.8 93.7 97.1 74.2 90.8 87.0 97.1 97.1 93.8 97.0 70.8 94.3 77.8 98.0 86.4 90.0IF-VGG-KL99.1 95.5 97.4 94.9 68.1 92.7 94.3 97.0 75.7 90.3 89.0 97.0 97.6 94.6 97.2 76.3 93.8 80.1 98.2 87.9 90.8OursIF-DLDL PF-DLDL99.1 95.8 97.4 95.3 69.2 93.3 94.5 96.6 76.1 90.4 89.0 97.1 97.7 94.5 97.7 76.1 93.6 81.9 98.2 89.1 91.1 99.3 97.6 98.3 97.0 79.0 95.7 97.0 97.9 81.8 93.3 88.2 98.1 96.9 96.5 98.4 84.8 94.9 82.7 98.5 92.8 93.4Methods Descriptionaero bike bird boat bottle bus car cat chair cow table dog horse mbike person plant sheep sofa train tv mAPNUS-PSL*[43]97.3 84.2 80.8 85.3 60.8 89.9 86.8 89.3 75.4 77.8 75.1 83.0 87.5 90.1 95.0 57.8 79.2 73.4 94.5 80.7 82.2PRE-1512*[45]94.6 82.9 88.2 84.1 60.3 89.0 84.4 90.7 72.1 86.8 69.0 92.1 93.4 88.6 96.1 64.3 86.6 62.3 91.1 79.8 82.8HCP-2000C [37]97.5 84.3 93.0 89.4 62.5 90.2 84.6 94.8 69.7 90.2 74.1 93.4 93.7 88.8 93.3 59.7 90.3 61.8 94.4 78.0 84.2Fev+Lv-20-VD* [40] 98.4 92.8 93.4 90.7 74.9 93.2 90.2 96.1 78.2 89.8 80.6 95.7 96.1 95.3 97.5 73.1 91.2 75.4 97.0 88.2 89.4HCP-VGG [42]99.1 92.8 97.4 94.4 79.9 93.6 89.8 98.2 78.2 94.9 79.8 97.8 97.0 93.8 96.4 74.3 94.7 71.9 96.7 88.6 90.5VGG+SVM [16]99.0 89.1 96.0 94.1 74.1 92.2 85.3 97.9 79.9 92.0 83.7 97.5 96.5 94.7 97.1 63.7 93.6 75.2 97.4 87.8 89.3BaselinesIF-VGG-298.9 88.4 96.7 93.4 70.7 92.3 85.8 97.7 77.3 94.2 81.2 97.4 96.8 93.7 96.7 62.2 94.1 70.7 96.9 85.8 88.6IF-VGG-KL99.0 89.9 96.6 93.7 74.0 93.2 87.3 97.5 78.5 94.7 83.1 97.1 96.9 94.0 96.6 66.9 94.5 75.9 97.4 87.7 89.7OursIF-DLDL PF-DLDL99.0 89.7 96.6 94.1 74.8 93.1 87.8 97.6 79.3 94.3 83.4 97.2 96.9 94.0 97.3 67.8 94.2 76.5 97.4 87.8 89.9 99.5 94.1 97.9 95.9 81.0 94.8 93.1 98.2 82.4 96.1 84.0 98.0 97.8 95.7 97.7 78.9 95.5 78.0 97.8 92.2 92.4"
+    }
+]

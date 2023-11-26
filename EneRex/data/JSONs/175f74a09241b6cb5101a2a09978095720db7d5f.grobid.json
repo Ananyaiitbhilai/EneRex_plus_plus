@@ -1,0 +1,501 @@
+[
+    {
+        "basename": "175f74a09241b6cb5101a2a09978095720db7d5f.grobid",
+        "fulltext": 16,
+        "footnote_size": 0,
+        "reference": 48,
+        "authors": [
+            "Han",
+            "Chang",
+            "Liu",
+            "Mo",
+            "Witbrock",
+            "Huang"
+        ]
+    },
+    {
+        "title": "Image Super-Resolution via Dual-State Recurrent Networks",
+        "abstract": "Advances in image super-resolution (SR) have recently benefited significantly from rapid developments in deep neural networks. Inspired by these recent discoveries, we note that many state-of-the-art deep SR architectures can be reformulated as a single-state recurrent neural network (RNN) with finite unfoldings. In this paper, we explore new structures for SR based on this compact RNN view, leading us to a dual-state design, the Dual-State Recurrent Network (DSRN). Compared to its single-state counterparts that operate at a fixed spatial resolution, DSRN exploits both lowresolution (LR) and high-resolution (HR) signals jointly. Recurrent signals are exchanged between these states in both directions (both LR to HR and HR to LR) via delayed feedback. Extensive quantitative and qualitative evaluations on benchmark datasets and on a recent challenge demonstrate that the proposed DSRN performs favorably against state-of-the-art algorithms in terms of both memory consumption and predictive accuracy.",
+        "Introduction": "In the problem of single-image super-resolution (SR), the aim is to recover a high-resolution (HR) image from a single low-resolution (LR) image. In recent years, SR performance has been significantly improved due to rapid developments in deep neural networks (DNNs). Specifically, convolutional neural networks (CNNs) and residual learning  #b15  have been widely applied in much recent SR work  #b9  #b11  #b19  #b20  #b21  #b24  #b34  #b38 .In these approaches, two principles have been consistently observed. The first is that increasing the depth of a CNN model improves SR performance; a deeper model with more parameters can represent a more complex mapping from LR to HR images. In addition, increasing network depth enlarges the size of receptive fields, providing more contextual information that can be exploited to reconstruct missing HR components. The second principle is that adding residual connections (globally  #b19 , locally  #b20  or jointly  #b34 ) prevents the problems of vanishing and exploding gradients, facilitating the training of deep models.While these recent models have demonstrated promising results, there are also drawbacks. One major issue is that increasing the depth of models by adding new layers introduces more parameters, and thus raises the likelihood of model overfitting. At the same time, larger models demand more storage space, which is a hurdle to deployment in resource-constrained environments (e.g. mobile systems). To resolve this issue, the Deep Recursive Residual Network (DRRN)  #b34  inspired by the Deeply-Recursive Convolutional Network (DRCN)  #b20  shares weights across different residual units and achieves state-of-the-art performance with a small number of parameters.Separate efforts  #b5  #b23  #b39  in neural architectural design have recently shown that commonly-used deep structures can be represented more compactly using recurrent neural networks (RNNs). Specifically, Liao and Poggio  #b23  demonstrated that a weight-sharing Residual Neural Network (ResNet)  #b15  is equivalent to a shallow RNN. Inspired by their findings, we first explore the connections between the neural architectures of existing SR algorithms and their compact RNN formulations. We note that previous SR models with recursive computation and weight sharing, including DRRN and DRCN, work at a single spatial resolution (bicubic interpolation is first applied to upscale LR images to a desired spatial resolution). This enables their model structures to be represented as a unified single-state RNN. Thus, both DRRN and DRCN can be viewed as a finite unfolding in time of the same RNN structure, but with different transition functions. This is illustrated in Figure 1, and will be discussed in detail in Section 3. It is worth mentioning that we follow the terminology used in  #b23 , where a \"state\" can be considered as corresponding to a \"layer\" in the normal RNN setting.Based on this compact RNN view of state-of-the-art SR models, in this paper we explore new structures to extend the frontier of SR. The first approach in improving a conventional RNN model is generally to make it multi-layer. We apply this experience in designing the SR architecture in our compact RNN view by adding an additional state, rendering our model a Dual-State Recurrent Network (DSRN), where the two states operate at different spatial resolutions. Specifically, the bottom state captures information at LR, while the top state operates in the HR regime. As with a conventional two-layer stacked RNN, there is a connection from the bottom to the top state via deconvolutional operations. This provides information flow from LR to HR at every single unrolling time. In addition, to allow information flow from previously predicted HR features to LR features, we incorporate a delayed feedback mechanism  #b7  from the top (HR) state to the bottom one. The overall structure of the proposed DSRN is shown in Figure 2, which not only utilizes parameters efficiently but also allows both LR and HR signals to contribute jointly to learning the mappings.To demonstrate the effectiveness of the proposed method, we compare DSRN with other recent image SR approaches on four common benchmarks  #b3  #b18  #b29  #b46  as well as on the DIV2K dataset from the \"New Trends in Image Restoration and Enhancement workshop and challenge on image super-resolution (NTIRE SR 2017)\"  #b0 . Extensive experimental results validate that DSRN delivers higher parameter efficiency, low memory consumption and high restoration accuracy.",
+        "Related Work": "Single image SR has been widely studied in the past few decades and has an extensive literature. In recent years, due to the fast development of deep learning, significant progress has been made in this field. Dong et al.  #b9  first exploited a fully convolutional neural network, termed SR-CNN, to predict the nonlinear LR-HR mapping. It demonstrated superior performance to many other example-based learning paradigms, such as nearest neighbor  #b12 , sparse representation  #b44  #b43 , neighborhood embedding  #b4  #b37 , random forest  #b31 , etc. Although all layers of a SRCNN are trained jointly in an end-to-end fashion, conceptually the network is split into three stages: patch representation, non-linear mapping, and reconstruction.Much of the later work follows a similar network design with more complicated building blocks or advanced optimization techniques  #b33  #b27  #b10  #b26 . Wang et al.  #b41  proposed a sparse coding network (SCN) that encodes a sparse representation prior for image SR and can be trained end-toend, demonstrating the benefit of domain expertise in sparse coding for image SR. Both external and self examples were utilized to synthesize the HR prediction via a neural network in  #b42 .Inspired by the success of very deep models  #b15  on Im-ageNet challenges  #b8 , Kim et al.  #b19  proposed a very deep CNN, VDSR, which stacks 20 convolutional layers with 3\u00d73 kernels. Both residual learning and adjustable gradient clipping are used to prevent vanishing and exploding gradients. However, as the model gets deeper, the number of parameters increases. To control the size of the model, DRCN introduces 16 recursive layers, each with the same structure and shared parameters. Moreover, DRCN makes use of skip connections and recursive supervision to mitigate the difficulty of training. Tai et al.  #b34  discovered that many residual SR learning algorithms are based on either global residual learning or local residual learning, which are insufficient for very deep models. Instead, they proposed the DRRN that applies both global and local learning while remaining parameter efficient via recursive learning. More recently, Tong et al.  #b38  proposed making use of Densely Connected Networks (DenseNet)  #b16  instead of ResNet as the building block for image SR. They demonstrated that the DenseNet structure is better at combining features at different levels, which boosts SR performance.Apart from deep models working on bicubic upscaled input images, Shi et al.  #b33  used a compact network model to conduct convolutions on LR images directly and learned upscaling filters in the last layer, which considerably reduces the computation cost. Similarly, Dong et al.  #b10  adopted deconvolution layers to accelerate SRCNN in combination with smaller filter sizes and more convolution layers. However, these networks are relatively small and have difficulty capturing complicated mappings owing to limited network capacity. The Laplacian Pyramid Super-Resolution Network (LapSRN)  #b21  works on LR images directly and progressively predicts sub-band residuals on various scales. Lim et al.  #b24  proposed the Enhanced Deep Super-Resolution (EDSR) network and a multi-scale variant, which learns different scaled mapping functions in parallel via weight sharing.It is noteworthy that most SR algorithms minimize the mean squared reconstruction error (i.e. via 2 loss). They often suffer from regression-to-the-mean due to the illposed nature of single image SR, resulting in blurry predictions and poor subjective scores. To overcome this drawback, Generative Adversarial Networks have been used along with perceptual loss for SR  #b22  #b30 . Subjective evaluation by mean-opinion-score showed huge improvement over other regression-based methods.Our work is also strongly related to and built upon the idea of viewing a ResNet as an unrolled RNN. It was first proposed in  #b23 , which aids understanding of a family of deep structures from the perspective of RNNs. Later, Chen et al.  #b45  unified several different residual functions to provide a better understanding of the design of DNNs with high learning capacity. Recently, the equivalence to RNNs has been further extended to DenseNet. Based on this finding, Dual Path Networks  #b5  were proposed and showed superior performance to DenseNet and ResNet in a varity of applications.",
+        "Single-State Recurrent Networks": "In this section, we first revisit the discovery that a ResNet with shared weights can be reformulated as a recurrent system. Then, based on this view, we unite the recent development of SR models with such RNN reformulations to show DRCN and DRRN are structurally equivalent to an unrolled single-state RNN.To establish the equivalence, we adopt the commonly used definition of a RNN, which is characterized by a set of states and transition functions among the states. A RNN often consists of the input state, output state, and the recurrent states. Depending on the number recurrent states, we describe RNNs as \"single-state\" (i.e. one recurrent state) or \"dual-state\" (i.e. two recurrent states). An illustration of a single-state RNN is shown in Figure 1(a). The input, output, and recurrent states are represented as x, y and s respectively. The arrow link indicates the state transition function. The square on the directed cycle indicates that the recurrent function travels one time step forward during the unfolding. Interested readers are referred to  #b47  for detailed information on this general formulation of a RNN.Based on Figure 1(a), we unfold along the temporal direction to a fixed length T . The unfolded graph is shown in figure 1(b), and the dynamics of a single-state RNN can be characterized by:s t = f input (x t ) + f recurrent (s t-1 ) y t = f output (s t ),(1)where the upper script t indicates the t-th unrolling. The parameters of f input , f output , and f recurrent are often timeindependent, which means these parameters are reused at every unfolding step. This allows us to unify ResNet, DRCN, and DRRN as unrolled networks with the same recurrent structure but with the different realizations of f recurrent and different rules of parameter sharing.ResNet: We consider a ResNet in its simplest form without any down-sampling or up-sampling operations. In other words, both of the spatial dimensions and feature dimensions remain the same across all intermediate layers. To render Figure 1(b) equivalent to a ResNet with T residual blocks, one possible technique is to make:\u2022 s 0 be the input image I or a function of I.\u2022 x t = 0, \u2200t \u2208 {1, . . . T }, and f input (0) = 0. Thus, the state transition becomes s t = f recurrent (s t-1 ).\u2022 The recurrent function f recurrent be the same as a conventional residual block, which contains two convolutional layers with skip connections as shown in Figure 1(c). Differences in color indicate different sets of parameters.\u2022 The prediction state y t be calculated only at the time T as the final output.It is worth mentioning that the only difference between an unrolled RNN following the above definitions and a conventional ResNet is that the parameters in f recurrent need to be reused among all residual blocks.",
+        "DRCN:": "To realize the DRCN expressible by the same single-state RNN, we define s 0 and x t in the same way as for the ResNet. Since DRCN recursively applies only a single convolutional layer to the input feature map 16 times, with the parameters of the layer reused across the whole network, we could use a single convolutional layer to express f recurrent . The graph is illustrated in Figure 1(d). Moreover, unlike the ResNet where the output is predicted only at the end of unfolding, DRCN utilizes recursive supervision, which generates an output y t at every unfolding t. The final HR prediction of DRCN is the weighted sum of the outputs at every unfolding t.",
+        "DRRN:": "The recurrent structure of DRRN differs only slightly from a ResNet. In a ResNet, the skip connection comes from the previous residual block, whereas in a DRRN the skip connection always comes from the first unrolled state s 0 . Figure 1(e) shows the equivalent recurrent function for a DRRN with one recursive block (i.e. B = 1) using the definition in the original paper.",
+        "Dual-State Recurrent Networks": "Drawing on the connections between state-of-the-art SR models and RNNs, we have investigated new compact RNN architectures for image SR. Specifically, we propose a dualstate design, which adopts two recurrent states enable use of features from both LR and HR spaces. The RNN view of our DSRN is shown in Figure 2(a) and is introduced as follows.Dual-state design: Unlike single-state models working at the same spatial resolution, DSRN incorporates information from both the LR and HR spaces. Specifically, s l and s h in Figure 2(a) indicate the LR state and HR state, respectively. Four colored arrows indicate the transition functions between these two states. The blue ( f lr ), orange ( f hr ) and yellow ( f up ) links exist in a conventional two-layer RNN, providing information flow from LR to LR, HR to HR, and LR to HR, respectively. To further enable two-way information flows between s l and s h , we add the green link, which is inspired by the delayed feedback mechanism of traditional multi-layer RNNs. Here, it introduces a delayed HR to LR connection. The overall dynamics of our DSRN is given as:s t h = f up (s t l ) + f hr (s t-1 h ),ands t l = f input (x t ) + f lr (s t-1 l ) + f down (s t-1 h ).(2)Figure 2(b) demonstrates the same concept via an unfolded graph, where the top row represents HR state while the bottom one is LR. This design choice encourages feature specialization for different resolutions and information sharing across different resolutions.Transition functions: Our model is characterized by six transition functions. f up , f down , f lr , and f hr as illustrated in Figure 2(b). Specifically, we use the standard residual block for both self-transitions. A single convolutional layer is used for the down-sampling transition and a single transposed convolutional (or deconvolutional) layer is used for the upsampling transition. The strides in both inter-state layers are set to be the same as the SR upscaling factor.Unfolding details: Similarly to unfolding a single-state RNN to obtain a ResNet, for image SR, we let x t have no contribution to calculating the state transition. In other words,f input (x t ) = 0,(3)for any choice of x t (e.g. choose x t = 0, \u2200t). Furthermore, we set s 0 l as the output of two convolutional layers with skip connections, which takes the LR input image and transform it into a desired feature space. In addition, s 0 h is set to zero. Finally, we use deep supervision for the HR prediction, as discussed below.",
+        "Deep supervision:": "The unrolled DSRN is capable of making a prediction at every time step t. Denote\u0177t = f output (s t h )(4)as a prediction at the t th unfolding, where f output is characterized by a single convolutional layer. Then, instead of taking the prediction only at the final unfolding T , we average all the predictions as\u00ceh = 1 T T \u2211 t=1 \u0177t .(5)Thus, every unrolled layer directly connects to the loss layer to facilitate the training of such a very deep network. Moreover, the model predicts the residual image and minimizes the following mean square errorL ( \u00ceh , I h ) = 1 2 || \u00ceh -r i || 2 ,(6)where I h is the group-truth image in HR and r i = I hbicubic(I l ) is the residual map between the ground truth and bicubic upsampled LR image.",
+        "Experiments": "In this section, we first provide implementation details, including both model hyper-parameters and training data augmentation. Then we analyze a number of design choices and their contributions to final performance. Finally, we compare DSRN to other state-of-the-art methods on several benchmark datasets.",
+        "Datasets": "To evaluate the proposed DSRN algorithm, we train our model using 91 images proposed in  #b44  and test on the following datasets: Set5  #b3 , Set14  #b46 , B100  #b29  and Ur-ban100  #b18 . The training data is augmented in a similar way to previous methods  #b19  #b34 , which includes 1) random flipping along the vertical or horizontal axis; 2) random rotation by 90 \u2022 , 180 \u2022 or 270 \u2022 ; and 3) random scaling by a factor from [0.5, 0.6, 0.7, 0.8, 0.9, 1]. Tensorflow is used for our full data processing pipeline; the LR training images are generated by the built-in bicubic down-sampling function. We additionally test our algorithm on the DIV2K dataset of the NTIRE SR 2017 challenge  #b0 , where we use the provided training and validation sets with all of the aforementioned data augmentations except random scaling.",
+        "Implementation Details": "We use our model to super-resolve only the luminance channel of images, and use bicubic interpolation to upscale the other two color channels, following  #b19  #b20  #b34 . We train independent models for each scale (\u00d72, \u00d73, and \u00d74) with 64 filters on the first input convolutional layer and 128 filters in the rest of the network. All layers use 3 \u00d7 3 convolution filters. Due to our dual-state design, the feature maps of s l and s h in each time step have the same spatial dimensions as the LR and HR images, respectively. We zero-pad the boundaries of feature maps to ensure the spatial size of each feature map is the same as the input size after the convolution is applied.All the weights in the network are initialized with a uniform distribution using the method proposed in  #b13 . We use standard stochastic gradient descent (SGD) with momentum 0.95 as our optimizer to minimize the MSE loss function in Equation ( 6). We search for the best initial learning rate from {0.1, 0.03, 0.01} and reduce it by a factor of 10 three times during the entire training process. This learning rate annealing is driven by observing that the loss on the validation set stops decreasing. Gradient clipping at 0.5 is adopted during training to prevent the gradient explosion. We sample image patches with a size of 128 \u00d7 128 and use a mini-batch size of 16 to train our network.We observe that the recursion defined in Equation ( 2) may lead to an exponential increase in the scale of feature values, especially when T is large. In  #b23 , the authors proposed the use of unshared batch normalization at every unfolding time to resolve this issue. Batch normalization is not used in our network; we found that normalizing the scale with two scalar parameters was sufficient. Specifically, we use one unshared PReLU  #b14  activation for each recurrent state after every unrolling step. All other layers have ordinary ReLU as the activation function.",
+        "Model Analysis": "In this section, we analyze our proposed model in the following respects: Unrolling length: The unrolling length T changes the maximum effective depth of the unrolled network. In particular, for a DSRN with T times unrolling, the maximum number of convolution layers between input and output of the network is 2T + 4. The multiplier 2 comes from the two layers in a residual block, while the extra 4 is from the auxiliary input and output layers. However, the number of model  3. The test performance increases when the number of unfolding steps increases, but the benefit seems to diminish after T = 7. Unless otherwise mentioned, we use T = 7 for all our models. It is worth mentioning that we also experimented with stochastic depth  #b17  by randomly sampling T during training, but we observed no improvement in validation accuracy.Parameter sharing: We empirically find parameter sharing to be crucial for training a deep recursive model. As shown in Table 2, the same model with untied weights performs much more poorly than its weight-sharing counterpart. Specifically, we observe around 0.2dB performance drop across all three upscaling scales when changing from shared weights to untied weights. We speculate that the model with untied weights suffers a larger risk of model over-fitting and much slower training convergence, both of which diminish the model's restoration accuracy.Dual-state and delayed feedback: We compare our DSRN Ground truth HR HR bicubic SelfExSR  #b18  VDSR  #b19  DRCN  #b20  LapSRN  #b21  DRRN  #b34  OursGround truth HR HR bicubic SelfExSR  #b18  VDSR  #b19  DRCN  #b20  LapSRN  #b21  DRRN  #b34  OursGround truth HR HR bicubic SelfExSR  #b18  VDSR  #b19  DRCN  #b20  LapSRN  #b21  DRRN  #b34  OursGround truth HR HR bicubic SelfExSR  #b18  VDSR  #b19  DRCN  #b20  LapSRN  #b21  DRRN  #b34  Ours   2. Comparing the singlestate baseline and the DSRN without feedback, it is clear that considering information from both LR and HR spaces as two separated states provides performance gains. In addition, comparing our models with and without feedback, we realize that incorporating such an information flow from HR space back to LR space consistently improves performance on all three different scales. In all, both the dual-state and delayed feedback designs are beneficial to our model.",
+        "State visualization": "Since DSRN has independent scaling parameters on each unrolled state, the model implicitly learns a weighted-average of all the unrolled states for the final prediction. Empirically we observe that this strategy performs better than output from the last state only. To demonstrate how the network aggregates different unrolled states, we show feature response maps at different unrolling steps in Figure 6, demonstrating that the network distributes slightly different features to each unrolled state.",
+        "Comparison with the State-of-the-Art": "We provide results of evaluation of our model on several public benchmark datasets in Table 1, with three commonly-used evaluation metrics: Peak Signal-to-Noise Ratio (PSNR), Structural SIMilarity (SSIM)  #b40  and the Information Fidelity Criterion (IFC)  #b32 . Specifically, we perform a comprehensive comparison between our method and 10 other existing SR algorithms, including both deep learning and non-deep-learning based methods. Note that many recent deep learning based competitors, including VDSR, LapSRN and DRRN, use 291 training samples with the additional 200 from the training set of Berkeley Segmentation Dataset  #b1 , while our model was trained on only the 91 images. Still, our DSRN method achieves competitive performance across all datasets and scales. It achieves particularly strong performance in the \u00d72 and \u00d73 settings.In addition, we report quantitative evaluations on the recently developed DIV2K dataset and comparisons with topranking algorithms in Table 2. Our method achieves competitive performance with the best algorithm, EDSR+  #b24 , and outperforms all the other algorithms by a large margin, which demonstrates the effectiveness of our proposed dualstate recurrent structure. To further analyze the proposed DSRN against other state-of-the-art SR approaches in a qualitative manner, in Figure 4 we present several visual examples of superresolved images on Set14 with x3 upscaling among different SR approaches. For these competing methods, we use SR results publicly released by the authors. As shown in Figure 4, our method can construct sharp and detailed structures and is less prone to generating spurious artifacts.Furthermore, the proposed DSRN benefits from inherent parameter sharing and therefore obtains higher parameter efficiency compared to other methods. In Figure 6, we illustrate the parameters-to-PSNR relationship of our model and several state-of-the-art methods, including SRCNN, VDSR, DRCN, DRRN and RED30  #b28 . Our method represents a favorable trade-off between model size and SR performance, and has modest inference time. The DSRN takes 0.4s on the x4 task with a 288x288 output image size, on an NVIDIA Titan X GPU.",
+        "Conclusion": "In this work, we have provided a unique formulation that expresses many state-of-the-art SR models as a finite unfolding of a single-state RNN with various recurrent functions. Based on this, we extend existing methods by considering a dual-state design; the two hidden states of our proposed DSRN operate at different spatial resolutions. One captures the LR information while the other one targets the HR domains. To ensure two-way communication between states, we integrate a delayed feedback mechanism. Thus, the predicted features from both LR and HR states can be exploited jointly for final predictions. Extensive experiments on benchmark datasets have demonstrated that the proposed DSRN performs favorably against state-of-the-art SR models in terms of both efficiency and accuracy. For the future work, we will explore use of our proposed DSRN to capture temporal dependencies for video SR  #b25 ."
+    },
+    {},
+    {
+        "b0": [
+            "Ntire 2017 challenge on single image super-resolution: Dataset and study",
+            "",
+            "",
+            "",
+            "Agustsson",
+            "Timofte"
+        ],
+        "b1": [
+            "Contour detection and hierarchical image segmentation",
+            "",
+            "",
+            "",
+            "Arbelaez",
+            "Maire",
+            "Fowlkes",
+            "Malik"
+        ],
+        "b2": [
+            "",
+            "",
+            "Beyond deep residual learning for image restoration: Persistent homology-guided manifold simplification",
+            ""
+        ],
+        "b3": [
+            "",
+            "",
+            "Low-complexity single-image superresolution based on nonnegative neighbor embedding",
+            ""
+        ],
+        "b4": [
+            "Superresolution through neighbor embedding",
+            "",
+            "",
+            "",
+            "Chang",
+            "Yeung",
+            "Xiong"
+        ],
+        "b5": [
+            "",
+            "",
+            "Dual path networks",
+            ""
+        ],
+        "b6": [
+            "A deep convolutional neural network with selection units for super-resolution",
+            "",
+            "",
+            "",
+            "Choi",
+            "Kim"
+        ],
+        "b7": [
+            "Gated feedback recurrent neural networks",
+            "",
+            "",
+            "",
+            "Chung",
+            "Gulcehre",
+            "Cho",
+            "Bengio"
+        ],
+        "b8": [
+            "Imagenet: A large-scale hierarchical image database",
+            "",
+            "",
+            "",
+            "Deng",
+            "Dong",
+            "Socher",
+            "Li",
+            "Li",
+            "Fei-Fei"
+        ],
+        "b9": [
+            "Learning a deep convolutional network for image superresolution",
+            "",
+            "",
+            "",
+            "Dong",
+            "Loy",
+            "He",
+            "Tang"
+        ],
+        "b10": [
+            "Accelerating the super-resolution convolutional neural network",
+            "",
+            "",
+            "",
+            "Dong",
+            "Loy",
+            "Tang"
+        ],
+        "b11": [
+            "Balanced two-stage residual networks for image super-resolution",
+            "",
+            "",
+            "",
+            "Fan",
+            "Shi",
+            "Yu",
+            "Liu",
+            "Han",
+            "Yu",
+            "Wang",
+            "Wang",
+            "Huang"
+        ],
+        "b12": [
+            "Example-based super-resolution",
+            "",
+            "",
+            "",
+            "Freeman",
+            "Jones",
+            "Pasztor"
+        ],
+        "b13": [
+            "Understanding the difficulty of training deep feedforward neural networks",
+            "",
+            "",
+            "",
+            "Glorot",
+            "Bengio"
+        ],
+        "b14": [
+            "Delving deep into rectifiers: Surpassing human-level performance on imagenet classification",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b15": [
+            "Deep residual learning for image recognition",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b16": [
+            "",
+            "",
+            "Densely connected convolutional networks",
+            ""
+        ],
+        "b17": [
+            "Deep networks with stochastic depth",
+            "",
+            "",
+            "",
+            "Huang",
+            "Sun",
+            "Liu",
+            "Sedra",
+            "Weinberger"
+        ],
+        "b18": [
+            "Single image super-resolution from transformed self-exemplars",
+            "",
+            "",
+            "",
+            "Huang",
+            "Singh",
+            "Ahuja"
+        ],
+        "b19": [
+            "Accurate image super-resolution using very deep convolutional networks",
+            "",
+            "",
+            "",
+            "Kim",
+            "Lee",
+            "Lee"
+        ],
+        "b20": [
+            "Deeplyrecursive convolutional network for image superresolution",
+            "",
+            "",
+            "",
+            "Kim",
+            "Lee",
+            "Lee"
+        ],
+        "b21": [
+            "Deep laplacian pyramid networks for fast and accurate super-resolution",
+            "",
+            "",
+            "",
+            "Lai",
+            "Huang",
+            "Ahuja",
+            "Yang"
+        ],
+        "b22": [
+            "",
+            "",
+            "Photo-realistic single image superresolution using a generative adversarial network",
+            ""
+        ],
+        "b23": [
+            "",
+            "",
+            "Bridging the gaps between residual learning, recurrent neural networks and visual cortex",
+            ""
+        ],
+        "b24": [
+            "Enhanced deep residual networks for single image superresolution",
+            "",
+            "",
+            "",
+            "Lim",
+            "Son",
+            "Kim",
+            "Nah",
+            "Lee"
+        ],
+        "b25": [
+            "Robust video super-resolution with learned temporal dynamics",
+            "",
+            "",
+            "",
+            "Liu",
+            "Wang",
+            "Fan",
+            "Liu",
+            "Wang",
+            "Chang",
+            "Huang"
+        ],
+        "b26": [
+            "Learning a mixture of deep networks for single image superresolution",
+            "",
+            "",
+            "",
+            "Liu",
+            "Wang",
+            "Nasrabadi",
+            "Huang"
+        ],
+        "b27": [
+            "Robust single image super-resolution via deep networks with sparse prior",
+            "",
+            "",
+            "",
+            "Liu",
+            "Wang",
+            "Wen",
+            "Yang",
+            "Han",
+            "Huang"
+        ],
+        "b28": [
+            "Image restoration using very deep convolutional encoder-decoder networks with symmetric skip connections",
+            "",
+            "",
+            "",
+            "Mao",
+            "Shen",
+            "Yang"
+        ],
+        "b29": [
+            "A database of human segmented natural images and its application to evaluating segmentation algorithms and measuring ecological statistics",
+            "",
+            "",
+            "",
+            "Martin",
+            "Fowlkes",
+            "Tal",
+            "Malik"
+        ],
+        "b30": [
+            "Enhancenet: Single image super-resolution through automated texture synthesis",
+            "",
+            "",
+            "",
+            "Sajjadi",
+            "Scholkopf",
+            "Hirsch"
+        ],
+        "b31": [
+            "Fast and accurate image upscaling with super-resolution forests",
+            "",
+            "",
+            "",
+            "Schulter",
+            "Leistner",
+            "Bischof"
+        ],
+        "b32": [
+            "An information fidelity criterion for image quality assessment using natural scene statistics",
+            "",
+            "",
+            "",
+            "Sheikh",
+            "Bovik",
+            "Veciana"
+        ],
+        "b33": [
+            "Real-time single image and video super-resolution using an efficient sub-pixel convolutional neural network",
+            "",
+            "",
+            "",
+            "Shi",
+            "Caballero",
+            "Husz\u00e1r",
+            "Totz",
+            "Aitken",
+            "Bishop",
+            "Rueckert",
+            "Wang"
+        ],
+        "b34": [
+            "Image super-resolution via deep recursive residual network",
+            "",
+            "",
+            "",
+            "Tai",
+            "Yang",
+            "Liu"
+        ],
+        "b35": [
+            "Ntire 2017 challenge on single image superresolution: Methods and results",
+            "",
+            "",
+            "",
+            "Timofte",
+            "Agustsson",
+            "Van Gool",
+            "Yang",
+            "Zhang",
+            "Lim",
+            "Son",
+            "Kim",
+            "Nah",
+            "Lee"
+        ],
+        "b36": [
+            "",
+            "",
+            "IEEE Conference on",
+            ""
+        ],
+        "b37": [
+            "A+: Adjusted anchored neighborhood regression for fast super-resolution",
+            "",
+            "",
+            "",
+            "Timofte",
+            "Smet",
+            "Van Gool"
+        ],
+        "b38": [
+            "Image superresolution using dense skip connections",
+            "",
+            "",
+            "",
+            "Tong",
+            "Li",
+            "Liu",
+            "Gao"
+        ],
+        "b39": [
+            "Residual networks behave like ensembles of relatively shallow networks",
+            "",
+            "",
+            "",
+            "Veit",
+            "Wilber",
+            "Belongie"
+        ],
+        "b40": [
+            "Image quality assessment: from error visibility to structural similarity",
+            "",
+            "",
+            "",
+            "Wang",
+            "Bovik",
+            "Sheikh",
+            "Simoncelli"
+        ],
+        "b41": [
+            "Deep networks for image super-resolution with sparse prior",
+            "",
+            "",
+            "",
+            "Wang",
+            "Liu",
+            "Yang",
+            "Han",
+            "Huang"
+        ],
+        "b42": [
+            "Self-tuned deep super resolution",
+            "",
+            "",
+            "",
+            "Wang",
+            "Yang",
+            "Wang",
+            "Chang",
+            "Han",
+            "Yang",
+            "Huang"
+        ],
+        "b43": [
+            "Coupled dictionary training for image superresolution",
+            "",
+            "",
+            "",
+            "Yang",
+            "Wang",
+            "Lin",
+            "Cohen",
+            "Huang"
+        ],
+        "b44": [
+            "Image super-resolution via sparse representation",
+            "",
+            "",
+            "",
+            "Yang",
+            "Wright",
+            "Huang",
+            "Ma"
+        ],
+        "b45": [
+            "",
+            "",
+            "Sharing residual units through collective tensor factorization in deep neural networks",
+            ""
+        ],
+        "b46": [
+            "On single image scale-up using sparse-representations",
+            "",
+            "",
+            "",
+            "Zeyde",
+            "Elad",
+            "Protter"
+        ],
+        "b47": [
+            "Architectural complexity measures of recurrent neural networks",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Wu",
+            "Che",
+            "Lin",
+            "Memisevic",
+            "Salakhutdinov",
+            "Bengio"
+        ]
+    },
+    {
+        "tab_0": "Table 1 .1Quantitative evaluation of state-of-the-art SR algorithms: average PSNR/SSIM/IFC for scale factors \u00d72, \u00d73 and \u00d74. Bold red text indicates the best and underlined blue text the second best performance.AlgorithmScaleSET5 PSNR / SSIM / IFCSET14 PSNR / SSIM / IFCBSDS100 PSNR / SSIM / IFCURBAN100 PSNR / SSIM / IFCBicubic233.65 / 0.930 / 6.166 30.34 / 0.870 / 6.126 29.56 / 0.844 / 5.695 26.88 / 0.841 / 6.319A+ [37]236.54 / 0.954 / 8.715 32.40 / 0.906 / 8.201 31.22 / 0.887 / 7.464 29.23 / 0.894 / 8.440SRCNN [10]236.65 / 0.954 / 8.165 32.29 / 0.903 / 7.829 31.36 / 0.888 / 7.242 29.52 / 0.895 / 8.092FSRCNN [11]236.99 / 0.955 / 8.200 32.73 / 0.909 / 7.843 31.51 / 0.891 / 7.180 29.87 / 0.901 / 8.131SelfExSR [19]236.49 / 0.954 / 8.391 32.44 / 0.906 / 8.014 31.18 / 0.886 / 7.239 29.54 / 0.897 / 8.414RFL [32]236.55 / 0.954 / 8.006 32.36 / 0.905 / 7.684 31.16 / 0.885 / 6.930 29.13 / 0.891 / 7.840SCN [41]236.52 / 0.953 / 7.358 32.42 / 0.904 / 7.085 31.24 / 0.884 / 6.500 29.50 / 0.896 / 7.324VDSR [20]237.53 / 0.958 / 8.190 32.97 / 0.913 / 7.878 31.90 / 0.896 / 7.169 30.77 / 0.914 / 8.270DRCN [21]237.63 / 0.959 / 8.326 32.98 / 0.913 / 8.025 31.85 / 0.894 / 7.220 30.76 / 0.913 / 8.527LapSRN [22]237.52 / 0.959 / 9.010 33.08 / 0.913 / 8.505 31.80 / 0.895 / 7.715 30.41 / 0.910 / 8.907DRRN [35]237.74 / 0.959 / 8.671 33.23 / 0.914 / 8.320 32.05 / 0.897 / N.A. 31.23 / 0.919 / 8.917DSRN237.66 / 0.959 / 8.585 33.15 / 0.913 / 8.169 32.10 / 0.897 / 7.541 30.97 / 0.916 / 8.598Bicubic330.39 / 0.868 / 3.596 27.64 / 0.776 / 3.491 27.21 / 0.740 / 3.168 24.46 / 0.736 / 3.661A+ [37]332.60 / 0.908 / 4.979 29.24 / 0.821 / 4.545 28.30 / 0.784 / 4.028 26.05 / 0.798 / 4.883SRCNN [10]332.76 / 0.908 / 4.682 29.41 / 0.823 / 4.373 28.41 / 0.787 / 3.879 26.24 / 0.800 / 4.630FSRCNN [11]333.15 / 0.913 / 4.971 29.53 / 0.826 / 4.569 28.52 / 0.790 / 4.061 26.42 / 0.807 / 4.878SelfExSR [19]332.63 / 0.908 / 4.911 29.33 / 0.823 / 4.505 28.29 / 0.785 / 3.922 26.45 / 0.809 / 4.988RFL [32]332.45 / 0.905 / 4.956 29.15 / 0.819 / 4.532 28.22 / 0.782 / 4.023 25.87 / 0.791 / 4.781SCN [41]332.60 / 0.907 / 4.321 29.24 / 0.819 / 4.006 28.32 / 0.782 / 3.553 26.21 / 0.801 / 4.253VDSR [20]333.66 / 0.921 / 5.088 29.77 / 0.834 / 4.606 28.83 / 0.798 / 4.043 27.14 / 0.829 / 5.045DRCN [21]333.82 / 0.922 / 5.202 29.76 / 0.833 / 4.686 28.80 / 0.797 / 4.070 27.15 / 0.828 / 5.187LapSRN [22]333.78 / 0.921 / 5.194 29.87 / 0.833 / 4.665 28.81 / 0.797 / 4.057 27.06 / 0.827 / 5.168DRRN [35]334.03 / 0.924 / 5.397 29.96 / 0.835 / 4.878 28.95 / 0.800 / N.A. 27.53 / 0.838 / 5.456DSRN333.88 / 0.922 / 5.221 30.26 / 0.837 / 4.892 28.81 / 0.797 / 4.051 27.16 / 0.828 / 5.172Bicubic428.42 / 0.810 / 2.337 26.10 / 0.704 / 2.246 25.96 / 0.669 / 1.993 23.15 / 0.659 / 2.386A+ [37]430.30 / 0.859 / 3.260 27.43 / 0.752 / 2.961 26.82 / 0.710 / 2.564 24.34 / 0.720 / 3.218SRCNN [10]430.49 / 0.862 / 2.997 27.61 / 0.754 / 2.767 26.91 / 0.712 / 2.412 24.53 / 0.724 / 2.992FSRCNN [11]430.71 / 0.865 / 2.994 27.70 / 0.756 / 2.723 26.97 / 0.714 / 2.370 24.61 / 0.727 / 2.916SelfExSR [19]430.33 / 0.861 / 3.249 27.54 / 0.756 / 2.952 26.84 / 0.712 / 2.512 24.82 / 0.740 / 3.381RFL [32]430.15 / 0.853 / 3.135 27.33 / 0.748 / 2.853 26.75 / 0.707 / 2.455 24.20 / 0.711 / 3.000SCN [41]430.39 / 0.862 / 2.911 27.48 / 0.751 / 2.651 26.87 / 0.710 / 2.309 24.52 / 0.725 / 2.861VDSR [20]431.35 / 0.882 / 3.496 28.03 / 0.770 / 3.071 27.29 / 0.726 / 2.627 25.18 / 0.753 / 3.405DRCN [21]431.53 / 0.884 / 3.502 28.04 / 0.770 / 3.066 27.24 / 0.724 / 2.587 25.14 / 0.752 / 3.412LapSRN [22]431.54 / 0.885 / 3.559 28.19 / 0.772 / 3.147 27.32 / 0.728 / 2.677 25.21 / 0.756 / 3.530DRRN [35]431.68 / 0.889 / 3.703 28.21 / 0.772 / 3.252 27.38 / 0.728 / N.A. 25.44 / 0.764 / 3.676DSRN431.40 / 0.883 / 3.500 28.07 / 0.770 / 3.147 27.25 / 0.724 / 2.599 25.08 / 0.747 / 3.297parameters remains independent of the length of unrolling.Essentially, T controls the trade-off between model capac-ity and computation cost. We study the influence of T bytraining the model with different unrolling lengths. The em-pirical results are shown in Figure",
+        "tab_1": "Table 2 .2Quantitative evaluation (in PSNR) of the proposed DSRN, its variants, and other state-of-the-art SR algorithms on track 1 of the NTIRE SR 2017 challenge. Bold red text indicates the best and underlined blue text indicates the second best performance. The number in () indicates ranking in the challenge.Methodx2x3x4Single-state baseline34.66 30.80 28.80OursDSRN w/o parameter sharing 34.71 30.85 28.81 DSRN w/o delayed feedback 34.89 30.95 28.99DSRN34.96 31.12 29.03EDSR+ [25] (1)34.93 31.13 29.04OthersWang et al. [36] (2) Bae et al. [3] (3) SelNet [7] (4)34.47 30.77 28.82 34.66 30.83 28.83 34.29 30.52 28.55BTSRN [12] (5)34.19 30.44 28.49"
+    }
+]

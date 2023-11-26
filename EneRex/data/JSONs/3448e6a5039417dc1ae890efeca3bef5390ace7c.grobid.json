@@ -1,0 +1,530 @@
+[
+    {
+        "basename": "3448e6a5039417dc1ae890efeca3bef5390ace7c.grobid",
+        "fulltext": 23,
+        "footnote_size": 3,
+        "footnote_max": 3,
+        "reference": 47,
+        "authors": [
+            "Lian",
+            "Zhou",
+            "Zhang",
+            "Chen",
+            "Xie",
+            "Sun"
+        ]
+    },
+    {
+        "title": "xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems",
+        "abstract": "Combinatorial features are essential for the success of many commercial models. Manually crafting these features usually comes with high cost due to the variety, volume and velocity of raw data in web-scale systems. Factorization based models, which measure interactions in terms of vector product, can learn patterns of combinatorial features automatically and generalize to unseen features as well. With the great success of deep neural networks (DNNs) in various fields, recently researchers have proposed several DNNbased factorization model to learn both low-and high-order feature interactions. Despite the powerful ability of learning an arbitrary function from data, plain DNNs generate feature interactions implicitly and at the bit-wise level. In this paper, we propose a novel Compressed Interaction Network (CIN), which aims to generate feature interactions in an explicit fashion and at the vector-wise level. We show that the CIN share some functionalities with convolutional neural networks (CNNs) and recurrent neural networks (RNNs). We further combine a CIN and a classical DNN into one unified model, and named this new model eXtreme Deep Factorization Machine (xDeepFM). On one hand, the xDeepFM is able to learn certain bounded-degree feature interactions explicitly; on the other hand, it can learn arbitrary low-and high-order feature interactions implicitly. We conduct comprehensive experiments on three real-world datasets. Our results demonstrate that xDeepFM outperforms state-of-the-art models. We have released the source code of xDeepFM at https:// github.com/ Leavingseason/ xDeepFM.",
+        "INTRODUCTION": "Features play a central role in the success of many predictive systems. Because using raw features can rarely lead to optimal results, data scientists usually spend a lot of work on the transformation of raw features in order to generate best predictive systems  #b13  #b23  or to win data mining games  #b20  #b21  #b25 . One major type of feature transformation is the cross-product transformation over categorical features  #b4 . These features are called cross features or multi-way features, they measure the interactions of multiple raw features. For instance, a 3-way feature AND(user_organization=msra, item_category=deeplearning, time=monday) has value 1 if the user works at Microsoft Research Asia and is shown a technical article about deep learning on a Monday.There are three major downsides for traditional cross feature engineering. First, obtaining high-quality features comes with a high cost. Because right features are usually task-specific, data scientists need spend a lot of time exploring the potential patterns from the product data before they become domain experts and extract meaningful cross features. Second, in large-scale predictive systems such as web-scale recommender systems, the huge number of raw features makes it infeasible to extract all cross features manually. Third, hand-crafted cross features do not generalize to unseen interactions in the training data. Therefore, learning to interact features without manual engineering is a meaningful task.Factorization Machines (FM)  #b31  embed each feature i to a latent factor vector v i = [v i1 , v i2 , ..., v i D ], and pairwise feature interactions are modeled as the inner product of latent vectors: f (2) (i, j) = \u27e8v i , v j \u27e9x i x j . In this paper we use the term bit to denote a element (such as v i1 ) in latent vectors. The classical FM can be extended to arbitrary higher-order feature interactions  #b1 , but one major downside is that,  #b1  proposes to model all feature interactions, including both useful and useless combinations. As revealed in  #b42 , the interactions with useless features may introduce noises and degrade the performance. In recent years, deep neural networks (DNNs) have become successful in computer vision, speech recognition, and natural language processing with their great power of feature representation learning. It is promising to exploit DNNs to learn sophisticated and selective feature interactions.  #b45  proposes a Factorisation-machine supported Neural Network (FNN) to learn high-order feature interactions. It uses the pre-trained factorization machines for field embedding before applying DNN.  #b30  further proposes a Product-based Neural Network (PNN), which introduces a product layer between embedding layer and DNN layer, and does not rely on pre-trained FM. The major downside of FNN and PNN is that they focus more on high-order feature interactions while capture little low-order interactions. The Wide&Deep  #b4  and DeepFM  #b8  models overcome this problem by introducing hybrid architectures, which contain a shallow component and a deep component with the purpose of learning both memorization and generalization. Therefore they can jointly learn low-order and high-order feature interactions.All the abovementioned models leverage DNNs for learning high-order feature interactions. However, DNNs model high-order feature interactions in an implicit fashion. The final function learned by DNNs can be arbitrary, and there is no theoretical conclusion on what the maximum degree of feature interactions is. In addition, DNNs model feature interactions at the bit-wise level, which is different from the traditional FM framework which models feature interactions at the vector-wise level. Thus, in the field of recommender systems, whether DNNs are indeed the most effective model in representing high-order feature interactions remains an open question. In this paper, we propose a neural network-based model to learn feature interactions in an explicit, vector-wise fashion. Our approach is based on the Deep & Cross Network (DCN)  #b39 , which aims to efficiently capture feature interactions of bounded degrees. However, we will argue in Section 2.3 that DCN will lead to a special format of interactions. We thus design a novel compressed interaction network (CIN) to replace the cross network in the DCN. CIN learns feature interactions explicitly, and the degree of interactions grows with the depth of the network. Following the spirit of the Wide&Deep and DeepFM models, we combine the explicit high-order interaction module with implicit interaction module and traditional FM module, and name the joint model eXtreme Deep Factorization Machine (xDeepFM). The new model requires no manual feature engineering and release data scientists from tedious feature searching work. To summarize, we make the following contributions:\u2022 We propose a novel model, named eXtreme Deep Factorization Machine (xDeepFM), that jointly learns explicit and implicit high-order feature interactions effectively and requires no manual feature engineering. \u2022 We design a compressed interaction network (CIN) in xDeepFM that learns high-order feature interactions explicitly. We show that the degree of feature interactions increases at each layer, and features interact at the vector-wise level rather than the bit-wise level.\u2022 We conduct extensive experiments on three real-world dataset, and the results demonstrate that our xDeepFM outperforms several state-of-the-art models significantly.The rest of this paper is organized as follows. Section 2 provides some preliminary knowledge which is necessary for understanding deep learning-based recommender systems. Section 3 introduces our proposed CIN and xDeepFM model in detail. We will present experimental explorations on multiple datasets in Section 4. Related works are discussed in Section 5. Section 6 concludes this paper.",
+        "PRELIMINARIES 2.1 Embedding Layer": "In computer vision or natural language understanding, the input data are usually images or textual signals, which are known to be spatially and/or temporally correlated, so DNNs can be applied directly on the raw feature with dense structures. However, in web-scale recommender systems, the input features are sparse, of huge dimension, and present no clear spatial or temporal correlation. Therefore, multi-field categorical form is widely used by related works  #b8  #b30  #b36  #b39  #b45 . For example, one input instance [user_id=s02,gender=male, organization=msra,interests=comedy&rock] is normally transformed into a high-dimensional sparse features via field-aware one-hot encoding:[0, 1, 0, 0, ..., 0user id ] [ 1, 0 \u0434ender ] [0, 1, 0, 0, ..., 0 or \u0434anizat ion ] [0, 1, 0, 1, ..., 0 int er est s ]An embedding layer is applied upon the raw feature input to compress it to a low dimensional, dense real-value vector. If the field is univalent, the feature embedding is used as the field embedding. Take the above instance as an example, the embedding of feature male is taken as the embedding of field gender. If the field is multivalent, the sum of feature embedding is used as the field embedding. The embedding layer is illustrated in Figure 1. The result of embedding layer is a wide concatenated vector:e = [e 1 , e 2 , ..., e m ]where m denotes the number of fields, and e i \u2208 R D denotes the embedding of one field. Although the feature lengths of instances can be various, their embeddings are of the same length m \u00d7 D, where D is the dimension of field embedding.",
+        "Figure 1:": "The field embedding layer. The dimension of embedding in this example is 4.",
+        "Implicit High-order Interactions": "FNN  #b45 , Deep Crossing  #b36 , and the deep part in Wide&Deep  #b4  exploit a feed-forward neural network on the field embedding vector e to learn high-order feature interactions. The forward process is :x 1 = \u03c3 (W (1) e + b 1 ) (1)x k = \u03c3 (W (k) x (k-1) + b k ) (2)where k is the layer depth, \u03c3 is an activation function, and x k is the output of the k-th layer. The visual structure is very similar to what is shown in Figure 2, except that they do not include the FM or Product layer. This architecture models the interaction in a bit-wise fashion. That is to say, even the elements within the same field embedding vector will influence each other. PNN  #b30  and DeepFM  #b8  modify the above architecture slightly. Besides applying DNNs on the embedding vector e, they add a twoway interaction layer in the architecture. Therefore, both bit-wise and vector-wise interaction is included in their model. The major difference between PNN and DeepFM, is that PNN connects the outputs of product layer to the DNNs, whereas DeepFM connects the FM layer directly to the output unit (refer to Figure 2).",
+        "Figure 2:": "The architecture of DeepFM (with linear part omitted) and PNN. We re-use the symbols in  #b8 , where red edges represent weight-1 connections (no parameters) and gray edges represent normal connections (network parameters).  #b39  proposes the Cross Network (CrossNet) whose architecture is shown in Figure 3. It aims to explicitly model the high-order feature interactions. Unlike the classical fully-connected feed-forward network, the hidden layers are calculated by the following cross operation:",
+        "Explicit High-order Interactions": "x k = x 0 x T k -1 w k + b k + x k -1(3)where w k , b k , x k \u2208 R mD are weights, bias and output of the k-th layer, respectively. We argue that the CrossNet learns a special type of high-order feature interactions, where each hidden layer in the CrossNet is a scalar multiple of x 0 .Theorem 2.1. Consider a k-layer cross network with the (i+1)-th layer defined as x i+1 = x 0 x T i w i+1 + x i . Then, the output of the cross network x k is a scalar multiple of x 0 . Proof. When k=1, according to the associative law and distributive law for matrix multiplication, we have:x 1 = x 0 (x T 0 w 1 ) + x 0 = x 0 (x T 0 w 1 + 1) = \u03b1 1 x 0 (4)where the scalar \u03b1 1 = x T 0 w 1 + 1 is actually a linear regression of x 0 . Thus, x 1 is a scalar multiple of x 0 . Suppose the scalar multiple statement holds for k=i. For k=i + 1, we have :x i+1 = x 0 x T i w i+1 + x i = x 0 ((\u03b1 i x 0 ) T w i+1 ) + \u03b1 i x 0 = \u03b1 i+1 x 0 (5)where, \u03b1 i+1 = \u03b1 i (x T 0 w i+1 + 1) is a scalar. Thus x i+1 is still a scalar multiple of x 0 . By induction hypothesis, the output of cross network x k is a scalar multiple of x 0 . \u25a1 Note that the scalar multiple does not mean x k is linear with x 0 . The coefficient \u03b1 i+1 is sensitive with x 0 . The CrossNet can learn feature interactions very efficiently (the complexity is negligible compared with a DNN model), however the downsides are: (1) the output of CrossNet is limited in a special form, with each hidden layer is a scalar multiple of x 0 ; (2) interactions come in a bit-wise fashion.",
+        "OUR PROPOSED MODEL 3.1 Compressed Interaction Network": "We design a new cross network, named Compressed Interaction Network (CIN), with the following considerations: (1) interactions are applied at vector-wise level, not at bit-wise level; (2) high-order feature interactions is measured explicitly; (3) the complexity of network will not grow exponentially with the degree of interactions.Since an embedding vector is regarded as a unit for vector-wise interactions, hereafter we formulate the output of field embedding as a matrix X 0 \u2208 R m\u00d7D , where the i-th row in X 0 is the embedding vector of the i-th field: X 0 i, * = e i , and D is the dimension of the field embedding. The output of the k-th layer in CIN is also a matrixX k \u2208 R H k \u00d7D, where H k denotes the number of (embedding) feature vectors in the k-th layer and we let H 0 = m. For each layer, X k are  calculated via:X k h, * = H k -1 i=1 m j=1 W k,h i j (X k-1 i, * \u2022 X 0 j, * )(6)where1 \u2264 h \u2264 H k , W k,h \u2208 R H k -1 \u00d7mis the parameter matrix for the h-th feature vector, and \u2022 denotes the Hadamard product, for example,\u27e8a 1 , a 2 , a 3 \u27e9 \u2022 \u27e8b 1 , b 2 , b 3 \u27e9 = \u27e8a 1 b 1 , a 2 b 2 , a 3 b 3 \u27e9. Note that X kis derived via the interactions between X k -1 and X 0 , thus feature interactions are measured explicitly and the degree of interactions increases with the layer depth. The structure of CIN is very similar to the Recurrent Neural Network (RNN), where the outputs of the next hidden layer are dependent on the last hidden layer and an additional input. We hold the structure of embedding vectors at all layers, thus the interactions are applied at the vector-wise level.It is interesting to point out that Equation 6 has strong connections with the well-known Convolutional Neural Networks (CNNs) in computer vision. As shown in Figure 4a, we introduce an intermediate tensor Z k +1 , which is the outer products (along each embedding dimension) of hidden layer X k and original feature matrix X 0 . Then Z k +1 can be regarded as a special type of image and W k,h is a filter. We slide the filter across Z k+1 along the embedding dimension (D) as shown in Figure 4b, and get an hidden vector X k+1 i, * , which is usually called a feature map in computer vision. Therefore, X k is a collection of H k different feature maps. The term \"compressed\" in the name of CIN indicates that the k-th hidden layer compress the potential space of H k -1 \u00d7 m vectors down to H k vectors.Figure 4c provides an overview of the architecture of CIN. Let T denotes the depth of the network. Every hidden layer X k , k \u2208 [1,T ] has a connection with output units. We first apply sum pooling on each feature map of the hidden layer:p k i = D j=1 X k i, j(7)for i \u2208 [1, H k ]. Thus, we have a pooling vectorp k = [p k 1 , p k 2 , ..., p k H k ]with length H k for the k-th hidden layer. All pooling vectors from hidden layers are concatenated before connected to output units:p + = [p 1 , p 2 , ..., p T ] \u2208 R T i =1 H i .If we use CIN directly for binary classification, the output unit is a sigmoid node on p + :y = 1 1 + exp(p +T w o )(8)where w o are the regression parameters.",
+        "CIN Analysis": "We analyze the proposed CIN to study the model complexity and the potential effectiveness.",
+        "Space Complexity.": "The h-th feature map at the k-th layer contains H k -1 \u00d7 m parameters, which is exactly the size of W k,h . Thus, there are H k \u00d7 H k -1 \u00d7 m parameters at the k-th layer. Considering the last regression layer for the output unit, which has T k =1 H k parameters, the total number of parameters for CIN isT k =1 H k \u00d7 (1 + H k -1 \u00d7 m). Note that CIN is independent of the embedding dimension D. In contrast, a plain T -layers DNN contains m \u00d7 D \u00d7 H 1 + H T + T k=2 H k \u00d7 H k-1 parameters, and the number of parameters will increase with the embedding dimension D.Usually m and H k will not be very large, so the scale of W k,h is acceptable. When necessary, we can exploit a L-order decomposition and replace W k,h with two smaller matricesU k,h \u2208 R H k -1 \u00d7L and V k,h \u2208 R m\u00d7L : W k,h = U k,h (V k,h ) T(9)where L \u226a H and L \u226a m. Hereafter we assume that each hidden layer has the same number (which is H ) of feature maps for simplicity. Through the L-order decomposition, the space complexity of CIN is reduced from O(mT H 2 ) to O(mT HL + T H 2 L). In contrast, the space complexity of the plain DNN is O(mDH + T H 2 ), which is sensitive to the dimension (D) of field embedding. ",
+        "Time": "",
+        "Polynomial Approximation.": "Next we examine the highorder interaction properties of CIN. For simplicity, we assume that numbers of feature maps at hidden layers are all equal to the number of fields m. Let [m] denote the set of positive integers that are less than or equal to m. The h-th feature map at the first layer, denoted as x 1 h \u2208 R D , is calculated via:x 1 h = i \u2208[m] j \u2208[m] W 1,h i, j (x 0 i \u2022 x 0 j )(10)Therefore, each feature map at the first layer models pair-wise interactions with O(m 2 ) coefficients. Similarly, the h-th feature map at the second layer is:x 2 h = i \u2208[m] j \u2208[m] W 2,h i, j (x 1 i \u2022 x 0 j ) = i \u2208[m] j \u2208[m] l \u2208[m] k \u2208[m] W 2,h i, j W 1,i l,k (x 0 j \u2022 x 0 k \u2022 x 0 l )(11)Note that all calculations related to the subscript l and k is already finished at the previous hidden layer. We expand the factors in Equation 11 just for clarity. We can observe that each feature map at the second layer models 3-way interactions with O(m 2 ) new parameters.A classical k-order polynomial has O(m k ) coefficients. We show that CIN approximate this class of polynomial with only O(km 3 ) parameters in terms of a chain of feature maps. By induction hypothesis, we can prove that the h-th feature map at the k-th layer is:x k h = i \u2208[m] j \u2208[m] W k,h i, j (x k -1 i \u2022 x 0 j ) = i \u2208[m] j \u2208[m] ... r \u2208[m] t \u2208[m] l \u2208[m] s \u2208[m] W k,h i, j ...W 1,r l,s (x 0 j \u2022 ... \u2022 x 0 s \u2022 x 0 l k vect or s )(12)For better illustration, here we borrow the notations from  #b39 . Let \u03b1 = [\u03b1 1 , ..., \u03b1 m ] \u2208 N d denote a multi-index, and |\u03b1 | = m i=1 \u03b1 i . We omit the original superscript from x 0 i , and use x i to denote it since we only we the feature maps from the 0-th layer (which is exactly the field embeddings) for the final expanded expression (refer to Eq. 12). Now a superscript is used to denote the vector operation, such asx 3 i = x i \u2022 x i \u2022 x i . Let V P k (X) denote a multi-vector polynomial of degree k: V P k (X) = \u03b1 w \u03b1 x \u03b1 1 1 \u2022 x \u03b1 2 2 \u2022 ... \u2022 x \u03b1 m m 2 \u2a7d |\u03b1 | \u2a7d k(13)Each vector polylnomial in this class has O(m k ) coefficients. Then, our CIN approaches the coefficient w \u03b1 with:\u0175\u03b1 = m i=1 m j=1 B \u2208P \u03b1 |\u03b1 | t =2 W t, j i, B t(14)where, B = [B ).",
+        "Combination with Implicit Networks": "As discussed in Section 2.2, plain DNNs learn implicit high-order feature interactions. Since CIN and plain DNNs can complement each other, an intuitive way to make the model stronger is to combine these two structures. The resulting model is very similar to the Wide&Deep or DeepFM model. The architecture is shown in Figure 5. We name the new model eXtreme Deep Factorization Machine (xDeepFM), considering that on one hand, it includes both low-order and high-order feature interactions; on the other hand, it includes both implicit feature interactions and explicit feature interactions. Its resulting output unit becomes:\u0177 = \u03c3 (w T linear a + w T dnn x k dnn + w T cin p + + b) (15)where \u03c3 is the sigmoid function, a is the raw features. x k dnn , p + are the outputs of the plain DNN and CIN, respectively. w * and b are learnable parameters. For binary classifications, the loss function is the log loss:L = - 1 N N i=1 y i lo\u0434 \u0177i + (1 -y i )lo\u0434(1 -\u0177i ) (16)where N is the total number of training instances. The optimization process is to minimize the following objective function:J = L + \u03bb * ||\u0398||(17)where \u03bb * denotes the regularization term and \u0398 denotes the set of parameters, including these in linear part, CIN part, and DNN part. ",
+        "3.3.1": "Relationship with FM and DeepFM. Suppose all fields are univalent. It's not hard to observe from Figure 5 that, when the depth and feature maps of the CIN part are both set to 1, xDeepFM is a generalization of DeepFM by learning the linear regression weights for the FM layer (note that in DeepFM, units of FM layer are directly linked to the output unit without any coefficients). When we further remove the DNN part, and at the same time use a constant sum filter (which simply takes the sum of inputs without any parameter learning) for the feature map, then xDeepFM is downgraded to the traditional FM model.",
+        "EXPERIMENTS": "In this section, we conduct extensive experiments to answer the following questions:\u2022 (Q1) How does our proposed CIN perform in high-order feature interactions learning? \u2022 (Q2) Is it necessary to combine explicit and implicit highorder feature interactions for recommender systems? \u2022 (Q3) How does the settings of networks influence the performance of xDeepFM? We will answer these questions after presenting some fundamental experimental settings.",
+        "Experiment Setup": "4.1.1 Datasets. We evaluate our proposed models on the following three datasets:1. Criteo Dataset. It is a famous industry benchmarking dataset for developing models predicting ad click-through rate, and is publicly accessible 1 . Given a user and the page he is visiting, the goal is to predict the probability that he will clik on a given ad.2. Dianping Dataset. Dianping.com is the largest consumer review site in China. It provides diverse functions such as reviews, check-ins, and shops' meta information (including geographical messages and shop attributes). We collect 6 months' users checkin activities for restaurant recommendation experiments. Given a user's profile, a restaurant's attributes and the user's last three visited POIs (point of interest), we want to predict the probability that he will visit the restaurant. For each restaurant in a user's check-in instance, we sample four restaurants which are within 3 kilometers as negative instances by POI popularity.3. Bing News Dataset. Bing News2 is part of Microsoft's Bing search engine. In order to evaluate the performance of our model in a real commercial dataset, we collect five consecutive days' impression logs on news reading service. We use the first three days' data for training and validation, and the next two days for testing.For the Criteo dataset and the Dianping dataset, we randomly split instances by 8:1:1 for training , validation and test. The characteristics of the three datasets are summarized in Table 1. 4.1.2 Evaluation Metrics. We use two metrics for model evaluation: AUC (Area Under the ROC curve) and Logloss (cross entropy). These two metrics evaluate the performance from two different angels: AUC measures the probability that a positive instance will be ranked higher than a randomly chosen negative one. It only takes into account the order of predicted instances and is insensitive to class imbalance problem. Logloss, in contrast, measures the distance between the predicted score and the true label for each instance. Sometimes we rely more on Logloss because we need to use the predicted probability to estimate the benefit of a ranking strategy (which is usually adjusted as CTR \u00d7 bid).4.1.3 Baselines. We compare our xDeepFM with LR(logistic regression), FM, DNN (plain deep neural network), PNN (choose the better one from iPNN and oPNN)  #b30 , Wide & Deep  #b4 , DCN (Deep & Cross Network)  #b39  and DeepFM  #b8 . As introduced and discussed in Section 2, these models are highly related to our xDeepFM and some of them are state-of-the-art models for recommender systems. Note that the focus of this paper is to learn feature interactions automatically, so we do not include any hand-crafted cross features.4.1.4 Reproducibility. We implement our method using Tensorflow 3 . Hyper-parameters of each model are tuned by grid-searching on the validation set, and the best settings for each model will be shown in corresponding sections. Learning rate is set to 0.001. For optimization method, we use the Adam  #b15  with a mini-batch size of 4096. We use a L2 regularization with \u03bb = 0.0001 for DNN, DCN, Wide&Deep, DeepFM and xDeepFM, and use dropout 0.5 for PNN. The default setting for number of neurons per layer is: (1) 400 for DNN layers; (2) 200 for CIN layers on Criteo dataset, and 100 for CIN layers on Dianping and Bing News datasets. Since we focus on neural networks structures in this paper, we make the dimension of field embedding for all models be a fixed value of 10. We conduct experiments of different settings in parallel with 5 Tesla K80 GPUs. The source code is available at https:// github.com/ Leavingseason/ xDeepFM. We want to know how CIN performs individually. Note that FM measures 2-order feature interactions explicitly, DNN model highorder feature interactions implicitly, CrossNet tries to model highorder feature interactions with a small number of parameters (which is proven not effective in Section 2.3), and CIN models high-order feature interactions explicitly. There is no theoretic guarantee of the superiority of one individual model over the others, due to that it really depends on the dataset. For example, if the practical dataset does not require high-order feature interactions, FM may be the best individual model. Thus we do not have any expectation for which model will perform the best in this experiment.Table 2 shows the results of individual models on the three practical datasets. Surprisingly, our CIN outperform the other models consistently. On one hand, the results indicate that for practical datasets, higher-order interactions over sparse features are necessary, and this can be verified through the fact that DNN, CrossNet and CIN outperform FM significantly on all the three datasets. On the other hand, CIN is the best individual model, which demonstrates the effectiveness of CIN on modeling explicit high-order feature interactions. Note that a k-layer CIN can model k-degree feature interactions. It is also interesting to see that it take 5 layers for CIN to yield the best result ON the Bing News dataset.",
+        "Performance of Integrated Models (Q2)": "xDeepFM integrates CIN and DNN into an end-to-end model. While CIN and DNN covers two distinct properties in learning feature interactions, we are interested to know whether it is indeed necessary and effective to combine them together for jointly explicit and implicit learning. Here we compare several strong baselines which are not limited to individual models, and the results are shown in Table 3. We observe that LR is far worse than all the rest models, which demonstrates that factorization-based models are essential for measuring sparse features. Wide&Deep, DCN, DeepFM and xDeepFM are significantly better than DNN, which directly reflects that, despite their simplicity, incorporating hybrid components are important for boosting the accuracy of predictive systems. Our proposed xDeepFM achieves the best performance on all datasets, which demonstrates that combining explicit and implicit high-order feature interaction is necessary, and xDeepFM is effective in learning this class of combination. Another interesting observation is that, all the neural-based models do not require a very deep network structure for the best performance. Typical settings for the depth hyper-parameter are 2 and 3, and the best depth setting for xDeepFM is 3, which indicates that the interactions we learned are at most 4-order.",
+        "Hyper-Parameter Study (Q3)": "We study the impact of hyper-parameters on xDeepFM in this section, including (1) the number of hidden layers; (2) the number of neurons per layer; and (3) activation functions. We conduct experiments via holding the best settings for the DNN part while varying the settings for the CIN part.Depth of Network. Figure 6a and 7a demonstrate the impact of number of hidden layers. We can observe that the performance of xDeepFM increases with the depth of network at the beginning. However, model performance degrades when the depth of network is set greater than 3. It is caused by overfitting evidenced by that we notice that the loss of training data still keeps decreasing when we add more hidden layers.Number of Neurons per Layer. Adding the number of neurons per layer indicates increasing the number of feature maps in CIN. As shown in Figure 6b and 7b, model performance on Bing News dataset increases steadily when we increase the number of neurons from 20 to 200, while on Dianping dataset, 100 is a more suitable setting for the number of neurons per layer. In this experiment we fix the depth of network at 3.Activation Function. Note that we exploit the identity as activation function on neurons of CIN, as shown in Eq. 6. A common practice in deep learning literature is to employ non-linear activation functions on hidden neurons. We thus compare the results of different activation functions on CIN (for neurons in DNN, we keep the activation function with relu). As shown in Figure 6c and 7c, identify function is indeed the most suitable one for neurons in CIN.    For web-scale recommender systems (RSs), the input features are usually sparse, categoricalcontinuous-mixed, and high-dimensional. Linear models, such as logistic regression with FTRL  #b26 , are widely adopted as they are easy to manage, maintain, and deploy. Because linear models lack the ability of learning feature interactions, data scientists have to spend a lot of work on engineering cross features in order to achieve better performance  #b21  #b34 . Considering that some hidden features are hard to design manually, some researchers exploit boosting decision trees to help build feature transformations  #b13  #b24 .",
+        "Factorization Models.": "A major downside of the aforementioned models is that they can not generalize to unseen feature interactions in the training set. Factorization Machines  #b31  overcome this problem via embedding each feature into a low dimension latent vector. Matrix factorization (MF)  #b17 , which only considers IDs as features, can be regarded as a special kind of FM. Recommendations are made via the product of two latent vectors, thus it does not require the co-occurrence of user and item in the training set. MF is the most popular model-based collaborative filtering method in the RS literature  #b16  #b19  #b29  #b37 .  #b3  #b27  extend MF to leveraging side information, in which both a linear model and a MF model are included. On the other hand, for many recommender systems, only implicit feedback datasets such as users' watching history and browsing activities are available. Thus researchers extend the factorization models to a Bayesian Personalized Ranking (BPR) framework  #b10  #b32  #b33  #b43  for implicit feedback.",
+        "Recommender Systems with Deep Learning": "Deep learning techniques have achieved great success in computer vision  #b9  #b18 , speech recognition  #b0  #b14  and natural language understanding  #b5  #b28 . As a result, an increasing number of researchers are interested in employing DNNs for recommender systems.",
+        "Deep": "Learning for Elaborate Representation Learning. We include some other deep learning-based RSs in this section due to that they are less focused on learning feature interactions. Some early work employs deep learning mainly to model auxiliary information, such as visual data  #b10  and audio data  #b40 . Recently, deep neural networks are used to model the collaborative filtering (CF) in RSs.  #b12  proposes a Neural Collaborative Filtering (NCF) so that the inner product in MF can be replaced with an arbitrary function via a neural architecture.  #b35  #b41  model CF base on the autoencoder paradigm, and they have empirically demonstrated that autoencoder-based CF outperforms several classical MF models. Autoencoders can be further employed for jointly modeling CF and side information with the purpose of generating better latent factors  #b6  #b38  #b44 .  #b7  #b22  employ neural networks to jointly train multiple domains' latent factors.  #b2  proposes the Attentive Collaborative Filtering (ACF) to learn more elaborate preference at both item-level and component-level.  #b46  shows tha traditional RSs can not capture interest diversity and local activation effectively, so they introduce a Deep Interest Network (DIN) to represent users' diverse interests with an attentive activation mechanism.",
+        "CONCLUSIONS": "In this paper, we propose a novel network named Compressed Interaction Network (CIN), which aims to learn high-order feature interactions explicitly. CIN has two special virtues: (1) it can learn certain bounded-degree feature interactions effectively; (2) it learns feature interactions at a vector-wise level. Following the spirit of several popular models, we incorporate a CIN and a DNN in an end-to-end framework, and named the resulting model eXtreme Deep Factorization Machine (xDeepFM). Thus xDeepFM can automatically learn high-order feature interactions in both explicit and implicit fashions, which is of great significance to reducing manual feature engineering work. We conduct comprehensive experiments and the results demonstrate that our xDeepFM outperforms stateof-the-art models consistently on three real-world datasets.There are two directions for future work. First, currently we simply employ a sum pooling for embedding multivalent fields. We can explore the usage of the DIN mechanism  #b46  to capture the related activation according to the candidate item. Second, as discussed in section 3.2.2, the time complexity of the CIN module is high. We are interested in developing a distributed version of xDeepFM which can be trained efficiently on a GPU cluster."
+    },
+    {
+        "1": "http://labs.criteo.com/2014/02/kaggle-display-advertising-challenge-dataset/",
+        "2": "https://www.bing.com/news",
+        "3": "https://www.tensorflow.org/"
+    },
+    {
+        "b0": [
+            "Deep speech 2: End-to-end speech recognition in english and mandarin",
+            "",
+            "",
+            "",
+            "Amodei",
+            "Sundaram Ananthanarayanan",
+            "Anubhai",
+            "Bai",
+            "Battenberg",
+            "Case",
+            "Casper",
+            "Catanzaro",
+            "Cheng",
+            "Chen"
+        ],
+        "b1": [
+            "Higher-order factorization machines",
+            "",
+            "",
+            "",
+            "Blondel",
+            "Fujino",
+            "Ueda",
+            "Ishihata"
+        ],
+        "b2": [
+            "Attentive collaborative filtering: Multimedia recommendation with item-and component-level attention",
+            "",
+            "",
+            "",
+            "Chen",
+            "Zhang",
+            "He",
+            "Nie",
+            "Liu",
+            "Chua"
+        ],
+        "b3": [
+            "SVDFeature: a toolkit for feature-based collaborative filtering",
+            "",
+            "",
+            "",
+            "Chen",
+            "Zhang",
+            "Lu",
+            "Chen",
+            "Zheng",
+            "Yu"
+        ],
+        "b4": [
+            "Wide & deep learning for recommender systems",
+            "",
+            "",
+            "",
+            "Cheng",
+            "Koc",
+            "Harmsen",
+            "Shaked",
+            "Chandra",
+            "Aradhye",
+            "Anderson",
+            "Corrado",
+            "Chai",
+            "Ispir"
+        ],
+        "b5": [
+            "",
+            "",
+            "Learning phrase representations using RNN encoder-decoder for statistical machine translation",
+            ""
+        ],
+        "b6": [
+            "",
+            "",
+            "Hybrid Collaborative Filtering Model with Deep Structure for Recommender Systems. In AAAI",
+            ""
+        ],
+        "b7": [
+            "A multi-view deep learning approach for cross domain user modeling in recommendation systems",
+            "",
+            "",
+            "",
+            "Mamdouh",
+            "Song",
+            "He"
+        ],
+        "b8": [
+            "",
+            "",
+            "Deepfm: A factorization-machine based neural network for CTR prediction",
+            ""
+        ],
+        "b9": [
+            "Deep residual learning for image recognition",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b10": [
+            "VBPR: Visual Bayesian Personalized Ranking from Implicit Feedback",
+            "",
+            "",
+            "",
+            "He",
+            "Mcauley"
+        ],
+        "b11": [
+            "Neural factorization machines for sparse predictive analytics",
+            "",
+            "",
+            "",
+            "He",
+            "Chua"
+        ],
+        "b12": [
+            "Neural collaborative filtering",
+            "",
+            "",
+            "",
+            "He",
+            "Liao",
+            "Zhang",
+            "Nie",
+            "Hu",
+            "Chua"
+        ],
+        "b13": [
+            "Practical lessons from predicting clicks on ads at facebook",
+            "",
+            "",
+            "",
+            "He",
+            "Pan",
+            "Jin",
+            "Xu",
+            "Liu",
+            "Xu",
+            "Shi",
+            "Atallah",
+            "Herbrich",
+            "Bowers"
+        ],
+        "b14": [
+            "Deep neural networks for acoustic modeling in speech recognition: The shared views of four research groups",
+            "",
+            "",
+            "",
+            "Hinton",
+            "Deng",
+            "Yu",
+            "Dahl",
+            "Mohamed",
+            "Jaitly",
+            "Senior",
+            "Vanhoucke",
+            "Nguyen",
+            "Sainath"
+        ],
+        "b15": [
+            "",
+            "",
+            "Adam: A method for stochastic optimization",
+            ""
+        ],
+        "b16": [
+            "Factorization meets the neighborhood: a multifaceted collaborative filtering model",
+            "",
+            "",
+            "",
+            "Koren"
+        ],
+        "b17": [
+            "Matrix factorization techniques for recommender systems",
+            "",
+            "",
+            "",
+            "Koren",
+            "Bell",
+            "Volinsky"
+        ],
+        "b18": [
+            "Imagenet classification with deep convolutional neural networks",
+            "",
+            "",
+            "",
+            "Krizhevsky",
+            "Sutskever",
+            "Hinton"
+        ],
+        "b19": [
+            "Local low-rank matrix approximation",
+            "",
+            "",
+            "",
+            "Lee",
+            "Kim",
+            "Lebanon",
+            "Singer"
+        ],
+        "b20": [
+            "",
+            "",
+            "Cross-Device User Matching Based on Massive Browse Logs: The Runner-Up Solution for the 2016 CIKM Cup",
+            ""
+        ],
+        "b21": [
+            "Practical Lessons for Job Recommendations in the Cold-Start Scenario",
+            "https://doi.org/10.1145/3124791.3124794",
+            "",
+            "",
+            "Lian",
+            "Zhang",
+            "Hou",
+            "Wang"
+        ],
+        "b22": [
+            "CCCFNet: a content-boosted collaborative filtering neural network for cross domain recommender systems",
+            "",
+            "",
+            "",
+            "Lian",
+            "Zhang",
+            "Xie",
+            "Sun"
+        ],
+        "b23": [
+            "Restaurant Survival Analysis with Heterogeneous Information",
+            "",
+            "",
+            "",
+            "Lian",
+            "Zhang"
+        ],
+        "b24": [
+            "Model Ensemble for Click Prediction in Bing Search Ads",
+            "",
+            "",
+            "",
+            "Ling",
+            "Deng",
+            "Gu",
+            "Zhou",
+            "Li",
+            "Sun"
+        ],
+        "b25": [
+            "Repeat buyer prediction for e-commerce",
+            "",
+            "",
+            "",
+            "Liu",
+            "Nguyen",
+            "Zhao",
+            "Zha",
+            "Yang",
+            "Cao",
+            "Wu",
+            "Zhao",
+            "Chen"
+        ],
+        "b26": [
+            "Ad click prediction: a view from the trenches",
+            "",
+            "",
+            "",
+            "H Brendan Mcmahan",
+            "Holt",
+            "Sculley",
+            "Young",
+            "Ebner",
+            "Grady",
+            "Nie",
+            "Phillips",
+            "Davydov",
+            "Daniel Golovin"
+        ],
+        "b27": [
+            "A log-linear model with latent features for dyadic prediction",
+            "",
+            "",
+            "",
+            "Menon",
+            "Elkan"
+        ],
+        "b28": [
+            "Recurrent neural network based language model",
+            "",
+            "",
+            "",
+            "Mikolov",
+            "Karafi\u00e1t",
+            "Burget",
+            "\u010cernock\u1ef3",
+            "Khudanpur"
+        ],
+        "b29": [
+            "One-class collaborative filtering",
+            "",
+            "",
+            "",
+            "Pan",
+            "Zhou",
+            "Cao",
+            "Liu",
+            "Lukose",
+            "Scholz",
+            "Yang"
+        ],
+        "b30": [
+            "Product-based neural networks for user response prediction",
+            "",
+            "",
+            "",
+            "Qu",
+            "Cai",
+            "Ren",
+            "Zhang",
+            "Yu",
+            "Wen",
+            "Wang"
+        ],
+        "b31": [
+            "Factorization machines",
+            "",
+            "",
+            "",
+            "Rendle"
+        ],
+        "b32": [
+            "BPR: Bayesian personalized ranking from implicit feedback",
+            "",
+            "",
+            "",
+            "Rendle",
+            "Freudenthaler",
+            "Gantner",
+            "Schmidt-Thieme"
+        ],
+        "b33": [
+            "Pairwise interaction tensor factorization for personalized tag recommendation",
+            "",
+            "",
+            "",
+            "Rendle",
+            "Schmidt-Thieme"
+        ],
+        "b34": [
+            "Predicting clicks: estimating the click-through rate for new ads",
+            "",
+            "",
+            "",
+            "Richardson",
+            "Dominowska",
+            "Ragno"
+        ],
+        "b35": [
+            "Autorec: Autoencoders meet collaborative filtering",
+            "",
+            "",
+            "",
+            "Sedhain",
+            "Menon",
+            "Sanner",
+            "Xie"
+        ],
+        "b36": [
+            "Deep crossing: Web-scale modeling without manually crafted combinatorial features",
+            "",
+            "",
+            "",
+            "Shan",
+            "Hoens",
+            "Jiao",
+            "Wang",
+            "Yu",
+            "Mao"
+        ],
+        "b37": [
+            "Maximum-margin matrix factorization",
+            "",
+            "",
+            "",
+            "Srebro",
+            "Rennie",
+            "Jaakkola"
+        ],
+        "b38": [
+            "Collaborative deep learning for recommender systems",
+            "",
+            "",
+            "",
+            "Wang",
+            "Wang",
+            "Yeung"
+        ],
+        "b39": [
+            "",
+            "",
+            "Deep & Cross Network for Ad Click Predictions",
+            ""
+        ],
+        "b40": [
+            "Improving content-based and hybrid music recommendation using deep learning",
+            "",
+            "",
+            "",
+            "Wang",
+            "Wang"
+        ],
+        "b41": [
+            "Collaborative denoising auto-encoders for top-n recommender systems",
+            "",
+            "",
+            "",
+            "Wu",
+            "Dubois",
+            "Zheng",
+            "Ester"
+        ],
+        "b42": [
+            "Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks",
+            "https://doi.org/10.24963/ijcai.2017/435",
+            "",
+            "",
+            "Xiao",
+            "Hao Ye",
+            "He",
+            "Zhang",
+            "Wu",
+            "Chua"
+        ],
+        "b43": [
+            "Lambdafm: learning optimal ranking with factorization machines using lambda surrogates",
+            "",
+            "",
+            "",
+            "Yuan",
+            "Guo",
+            "Joemon",
+            "Jose",
+            "Chen",
+            "Yu",
+            "Zhang"
+        ],
+        "b44": [
+            "Collaborative knowledge base embedding for recommender systems",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Jing Yuan",
+            "Lian",
+            "Xie",
+            "Ma"
+        ],
+        "b45": [
+            "Deep learning over multi-field categorical data",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Du",
+            "Wang"
+        ],
+        "b46": [
+            "",
+            "",
+            "Deep interest network for click-through rate prediction",
+            ""
+        ]
+    },
+    {
+        "tab_0": "1 , B 2 , ..., B |\u03b1 | ] is a multi-index, and P \u03b1 is the set of all the permutations of the indices ( 1, ...1\u03b1 1 t imes , ..., m, ..., m \u03b1 m t imes",
+        "tab_1": "Table 1 :1Statistics of the evaluation datasets. M indicates million and K indicates thousand.Datasest#instances #fields #features (sparse)Criteo45M392.3MDianping1.2M18230KBing News5M4517K",
+        "tab_2": "Table 2 :2Performance of individual models on the Criteo, Dianping, and Bing News datasets. Column Depth indicates the best network depth for each model.Model nameAUCLogloss DepthCriteoFM0.79000.4592-DNN0.79930.44912CrossNet0.79610.45083CIN0.8012 0.44933DianpingFM0.81650.3558-DNN0.83180.33823CrossNet0.82830.34042CIN0.8576 0.32252Bing NewsFM0.82230.2779-DNN0.83660.2732CrossNet0.83040.27656CIN0.8377 0.26625",
+        "tab_3": "Table 3 :3Overall performance of different models on Criteo, Dianping and Bing News datasets. The column Depth presents the best setting for network depth with a format of (cross layers, DNN layers).CriteoDianpingBing NewsModel nameAUCLoglossDepthAUCLoglossDepthAUCLoglossDepthLR0.75770.4854-,-0.80180.3608-,-0.79880.2950-,-FM0.79000.4592-,-0.81650.3558-,-0.82230.2779-,-DNN0.79930.4491-,20.83180.3382-,30.83660.2730-,2DCN0.80260.44672,20.83910.33794,30.83790.26772,2Wide&Deep0.80000.4490-,30.83610.3364-,20.83770.2668-,2PNN0.80380.4927-,20.84450.3424-,30.83210.2775-,3DeepFM0.80250.4468-,20.84810.3333-,20.83760.2671-,3xDeepFM0.80520.44183,20.86390.31563,30.84000.26493,24.2 Performance Comparison amongIndividual Neural Components (Q1)"
+    }
+]

@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main"></title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">B6C0A4830F708C227D20D5B6E41F61F1</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.7.3" ident="GROBID" when="2023-11-21T16:02+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Weakly-supervised object detection (WOD) is a challenging problems in computer vision. The key problem is to simultaneously infer the exact object locations in the training images and train the object detectors, given only the training images with weak image-level labels. Intuitively, by simulating the selective attention mechanism of human visual system, saliency detection technique can select attractive objects in scenes and thus is a potential way to provide useful priors for WOD. However, the way to adopt saliency detection in WOD is not trivial since the detected saliency region might be possibly highly ambiguous in complex cases. To this end, this paper first comprehensively analyzes the challenges in applying saliency detection to WOD. Then, we make one of the earliest efforts to bridge saliency detection to WOD via the self-paced curriculum learning, which can guide the learning procedure to gradually achieve faithful knowledge of multi-class objects from easy to hard. The experimental results demonstrate that the proposed approach can successfully bridge saliency detection and WOD tasks and achieve the state-of-the-art object detection results under the weak supervision.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction 1</head><p>Object detection is one of the most fundamental yetchallenging problems in computer vision community. The most recent breakthrough was achieved by <ref type="bibr">Girshick et al. [Girshick et al., 2014]</ref>, who trained the Convolutional Neural Network (CNN) by using large amount of human labelled bounding boxes to learn the powerful feature representations and object classifiers. Despite their success, the problem of object detection is still under-addressed in practice due to the heavy burden of labeling the training samples. Essentially, in this big data era, humans more desire intelligent machines which are capable of automatically discovering the intrinsic patterns from the cheaply and massively collected weakly * The corresponding author labeled images. Thus weakly supervised object detection (WOD) systems have been gaining more interests recently.</p><p>The key problem in WOD is how to extract the exact object localizations and train the corresponding object detectors from the weakly labelled training images. In such chicken-egg problem, most methods (including the proposed one) usually use the alternative learning strategy that first provides some coarse estimation to initialize the potential object locations and then gradually train the object detectors and update object locations jointly. In this paper, we leverage saliency detection to initialize the potential object locations due to the following reasons: 1) Saliency detection <ref type="bibr">[Han et al., 2015;</ref><ref type="bibr">Van Nguyen and</ref><ref type="bibr">Sepulveda, 2015, Han et al., 2016]</ref> aims at simulating the selective attention mechanism of human visual system to automatically select sub-regions (usually the regions containing objects of interest) in image scenes. Thus, it can be readily utilized to provide useful priors to estimate the potential object localizations and fit well to the investigated task. 2) Some recent saliency detection methods such as <ref type="bibr" target="#b3">[Cheng et al., 2015]</ref> and <ref type="bibr">[Van Nguyen and Sepulveda, 2015]</ref> can process much faster than the priors, e.g., intra-class similarity <ref type="bibr" target="#b9">[Siva and Xiang, 2011]</ref>, inter-class variance <ref type="bibr" target="#b9">[Siva et al., 2012]</ref>, and distance mapping relation <ref type="bibr" target="#b9">[Shi et al., 2012]</ref>, adopted in the existing WOD systems. 3) Several existing works, e.g., <ref type="bibr" target="#b9">[Siva et al., 2013]</ref>, have attempted to apply saliency detection techniques to WOD. However they still have not sufficiently explore the intrinsic bridge between these two tasks, which motivates us to clarify the insightful relationship between these two tasks and further develop powerful learning regime to bridge them.</p><p>Essentially, although it sounds reasonable to apply saliency detection to WOD, the way to bridge these two tasks is not trivial. The main problem is that saliency detection is formulated as category-free models which only distinguish attractive regions from the image background while irrelevant to the concrete object category. Thus, as shown in Fig. <ref type="figure" target="#fig_0">1</ref>, in the images only containing one category of objects (considered as "easy" images), the objects can be captured by saliency detection methods easily and associated with the corresponding image label properly. Whereas in the images weakly labelled as containing multiple categories of objects (considered as "hard" images), objects in all of categories will have the probabilities to attract the human attention and their corresponding locations are also hard for saliency</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Bridging Saliency Detection to Weakly Supervised Object Detection Based on</head><p>Self-paced Curriculum Learning  Dingwen Zhang 1 , Deyu Meng 2 , Long Zhao 1 and Junwei Han 1* 1 School of Automation, Northwestern Polytechnical University 2 School of Mathematics and Statistics, Xi'an Jiaotong University {zhangdingwen2006yyy, zhaolongsym, junweihan2010}@gmail.com, dymeng@mail.xjtu.edu.cn models to identify, which largely increases the ambiguity when considering to apply the obtained salient detection results to initializing the training samples for WOD. Thus, it is unreliable to directly apply saliency detection to WOD.</p><p>To alleviate this problem, we propose to bridge saliency detection to WOD via a self-paced curriculum learning (SPCL) regime. SPCL was proposed in <ref type="bibr" target="#b7">[Jiang et al., 2015]</ref> as a general learning framework including both the curriculum learning (CL) and self-paced learning (SPL) components. To the best of our knowledge, both of these two learning components are critical in successfully bridging saliency detection to WOD, whereas none of the existing literature has explored them before. Specifically, CL was proposed by <ref type="bibr" target="#b1">[Bengio et al., 2009]</ref>, which is usually learned based on the learning priorities derived by predetermined heuristics for particular problems. SPL was proposed by <ref type="bibr" target="#b8">[Kumar et al., 2010]</ref>, where the learning pace is dynamically generated by the learner itself, according to which the learner has already learned from the data. Thus, the CL and SPL components in SPCL can be correspondingly used to solve the training sample initialization and object detector updating problems in the proposed saliency-guided WOD. To implement SPCL for our task, we first design a task-specific curriculum to assign the "easy" images with larger priority than the "hard" images during the learning procedure, which indicates that only the salient object hypotheses in the "easy" images are selected as the initial training samples, while the object hypotheses in the "hard" images will be gradually involved in the subsequent learning iterations. To guide the learner to gradually learn faithful knowledge of multi-class objects from the "easy" (high-confidence) images to the "hard" (high-ambiguity) ones, a novel self-paced learning regularizer is proposed to enforce the learner to select confident and diverse training hypotheses in each iteration and learn the object detectors of multiple categories simultaneously. Finally, the proposed SPCL regime can fit well to solve the problems in this paper.</p><p>Compared with the SPCL model in <ref type="bibr" target="#b7">[Jiang et al., 2015]</ref>, the learning regime proposed in this paper mainly has three differences: 1) We design a task-specific learning curriculum for bridging saliency detection and WOD effectively. 2) We introduce an additional term, the sample diversity term, in the self-paced regularizer to prevent the selected training hypotheses from drifting to a small collection of training images. 3) Considering the latent relationship among the multiple categories of co-occurring objects, we further generalize the SPL regime into multi-class formulation, which facilitates the learning system to penalize indiscriminative object hypotheses predicted as belonging to multiple object categories at the same time.</p><p>To sum up, there are three-fold contributions in this paper:  We comprehensively analyze the prospect and challenges in the idea of bridging saliency detection to WOD and propose an effective way to alleviate the problem, which achieves the state-of-the-art detection performance under the weak supervision.</p><p> We establish a novel SPCL regime containing both the task-specific learning curriculum and the data-driven self-learning pace. The regime is well formulated as a concise optimization model.</p><p> We incorporate SPCL with a sample diversity term and further generalize it to work in multi-class scenario.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Related Works</head><p>Saliency detection: Most saliency detection methods highlight the attractive image regions by exploring some bottom-up cues. As one frequently explored cue, local contrast <ref type="bibr" target="#b5">[Itti et al., 1998;</ref><ref type="bibr" target="#b8">Klein and Frintrop, 2011]</ref> is usually used in the saliency detection models to highlight the image regions appearing differently with their spatially neighbor regions. Another widely used bottom-up cue is the global contrast. Being different from local contrast, global contrast <ref type="bibr" target="#b0">[Achanta et al., 2009;</ref><ref type="bibr" target="#b3">Cheng et al., 2015]</ref> is used to discover image regions which are unique in the entire image context. More recently, background prior becomes another important cue for saliency detection. This kind of methods, e.g., <ref type="bibr">[Han et al., 2015]</ref>, assume that regions near image boundaries are probably backgrounds and detect salient regions as As can be seen, in the training images with weak labels, some of them (in blue frame) are labelled only containing one object category, which are considered as "easy" images for the saliency detection methods. While others (in pink frame) labelled as containing multiple object categories are considered as "hard" images. Due to the category free property of saliency detection, the objects in "easy" images have larger confidence to be extracted correctly by the saliency detection methods, whereas the objects in "hard" images cannot be extracted successfully. To this end, we develop a novel self-paced curriculum learning paradigm to guide the learner to gradually achieve the faithful knowledge of the multiple object categories from easy (confident) to hard (ambiguous).</p><p>calculating the contrast to these image boundary regions. As can be seen, the bottom-up cues explored by saliency detection models are highly potential to provide helpful priors to the object localizations in each image.</p><p>Weakly-supervised object detection: Two key issues in WOD are 1) predict the potential object localizations and 2) learn the object detectors. Some early WOD methods <ref type="bibr" target="#b9">[Song et al., 2014;</ref><ref type="bibr">Wang et al., 2014]</ref> held the view that a better initial estimation of the object localizations is critical to this task as they can largely impact the subsequent learning process. Thus, they explored different ways, e.g. intra-class similarity [Siva and Xiang, 2011], inter-class variance <ref type="bibr" target="#b9">[Siva et al., 2012]</ref>, and distance mapping relation <ref type="bibr" target="#b9">[Shi et al., 2012]</ref>, to initialize the training object hypotheses. Later on, some recent WOD methods started to pay more attention to the optimization procedure designed for better training object detectors under the weak supervision. For example, <ref type="bibr">[Bilen et al., 2014;</ref><ref type="bibr" target="#b9">Song et al., 2014]</ref> proposed to smooth the object formulation to better obtain the optimal solutions. <ref type="bibr" target="#b3">[Bilen et al., 2015]</ref> proposed to incorporate convex clustering in the learning procedure, which enforces the local similarity of the selected hypotheses during optimization. Essentially, both of the above mentioned problems are critical in WOD task. To this end, this paper proposes a novel SPCL model which explicitly encode both the former problem (with the designed curriculum) and the later (with the self-paced regularizer) into a unified formulation and handle both problems in a theoretically sound manner.</p><p>Self-paced (curriculum) learning: Inspired by the learning process of humans/animals, the theory of self-paced (or curriculum) learning <ref type="bibr" target="#b1">[Bengio et al., 2009;</ref><ref type="bibr" target="#b8">Kumar et al., 2010]</ref> is proposed lately. The idea is to learn the model iteratively from easy to complex samples in a self-paced fashion. By virtue of its generality, the SPL theory has been widely applied to various tasks, such as multi-view clustering <ref type="bibr">[Xu et al., 2015]</ref>, multi-label propagation <ref type="bibr">[Gong et al., 2016]</ref>, multimedia event detection <ref type="bibr">[Jiang et al., 2014;</ref><ref type="bibr">Jiang et al., 2014]</ref>, and co-saliency detection <ref type="bibr" target="#b11">[Zhang et al., 2015]</ref>. More recently, <ref type="bibr" target="#b7">[Jiang et al., 2015]</ref> introduced the pre-defined learning curriculum to the conventional self-paced learning regime which can take into account both the helpful prior knowledge known before training and the self-learning progress during training. Inspired by this work, we design a task-specific learning curriculum and construct a unified SPCL model specifically for both the saliency detection and WOD tasks, through which both can be naturally related. , where , ( ) ∈ [0,1], indicating the labels and the real-valued importance weights of each hypothesis, respectively, which are unknown at the beginning and will be optimized during the proposed learning regime. The aim of the proposed approach is to learn the object detectors {W,b}, where = { } , = { } , of C object categories from the weakly-labeled training images, and then use them to detect objects in the test images. Specifically, we first design a simple yet effective curriculum to select the salient hypotheses in "easy" images as initialization. Then, the object detectors are trained and updated gradually under the guidance of the proposed self-paced learning strategy. Finally, the obtained object detectors are used to detect the corresponding objects in the test images. The overall algorithm is shown in Algorithm 1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">The Proposed Approach</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Problem Formulation</head><p>Given object hypotheses from the training images, we propose a simple yet effective curriculum to initialize the learning procedure. Specifically, we first obtain the "easy" images based on the number of weak labels of each image, i.e., images weakly labelled as only containing one object category are considered as "easy" . Then, for each "easy" image, we adopt an unsupervised saliency detection method, i.e., <ref type="bibr">RC [Cheng et al., 2015]</ref> in this paper due to its efficiency, to generate the corresponding saliency estimation. Finally, the important weights v are initialized as the intersection-over-union (IOU) score between each hypothesis and the salient region. The hypotheses with weights larger than 0 are selected as the initial training hypotheses and their labels in y are set according to the label of the images containing them.</p><p>Afterwards, in order to gradually adapt the learner from the "easy" domain to the "hard" domain and finally capture the faithful knowledge of the objects of interest, a novel self-paced learning regularizer is proposed as follows:  + 1 ≤ 2 , enforces that each hypothesis should belong to only one object category, or no class, i.e., the background category. This constraint inherently penalizes the indiscriminative object hypotheses, i.e. the hypotheses predicted to belong to multiple object categories, when calculating their importance weight in ( <ref type="formula">2</ref>). The third one, i.e. ∑ , * ( ) + 1 ≥ 2 , means that for all object hypotheses located in the k th image, at least one should belong to the class which the image has been weakly annotated. This will make the learned result finely comply with the prior knowledge.</p><p>In the proposed SPCL regime, the self-paced capability is followed by the involvement of the SPL regularizer ( ) ; , with the following form:</p><formula xml:id="formula_1">( ) ; , = -∑ ∑ , ( ) -∑ ∑ , ( ) ,<label>(3)</label></formula><p>where , are the class-specific parameters imposed on the easiness term and the diversity term, respectively. ( )  indicates the important weights of each hypothesis to the c th object category.</p><p>The negative l 1 -norm term is inherited from the conventional SPL <ref type="bibr" target="#b8">[Kumar et al., 2010]</ref>, which favors selecting easy over complex hypotheses. If we omit the diversity term, i.e. let = 0, the regularizer degenerates to the traditional hard SPL function proposed in <ref type="bibr" target="#b8">[Kumar et al., 2010]</ref>, which conducts either 1 or 0 (i.e. selected in training or not) for the weight , ( ) imposed on hypothesis ( ) , by judging whether its loss value is smaller than the pace parameter or not. That is, a sample with smaller loss is taken as an easy sample and thus should be learned preferentially and vice versa.</p><p>Another regularization term favors selecting diverse hypotheses residing in more images. This can be easily understood by seeing that its negative leads to the group -wise sparse representation of v. Contrariwise, this diversity term should have a counter-effect to group-wise sparsity. That is, minimizing this diversity term tends to disperse non-zero elements of v over more images, and thus favors selecting more diverse hypotheses. Consequently, this anti-group-sparsity representation is expected to realize the desired diversity. Different from the commonly utilized l 2,1 norm <ref type="bibr">[Jiang et al., 2014]</ref>, our utilized group-sparsity term is concave, leading to the convexity of its negative. This on one side simplifies the designation of the solving strategy, and on the other hand well fits the previous axiomatic definition for the SPL regularizer <ref type="bibr">[Jiang et al., 2014]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Comparison to the State-of-the-arts</head><p>In this section, we evaluate the object detection performance of our framework by comparing it with 6 state-of-the-art WOD approaches which are PR <ref type="bibr">[Bilen et al., 2014]</ref>, CC <ref type="bibr" target="#b3">[Bilen et al., 2015]</ref>, MDD <ref type="bibr" target="#b9">[Siva and Xiang, 2011]</ref>, <ref type="bibr">LLO [Song et al., 2014]</ref>, VPC <ref type="bibr" target="#b9">[Song et al., 2014], and</ref><ref type="bibr">MfMIL [Cinbis et al., 2014]</ref>. For quantitative comparison, we report the evaluation results in terms of the AP score in Fig. <ref type="figure" target="#fig_5">2</ref>. As can be seen, the proposed approach obtains the highest score of 29.96 on average. According to our analysis, the proposed approach can obtain significantly better results than MDD and MfMIL mainly due to the better feature representation, stronger saliency prior, and more powerful learning scheme. Compared with PR, CC, LLO, and VPC, the performance gain of the proposed approach mainly comes from the core insight of this paper, i.e., developing property way to bridge saliency detection to WOD, as we used the same feature representation with these methods. More specifically, compared with PR and CC, the performance gain of the proposed approach comes mainly from the idea to bridge saliency detection to WOD because they only adopted weak priors in their initialization. Compared with LLO and VPC, the performance gain of the proposed approach mainly comes from the proposed SPCL regime as these two methods also explored strong prior information for initializing the training hypotheses in their frameworks.</p><p>Some examples of the detection results are also shown in Fig. <ref type="figure" target="#fig_5">2</ref>, which includes some successful cases, i.e., the examples in the bus and cat categories, as well as some failure cases, i.e., examples in the plant and chair categories. The successful cases subjectively demonstrate the effectiveness of the proposed approach. For the failure cases, the main problem is that very limited number of images only contains the objects like plant and chair, leading to the insufficient training hypotheses in the initialization stage. This problem can be solved by designing more proper learning curriculum for WOD in future works.</p><p>Algorithm 3: Algorithm of Optimizing v.</p><p>Input: Object hypotheses { } with their current labels y, object detector {W, b}, parameters  and  ; Output: The global solution v of (10). 1: sort , , ⋯ in ascending order of their loss values, i.e., ≤ ≤ ⋯ ≤ ; Let m=0; 2: for i =1 to n do 2: if &lt; + /(2√ ) then = 1; 3: if ≥ + /(2√ ) then count the number m of = for j=i,i+1, … ,n, let 15: return ( ) .</p><formula xml:id="formula_2">= ⋯ = + -1 = /2( -</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Model Analysis</head><p>To further analyze the proposed framework in this paper, we make more comprehensive evaluations in this section by comparing with five baseline models as described in Table <ref type="table">1</ref>.</p><p>The experimental results are shown in Fig. <ref type="figure" target="#fig_6">3</ref>, from which we can see: 1) The performance gap between Sal+SVM and OURS demonstrates the importance to develop proper ways to bridge saliency detection and WOD.</p><p>2) The experimental results of Sal+SPL, Sal+SPCL, and OURS demonstrate the better performance of the proposed learning regime as compared with some existing self-paced (curriculum) learning regimes.</p><p>3) The performance gap between OURS and LLO+SPCL* demonstrates the saliency prior can provide more helpful information than the prior designed in LLO. 4) The performance gap between LLO+SPCL* and LLO indicates the better capability of the proposed learning regime as compared with the learning model in one state-of-the-art WOD framework. According to the above analysis, the key insight of this paper, i.e., developing powerful learning regime, i.e., the proposed SPCL, can better bridge saliency detection to WOD and help the learner to capture the faithful knowledge of the object categories under weak supervision, has been demonstrated comprehensively.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Conclusion</head><p>In this paper, in order to address the challenging WOD problem, we proposed an effective framework to bridge saliency detection to the investigated task based on a novel SPCL regime. The insight of this paper is that by developing powerful learning regime which contains both the task-specific learning curriculum and the data-driven self-learning pace, saliency detection technique can be better leveraged to provide beneficial information for helping the learner to capture the faithful knowledge of the object categories under weak supervision. Experiments including comparisons to other state-of-the-arts and comprehensive analysis of the proposed framework on the benchmark dataset have demonstrated the effectiveness of our approach.</p><p>For the future work, inspired by <ref type="bibr" target="#b8">[Long et al., 2014]</ref>, we plane to enable the proposed method to transfer the knowledge that has be captured to new concepts via novel regularizers.   Table <ref type="table">1</ref>: Definitions of the baseline models. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Acknowledgments</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Name</head></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure1: This figure illustrates the main idea of this paper. As can be seen, in the training images with weak labels, some of them (in blue frame) are labelled only containing one object category, which are considered as "easy" images for the saliency detection methods. While others (in pink frame) labelled as containing multiple object categories are considered as "hard" images. Due to the category free property of saliency detection, the objects in "easy" images have larger confidence to be extracted correctly by the saliency detection methods, whereas the objects in "hard" images cannot be extracted successfully. To this end, we develop a novel self-paced curriculum learning paradigm to guide the learner to gradually achieve the faithful knowledge of the multiple object categories from easy (confident) to hard (ambiguous).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>3. 1</head><label>1</label><figDesc>Algorithm OverviewGiven K training images with weak labels consisting of C categories, we first extract the bounding box object hypotheses and their corresponding feature representations from each image. Denote the features of each hypothesis in the k th image as { ( ) } , ∈ 1, ⋯ , , where is the hypothesis number in the k th image.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head></head><label></label><figDesc>1,1}; = 1, ⋯ , ; = 1, ⋯ , ; = 1, ⋯ , 2; = 1, ⋯ , ; = 1, ⋯ ,</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head></head><label></label><figDesc>weak label * for this image; Output: All Pseudo-labels in ( ) .</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>:</head><label></label><figDesc>This work was supported in part by the National Science Foundation of China under Grants 61522207 and 61473231, the Doctorate Foundation, and the Excellent Doctorate Foundation of Northwestern Polytechnical University.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Quantitative and subjective evaluation of the proposed approach. The left two blocks of the detection results are the successful examples, while the right two blocks are the failure examples. The red boxes are the ground-truth annotations. The green ones are the detection results (corresponding to the specified categories) of the proposed weakly-supervised framework.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Quantitative comparisons to baseline models.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head></head><label></label><figDesc>Definition Sal+SVM Directly train SVM using the salient hypotheses in each image. Sal+SPL Bridge saliency detection and WOD via a basic SPL regime [Kumar et al., 2010]. Sal+SPCL Bridge saliency detection and WOD via a basic SPCL regime [Jiang et al., 2015]. LLO Baseline WOD framework [Song et al., 2014]. LLO+ SPCL* Replace the learning model, i.e., SLSVM, in LLO with the proposed SPCL regime.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>:</head><label></label><figDesc>Initialize , v based on salieny detection results according to the learning curriculum; Input parameters { , } ,;</figDesc><table><row><cell>Algorithm 1: SPCL for bridging saliency detection to WOD. ∑ ,  *  ( ) + 1 ≥ 2; if the image is labeled as class  *  ,</cell></row><row><cell>Input: Training images with weak labels; where , represent the SVM parameters for the c th Output: Object detection results in test images. 1: Generate object hypotheses and extract the features; sub-classification problem. The loss function</cell></row><row><cell>ℓ , ( ) is the hinge loss of the hypothesis ( ) in the c th sub-, ( ) ; , = 1 -, ( ) ( ) + (2) 23: while not converge do 4: classification problem. Three constraints are imposed on Update {W, b} via one-vs-all weighted SVM; Update via Algorithm 2; labels . The first one, i.e. , ( ) ∈ {-1,1}, constrains the label</cell></row><row><cell>Update v via Algorithm 3; should be binary in each sub-classification problem. The</cell></row><row><cell>Renew the pace parameter , ; 5: end while , second one, i.e. ∑ ( )</cell></row><row><cell>6: Detect objects in test images by using the obtained object</cell></row><row><cell>detectors {W,b};</cell></row><row><cell>7: return Object detection results.</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Optimization Method</head><p>The solution of (1) can be approximately attained by alternatively optimizing the involved parameters {W, b}, y and v as described in Algorithm 1. The optimization mainly contains following steps:</p><p>Object detectors updating: Optimize object detector parameters {W, b} via one-vs-all SVM under fixed y and v. In this case, (1) degenerates to the following form:</p><p>; , ,</p><p>which can be equivalently reformulated as solving the following sub-optimization problems for each c=1,2,…,C:</p><p>(</p><p>This is a standard one-vs-all (weighted) SVM model <ref type="bibr" target="#b10">[Yang et al., 2007]</ref>.</p><p>Hypotheses labelling: Optimize under fixed {W, b} and v:</p><p>The goal of this step is to learn the pseudo-labels of training hypotheses from the current object detectors. The model in this case can be reformulated as:</p><p>. . , ,</p><p>This problem can be equivalently decomposed into sub-problems with respect to each = 1, ⋯ , , i.e. for each image, where c* is the weak labels of the k th image: indicates the labels of the hypotheses in the k th image. Its global optimum can be attained by Algorithm 2, which can be derived from the theorem in <ref type="bibr" target="#b11">[Zhang et al., 2015]</ref>.</p><p>Hypotheses re-weighting: Optimize v under fixed {W, b} and y: After updating the pseudo-labels, we aim to renew the weights on all hypotheses to reflect their different importance to learning of the current decision surface. In this case, (1) degenerates to the following form:</p><p>; , +</p><p>which is equivalent to independently solving the following sub-optimization problem for each = 1, ⋯ , and = 1, ⋯ , via:</p><p>We can easily simplify the above optimization problem as:</p><p>This model is convex and according to <ref type="bibr" target="#b11">[Zhang et al., 2015]</ref>, we can apdopt an effective algorithm, i.e., the Algorithm 3, for extracting the global optimum to it.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Experimental Results</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Experimental Settings</head><p>We evaluate our method on the Pascal VOC 2007 dataset <ref type="bibr">[Everingham et al., 2008]</ref> which is widely used by the previous works. In our experiments, we follow the previous works <ref type="bibr" target="#b3">[Deselaers et al., 2012;</ref><ref type="bibr">Bilen et al., 2014;</ref><ref type="bibr" target="#b3">Bilen et al., 2015;</ref><ref type="bibr" target="#b9">Shi et al., 2015]</ref> to discard any images that only contain object instances marked as "difficult" or "truncated" during the training phase, while all the images in the VOC07-Test are used during the test phase. For fair comparison, we follow the standard VOC procedure <ref type="bibr">[Everingham et al., 2008]</ref> and report average precision (AP) on the Pascal VOC 2007 test split.</p><p>Being consistent with the recently proposed WOD methods <ref type="bibr">[Bilen et al., 2014;</ref><ref type="bibr" target="#b9">Song et al., 2014;</ref><ref type="bibr" target="#b3">Bilen et al., 2015]</ref>, we apply Selective Search <ref type="bibr">[Uijlings et al., 2013]</ref> to generate around 1500 bounding box object hypotheses in each image and adopt the CNN features <ref type="bibr" target="#b3">[Donahue et al., 2013]</ref> pre-trained on the ImageNet 2012 to represent each of the extracted object hypotheses. Before training, and in (2) need to be set in advance. As suggested in <ref type="bibr">[Jiang et al., 2014;</ref><ref type="bibr">Jiang et al., 2014]</ref>, we set according to the number of the selected training hypotheses which is set to be 2% of the total bounding box windows extracted from the images weakly labelled as containing the c th object category. Then, is set to be equal to empirically.</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Frequency-tuned salient region detection</title>
+		<author>
+			<persName><surname>Achanta</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">CVPR</title>
+		<imprint>
+			<date type="published" when="2009">2009. 2009</date>
+			<biblScope unit="page" from="1597" to="1604" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Curriculum learning</title>
+		<author>
+			<persName><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML</title>
+		<imprint>
+			<date type="published" when="2009">2009. 2009</date>
+			<biblScope unit="page" from="41" to="48" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Weakly supervised object detection with posterior regularization</title>
+		<author>
+			<persName><surname>Bilen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">BMVC</title>
+		<imprint>
+			<date type="published" when="2014">2014. 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Rich feature hierarchies for accurate object detection and semantic segmentation</title>
+		<author>
+			<persName><surname>Bilen</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1310.1531</idno>
+	</analytic>
+	<monogr>
+		<title level="m">CVPR</title>
+		<imprint>
+			<date type="published" when="2007">2015. 2015. 2015. 2015. 2014. 2014. 2012. 2012. 2013. 2013. 2007. 2014</date>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="page" from="580" to="587" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+	<note>CVPR</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Background prior-based salient object detection via deep reconstruction residual</title>
+		<author>
+			<persName><surname>Han</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">CSVT</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1309" to="1321" />
+			<date type="published" when="2015">2015. 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">A model of saliency-based visual attention for rapid scene analysis</title>
+		<author>
+			<persName><surname>Han</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">TCYB</title>
+		<imprint>
+			<biblScope unit="volume">46</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="1254" to="1259" />
+			<date type="published" when="1998">2016. 2016. 1998</date>
+		</imprint>
+	</monogr>
+	<note>PAMI</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Easy samples first: Self-paced reranking for zero-example multimedia search</title>
+		<author>
+			<persName><surname>Jiang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM-MM</title>
+		<imprint>
+			<date type="published" when="2014">2014. 2014</date>
+			<biblScope unit="page" from="547" to="556" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Self-paced learning with diversity</title>
+		<author>
+			<persName><surname>Jiang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2014">2014. 2014. 2015. 2015</date>
+			<biblScope unit="page" from="2078" to="2086" />
+		</imprint>
+	</monogr>
+	<note>AAAI</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Center-surround divergence of feature statistics for salient object detection</title>
+		<author>
+			<persName><forename type="first">Frintrop</forename><surname>Klein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">A</forename><surname>Klein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Frintrop</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kumar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICCV</title>
+		<imprint>
+			<date type="published" when="2010">2011. 2011. 2010. 2010. 2014</date>
+			<biblScope unit="volume">26</biblScope>
+			<biblScope unit="page" from="1805" to="1818" />
+		</imprint>
+	</monogr>
+	<note>Transfer learning with graph co-regularization</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Looking beyond the image: Unsupervised learning for object saliency and detection</title>
+		<author>
+			<persName><surname>Shi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Siva and Xiang</title>
+		<editor>
+			<persName><forename type="first">J</forename><surname>Van Nguyen</surname></persName>
+		</editor>
+		<editor>
+			<persName><surname>Sepulveda</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Van Nguyen and Sepulveda</publisher>
+			<date type="published" when="2011">2015. 2015. 2012. 2012. 2012. 2012. 2013. 2013. 2011. 2011. 2014. 2014. 2014. 2013. 2015. 2015. 2014. 2014. 2015</date>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="page" from="3974" to="3980" />
+		</imprint>
+	</monogr>
+	<note>IJCAI</note>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">A weighted support vector machine for data classification</title>
+		<author>
+			<persName><forename type="first">Yang</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IJPRAI</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="961" to="976" />
+			<date type="published" when="2007">2007. 2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">A self-paced multiple-instance learning framework for co-saliency detection</title>
+		<author>
+			<persName><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICCV</title>
+		<imprint>
+			<date type="published" when="2015">2015. 2015</date>
+			<biblScope unit="page" from="594" to="602" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

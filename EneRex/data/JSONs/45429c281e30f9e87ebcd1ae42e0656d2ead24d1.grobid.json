@@ -1,0 +1,681 @@
+[
+    {
+        "basename": "45429c281e30f9e87ebcd1ae42e0656d2ead24d1.grobid",
+        "fulltext": 15,
+        "footnote_size": 1,
+        "footnote_max": 1,
+        "reference": 66,
+        "authors": [
+            "Wang",
+            "Liu",
+            "Zhu",
+            "Tao",
+            "Kautz",
+            "Catanzaro",
+            "Corporation",
+            "Berkeley"
+        ]
+    },
+    {
+        "title": "High-Resolution Image Synthesis and Semantic Manipulation with Conditional GANs",
+        "abstract": "Our result (c) Application: Edit object appearance (b) Application: Change label types (a) Synthesized result Figure 1: We propose a generative adversarial framework for synthesizing 2048 \u00d7 1024 images from semantic label maps (lower left corner in (a)). Compared to previous work [5], our results express more natural textures and details. (b) We can change labels in the original label map to create new scenes, like replacing trees with buildings. (c) Our framework also allows a user to edit the appearance of individual objects in the scene, e.g. changing the color of a car or the texture of a road. Please visit our website for more side-by-side comparisons as well as interactive editing demos.",
+        "Introduction": "Photo-realistic image rendering using standard graphics techniques is involved, since geometry, materials, and light transport must be simulated explicitly. Although existing graphics algorithms excel at the task, building and editing virtual environments is expensive and time-consuming. That is because we have to model every aspect of the world explicitly. If we were able to render photo-realistic images using a model learned from data, we could turn the process of graphics rendering into a model learning and inference problem. Then, we could simplify the process of creating new virtual worlds by training models on new datasets. We could even make it easier to customize environments by allowing users to simply specify overall semantic structure rather than modeling geometry, materials, or lighting.In this paper, we discuss a new approach that produces high-resolution images from semantic label maps. This method has a wide range of applications. For example, we can use it to create synthetic training data for training visual recognition algorithms, since it is much easier to create semantic labels for desired scenarios than to generate training images. Using semantic segmentation methods, we can transform images into a semantic label domain, edit the objects in the label domain, and then transform them back to the image domain. This method also gives us new tools for higher-level image editing, e.g., adding objects to images or changing the appearance of existing objects.To synthesize images from semantic labels, one can use the pix2pix method, an image-to-image translation framework  #b20  which leverages generative adversarial networks (GANs)  #b15  in a conditional setting. Recently, Chen and Koltun  #b4  suggest that adversarial training might be unstable and prone to failure for high-resolution image generation tasks. Instead, they adopt a modified perceptual loss  #b10  #b12  #b21  to synthesize images, which are highresolution but often lack fine details and realistic textures.Here we address two main issues of the above stateof-the-art methods: (1) the difficulty of generating highresolution images with GANs  #b20  and (2) the lack of details and realistic textures in the previous high-resolution results  #b4 . We show that through a new, robust adversarial learning objective together with new multi-scale generator and discriminator architectures, we can synthesize photo-realistic images at 2048 \u00d7 1024 resolution, which are more visually appealing than those computed by previous methods  #b4  #b20 . We first obtain our results with adversarial training only, without relying on any hand-crafted losses  #b43  or pre-trained networks (e.g. VGGNet  #b47 ) for perceptual losses  #b10  #b21  (Figs. 9c,10b). Then we show that adding perceptual losses from pre-trained networks  #b47  can slightly improve the results in some circumstances (Figs. 9d,10c), if a pre-trained network is available. Both results outperform previous works substantially Figure 2: Example results of using our framework for translating edges to high-resolution natural photos, using CelebA-HQ  #b25  and internet cat images. in terms of image quality.Furthermore, to support interactive semantic manipulation, we extend our method in two directions. First, we use instance-level object segmentation information, which can separate different object instances within the same category. This enables flexible object manipulations, such as adding/removing objects and changing object types. Second, we propose a method to generate diverse results given the same input label map, allowing the user to edit the appearance of the same object interactively.We compare against state-of-the-art visual synthesis systems  #b4  #b20 , and show that our method outperforms these approaches regarding both quantitative evaluations and human perception studies. We also perform an ablation study regarding the training objectives and the importance of instance-level segmentation information. In addition to semantic manipulation, we test our method on edge2photo applications (Figs.  #b1  #b12 , which shows the generalizability of our approach. Code and data are available at our website .",
+        "Related Work": "Generative adversarial networks Generative adversarial networks (GANs)  #b15  aim to model the natural image distribution by forcing the generated samples to be indistinguishable from natural images. GANs enable a wide variety of applications such as image generation  #b0  #b41  #b61 , representation learning  #b44 , image manipulation  #b63 , object detection  #b32 , and video applications  #b37  #b50  #b53 . Various coarse-to-fine schemes  #b3  have been proposed  #b8  #b18  #b25  #b56  to synthesize larger images (e.g. 256 \u00d7 256) in an unconditional setting. Inspired by their successes, we propose a new coarse-to-fine generator and multi-scale discriminator architectures suitable for conditional image generation at a much higher resolution.Image-to-image translation Many researchers have leveraged adversarial learning for image-to-image translation  #b20 , whose goal is to translate an input image from one domain to another domain given input-output image pairs as training data. Compared to L 1 loss, which often leads to blurry images  #b20  #b21 , the adversarial loss  #b15  has become a popular choice for many image-to-image tasks  #b9  #b23  #b24  #b31  #b40  #b45  #b54  #b59  #b65 . The reason is that the discriminator can learn a trainable loss function and automatically adapt to the differences between the generated and real images in the target domain. For example, the recent pix2pix framework  #b20  used image-conditional GANs  #b38  for different applications, such as transforming Google maps to satellite views and generating cats from user sketches. Various methods have also been proposed to learn an image-to-image translation in the absence of training pairs  #b1  #b33  #b34  #b46  #b49  #b51  #b55  #b64 .Recently, Chen and Koltun  #b4  suggest that it might be hard for conditional GANs to generate high-resolution images due to the training instability and optimization issues. To avoid this difficulty, they use a direct regression objective based on a perceptual loss  #b10  #b12  #b21  and produce the first model that can synthesize 2048 \u00d7 1024 images. The generated results are high-resolution but often lack fine details and realistic textures. Motivated by their success, we show that using our new objective function as well as novel multiscale generators and discriminators, we not only largely stabilize the training of conditional GANs on high-resolution images, but also achieve significantly better results compared to Chen and Koltun  #b4 . Side-by-side comparisons clearly show our advantage (Figs.  #b0  #b8  #b7  #b9 .",
+        "Deep visual manipulation": "Recently, deep neural networks have obtained promising results in various image processing tasks, such as style transfer  #b12 , inpainting  #b40 , colorization  #b57 , and restoration  #b13 . However, most of these works lack an interface for users to adjust the current result or explore the output space. To address this issue, Zhu et al.  #b63  developed an optimization method for editing the object appearance based on the priors learned by GANs. Recent works  #b20  #b45  $b59 ] also provide user interfaces for creating novel imagery from low-level cues such as color and sketch. All of the prior works report results on low-resolution images. Our system shares the same spirit as this past work, but we focus on object-level semantic editing, allowing users to interact with the entire scene and manipulate individual objects in the image. As a result, users can quickly create a new scene with minimal effort. Our interface is inspired by prior data-driven graphics systems  #b5  #b22  $b29 ]. But our system allows more flexible manipulations and produces high-res results in real-time.",
+        "Instance-Level Image Synthesis": "We propose a conditional adversarial framework for generating high-resolution photo-realistic images from semantic label maps. We first review our baseline model pix2pix (Sec. 3.1). We then describe how we increase the photorealism and resolution of the results with our improved ob-jective function and network design (Sec. 3.2). Next, we use additional instance-level object semantic information to further improve the image quality (Sec. 3.3). Finally, we introduce an instance-level feature embedding scheme to better handle the multi-modal nature of image synthesis, which enables interactive object editing (Sec. 3.4).",
+        "The pix2pix Baseline": "The pix2pix method  #b20  is a conditional GAN framework for image-to-image translation. It consists of a generator G and a discriminator D. For our task, the objective of the generator G is to translate semantic label maps to realistic-looking images, while the discriminator D aims to distinguish real images from the translated ones. The framework operates in a supervised setting. In other words, the training dataset is given as a set of pairs of corresponding images {(s i , x i )}, where s i is a semantic label map and x i is a corresponding natural photo. Conditional GANs aim to model the conditional distribution of real images given the input semantic label maps via the following minimax game:min G max D L GAN (G, D)(1)where the objective function L GAN (G, D)1 is given byE (s,x) [log D(s, x)] + E s [log(1 -D(s, G(s))].(2)The pix2pix method adopts U-Net  #b42  as the generator and a patch-based fully convolutional network  #b35  as the discriminator. The input to the discriminator is a channelwise concatenation of the semantic label map and the corresponding image. However, the resolution of the generated images on Cityscapes  #b6  is up to 256 \u00d7 256. We tested directly applying the pix2pix framework to generate highresolution images but found the training unstable and the quality of generated images unsatisfactory. Therefore, we describe how we improve the pix2pix framework in the next subsection.",
+        "Improving Photorealism and Resolution": "We improve the pix2pix framework by using a coarse-tofine generator, a multi-scale discriminator architecture, and a robust adversarial learning objective function. Coarse-to-fine generator We decompose the generator into two sub-networks: G 1 and G 2 . We term G 1 as the global generator network and G 2 as the local enhancer network. The generator is then given by the tuple G = {G 1 , G 2 } as visualized in Fig. 3. The global generator network operates at a resolution of 1024 \u00d7 512, and the local enhancer network outputs an image with a resolution that is 4\u00d7 the output size of the previous one (2\u00d7 along each image dimension). For synthesizing images at an even higher During training, we first train the global generator and then train the local enhancer in the order of their resolutions. We then jointly fine-tune all the networks together. We use this generator design to effectively aggregate global and local information for the image synthesis task. We note that such a multi-resolution pipeline is a wellestablished practice in computer vision  #b3  and two-scale is often enough  #b2 . Similar ideas but different architectures could be found in recent unconditional GANs  #b8  #b18  and conditional image generation  #b4  #b56 . Multi-scale discriminators High-resolution image synthesis poses a significant challenge to the GAN discriminator design. To differentiate high-resolution real and synthesized images, the discriminator needs to have a large re-ceptive field. This would require either a deeper network or larger convolutional kernels, both of which would increase the network capacity and potentially cause overfitting. Also, both choices demand a larger memory footprint for training, which is already a scarce resource for highresolution image generation.To address the issue, we propose using multi-scale discriminators. We use 3 discriminators that have an identical network structure but operate at different image scales. We will refer to the discriminators as D 1 , D 2 and D 3 . Specifically, we downsample the real and synthesized highresolution images by a factor of 2 and 4 to create an image pyramid of 3 scales. The discriminators D 1 , D 2 and D 3 are then trained to differentiate real and synthesized images at the 3 different scales, respectively. Although the discriminators have an identical architecture, the one that operates at the coarsest scale has the largest receptive field. It has a more global view of the image and can guide the generator to generate globally consistent images. On the other hand, the discriminator at the finest scale encourages the generator to produce finer details. This also makes training the coarse-to-fine generator easier, since extending a lowresolution model to a higher resolution only requires adding a discriminator at the finest level, rather than retraining from scratch. Without the multi-scale discriminators, we observe that many repeated patterns often appear in the generated images.With the discriminators, the learning problem in Eq. ( 1) then becomes a multi-task learning problem ofmin G max D 1 ,D 2 ,D 3 k=1,2,3 L GAN (G, D k ).(3)Using multiple GAN discriminators at the same image scale has been proposed in unconditional GANs  #b11 . Iizuka et al.  #b19  add a global image classifier to conditional GANs to synthesize globally coherent content for inpainting. Here we extend the design to multiple discriminators at different  image scales for modeling high-resolution images.Improved adversarial loss We improve the GAN loss in Eq. ( 2) by incorporating a feature matching loss based on the discriminator. This loss stabilizes the training as the generator has to produce natural statistics at multiple scales. Specifically, we extract features from multiple layers of the discriminator and learn to match these intermediate representations from the real and the synthesized image. For ease of presentation, we denote the ith-layer feature extractor of discriminator D k as Dk (from input to the ith layer of D k ). The feature matching loss L FM (G, D k ) is then calculated as:L FM (G, D k ) = E (s,x) T i=1 1 Ni [||D (i) k (s, x) -D (i) k (s, G(s))||1],(4)where T is the total number of layers and N i denotes the number of elements in each layer. Our GAN discriminator feature matching loss is related to the perceptual loss  #b10  #b12  #b21 , which has been shown to be useful for image superresolution  #b31  and style transfer  #b21 . In our experiments, we discuss how the discriminator feature matching loss and the perceptual loss can be jointly used for further improving the performance. We note that a similar loss is used in VAE-GANs  #b29 .Our full objective combines both GAN loss and feature matching loss as:min G max D 1 ,D 2 ,D 3 k=1,2,3 L GAN (G, D k ) +\u03bb k=1,2,3 L FM (G, D k ) (5)where \u03bb controls the importance of the two terms. Note that for the feature matching loss L FM , D k only serves as a feature extractor and does not maximize the loss L FM .",
+        "Using Instance Maps": "Existing image synthesis methods only utilize semantic label maps  #b4  #b20  #b24 , an image where each pixel value represents the object class of the pixel. This map does not differentiate objects of the same category. On the other hand,  an instance-level semantic label map contains a unique object ID for each individual object. To incorporate the instance map, one can directly pass it into the network, or encode it into a one-hot vector. However, both approaches are difficult to implement in practice, since different images may contain different numbers of objects of the same category. Alternatively, one can pre-allocate a fixed number of channels (e.g., 10) for each class, but this method fails when the number is set too small, and wastes memory when the number is too large. Instead, we argue that the most critical information the instance map provides, which is not available in the semantic label map, is the object boundary. For example, when objects of the same class are next to one another, looking at the semantic label map alone cannot tell them apart. This is especially true for the street scene since many parked cars or walking pedestrians are often next to one another, as shown in Fig. 4a. However, with the instance map, separating these objects becomes an easier task.Therefore, to extract this information, we first compute the instance boundary map (Fig. 4b). In our implementation, a pixel in the instance boundary map is 1 if its object ID is different from any of its 4-neighbors, and 0 otherwise. The instance boundary map is then concatenated with the one-hot vector representation of the semantic label map, and fed into the generator network. Similarly, the input to the discriminator is the channel-wise concatenation of instance boundary map, semantic label map, and the real/synthesized image. Figure 5b shows an example demonstrating the improvement by using object boundaries. Our user study in Sec. 4 also shows the model trained with instance boundary maps renders more photo-realistic object boundaries.",
+        "Learning an Instance-level Feature Embedding": "Image synthesis from semantic label maps is a one-tomany mapping problem. An ideal image synthesis algorithm should be able to generate diverse, realistic images using the same semantic label map. Recently, several works learn to produce a fixed number of discrete outputs given the same input  #b4  #b14  or synthesize diverse modes controlled by a latent code that encodes the entire image  #b65 . Although these approaches tackle the multi-modal image synthesis problem, they are unsuitable for our image manipulation task mainly for two reasons. First, the user has no intuitive control over which kinds of images the model would produce  #b4  #b14 . Second, these methods focus on global color and texture changes and allow no object-level control on the generated contents.To generate diverse images and allow instance-level control, we propose adding additional low-dimensional feature channels as the input to the generator network. We show that, by manipulating these features, we can have flexible control over the image synthesis process. Furthermore, note that since the feature channels are continuous quantities, our model is, in principle, capable of generating infinitely many images.To generate the low-dimensional features, we train an encoder network E to find a low-dimensional feature vector that corresponds to the ground truth target for each instance in the image. Our feature encoder architecture is a standard encoder-decoder network. To ensure the features are consistent within each instance, we add an instance-wise average pooling layer to the output of the encoder to compute the average feature for the object instance. The average feature is then broadcast to all the pixel locations of the instance. Figure 6 visualizes an example of the encoded features.We replace G(s) with G(s, E(x)) in Eq. ( 5) and train the encoder jointly with the generators and discriminators. After the encoder is trained, we run it on all instances in the training images and record the obtained features. Then we perform a K-means clustering on these features for each semantic category. Each cluster thus encodes the features for a specific style, for example, the asphalt or cobblestone texture for a road. At inference time, we randomly pick one of the cluster centers and use it as the encoded features. These features are concatenated with the label map and used as the input to our generator. We tried to enforce the Kullback-Leibler loss  #b27  on the feature space for better test-time sampling as used in the recent work  #b65  but found it quite involved for users to adjust the latent vectors for each object directly. Instead, for each object instance, we present K modes for users to choose from.",
+        "Results": "We first provide a quantitative comparison against leading methods in Sec. 4.1. We then report a subjective human perceptual study in Sec. 4.2. Finally, we show a few examples of interactive object editing results in Sec. 4.3.Implementation details We use LSGANs  #b36  for stable training. In all experiments, we set the weight \u03bb = 10 (Eq. ( 5)) and K = 10 for K-means. We use 3dimensional vectors to encode features for each object instance. We experimented with adding a perceptual loss \u03bbN i=1 1 Mi [||F (i) (x) -F (i) (G(s))|| 1 ]to our objective (Eq. ( 5)), where \u03bb = 10 and F (i) denotes the i-th layer with M i elements of the VGG network. We observe that this loss slightly improves the results. We name these two variants as ours and ours (w/o VGG loss). Please find more training and architecture details in the appendix.Datasets We conduct extensive comparisons and ablation studies on Cityscapes dataset  #b6  and NYU Indoor RGBD dataset  #b39 . We report additional qualitative results on ADE20K dataset  #b62  and Helen Face dataset  #b30  #b48 .Baselines We compare our method with two state-of-the-art algorithms: pix2pix  #b20  and CRN  #b4 . We train pix2pix models on high-res images with the default setting. We produce the high-res CRN images via the authors' publicly available model.",
+        "Quantitative Comparisons": "We adopt the same evaluation protocol from previous image-to-image translation works  #b20  #b64 . To quantify the quality of our results, we perform semantic segmentation on the synthesized images and compare how well the predicted segments match the input. The intuition is that if we can produce realistic images that correspond to the input label map, an off-the-shelf semantic segmentation model (e.g., PSPNet  #b60  that we use) should be able to predict the ground truth label. Table 1 reports the calculated segmentation accuracy. As can be seen, for both pixel-wise accuracy and mean intersection-over-union (IoU), our method outperforms the other methods by a large margin. Moreover, our result is very close to the result of the original images, the theoretical \"upper bound\" of the realism we can achieve. This justifies the superiority of our algorithm. pix2pix  #b20  CRN  #b4  Ours ",
+        "Human Perceptual Study": "We further evaluate our algorithm via a human subjective study. We perform pairwise A/B tests deployed on the Amazon Mechanical Turk (MTurk) platform on the Cityscapes dataset  #b6 . We follow the same experimental procedure as described in Chen and Koltun  #b4 . More specifically, two different kinds of experiments are conducted: unlimited time and limited time, as explained below.Unlimited time For this task, workers are given two images at once, each of which is synthesized by a different method for the same label map. We give them unlimited time to select which image looks more natural. The leftright order and the image order are randomized to ensure fair comparisons. All 500 Cityscapes test images are compared 10 times, resulting in 5, 000 human judgments for each method. In this experiment, we use the model trained on labels only (without instance maps) to ensure a fair comparison. Table 2 shows that both variants of our method outperform the other methods significantly.Limited time Next, for the limited time experiment, we compare our result with CRN and the original image (ground truth). In each comparison, we show results of two methods for a short period of time. We randomly select a duration between 1/8 seconds and 8 seconds, as adopted by prior work  #b4 . This evaluates how quickly the difference between the images can be perceived. Fig. 7 shows the comparison results at different time intervals. As the given time becomes longer and longer, the differences between these three types of images become more apparent and easier to observe. Figures 9 and 10 show some example results. Analysis of the loss function We also study the importance of each term in our objective function using the unlimited time experiment. Specifically, our final loss contains three components: GAN loss, discriminator-based feature matching loss, and VGG perceptual loss. We compare our final implementation to the results using (1) only GAN loss, and (2) GAN + feature matching loss (i.e., without VGG loss). The obtained preference rates are 68.55% and 58.90%, respectively. As can be seen, adding the feature matching loss substantially improves the performance, while adding perceptual loss further enhances the results. However, note that using the perceptual loss is not critical, and we are still able to generate visually appealing results even without it (e.g., Figs. 9c,10b). Using instance maps We compare the results using instance maps to results without using them. We highlight the car regions in the images and ask the participants to choose which region looks more realistic. We obtain a preference rate of 64.34%, which indicates that using instance maps improves the realism of our results, especially around the object boundaries. Analysis of the generator We compare results of different generators with all the other components fixed. In particular, we compare our generator with two state-of-the-art generator architectures: U-Net  #b20  #b42  and CRN  #b4 . We evaluate the performance regarding both semantic segmentation scores and human perceptual study results. Table 3 and Table 4 show that our coarse-to-fine generator outperforms other networks by a large margin. Analysis of the discriminator Next, we also compare results using our multi-scale discriminators and results using only one discriminator while we keep the generator and the loss function fixed. The segmentation scores on Cityscapes  #b6  (Table 5) demonstrate that using multi-scale discriminators helps produce higher quality results as well as stabilize the adversarial training. We also perform pairwise A/B tests on the Amazon Mechanical Turk platform. 69.2% of the participants prefer our results with multi-scale U-Net  #b20  #b42  CRN  #b4   Additional datasets To further evaluate our method, we perform unlimited time comparisons on the NYU dataset. We obtain 86.7% and 63.7% against pix2pix and CRN, respectively. Fig. 8 show some example images. Finally, we show results on the ADE20K  #b62  dataset (Fig. 11).",
+        "Interactive Object Editing": "Our feature encoder allows us to perform interactive instance editing on the resulting images. For example, we can change the object labels in the image to quickly create novel scenes, such as replacing trees with buildings (Fig. 1b). We can also change the colors of individual cars or the textures of the road (Fig. 1c). Please check out our interactive demos on our website.Besides, we implement our interactive object editing feature on the Helen Face dataset where labels for different facial parts are available  #b48  (Fig. 12). This makes it easy to edit human portraits, e.g., changing the face color to mimic different make-up effects or adding beard to a face.",
+        "Discussion and Conclusion": "The results in this paper suggest that conditional GANs can synthesize high-resolution photo-realistic imagery without any hand-crafted losses or pre-trained net- works. We have observed that incorporating a perceptual loss  #b21  can slightly improve the results. Our method allows many applications and will be potentially useful for domains where high-resolution results are in demand but pre-trained networks are not available (e.g., medical imaging  #b16  and biology  #b7 ).This paper also shows that an image-to-image synthesis pipeline can be extended to produce diverse outputs, and enable interactive image manipulation given appropriate training input-output pairs (e.g., instance maps in our case). Without ever been told what a \"texture\" is, our model learns to stylize different objects, which may be generalized to other datasets as well (i.e., using textures in one dataset to synthesize images in another dataset). We believe these extensions can be potentially applied to other image synthesis problems.       "
+    },
+    {
+        "1": "we denote Es E s\u223cp data (s) and E (s,x) E (s,x)\u223cp data (s,x) for simplicity."
+    },
+    {
+        "b0": [
+            "",
+            "",
+            "International Conference on Machine Learning (ICML)",
+            ""
+        ],
+        "b1": [
+            "Unsupervised pixel-level domain adaptation with generative adversarial networks",
+            "",
+            "",
+            "",
+            "Bousmalis",
+            "Silberman",
+            "Dohan",
+            "Erhan",
+            "Krishnan"
+        ],
+        "b2": [
+            "Recognising panoramas",
+            "",
+            "",
+            "",
+            "Brown",
+            "Lowe"
+        ],
+        "b3": [
+            "The Laplacian pyramid as a compact image code",
+            "",
+            "",
+            "",
+            "Burt",
+            "Adelson"
+        ],
+        "b4": [
+            "Photographic image synthesis with cascaded refinement networks",
+            "",
+            "",
+            "",
+            "Chen",
+            "Koltun"
+        ],
+        "b5": [
+            "Sketch2photo: Internet image montage",
+            "",
+            "",
+            "",
+            "Chen",
+            "Cheng",
+            "Tan",
+            "Shamir",
+            "Hu"
+        ],
+        "b6": [
+            "The Cityscapes dataset for semantic urban scene understanding",
+            "",
+            "",
+            "",
+            "Cordts",
+            "Omran",
+            "Ramos",
+            "Rehfeld",
+            "Enzweiler",
+            "Benenson",
+            "Franke",
+            "Roth",
+            "Schiele"
+        ],
+        "b7": [
+            "End-to-end adversarial retinal image synthesis",
+            "",
+            "",
+            "",
+            "Costa",
+            "Galdran",
+            "Meyer",
+            "Niemeijer",
+            "Abr\u00e0moff",
+            "Mendonc",
+            "Campilho"
+        ],
+        "b8": [
+            "Deep generative image models using a Laplacian pyramid of adversarial networks",
+            "",
+            "",
+            "",
+            "Denton",
+            "Chintala",
+            "Szlam",
+            "Fergus"
+        ],
+        "b9": [
+            "Semantic image synthesis via adversarial learning",
+            "",
+            "",
+            "",
+            "Dong",
+            "Yu",
+            "Wu",
+            "Guo"
+        ],
+        "b10": [
+            "Generating images with perceptual similarity metrics based on deep networks",
+            "",
+            "",
+            "",
+            "Dosovitskiy",
+            "Brox"
+        ],
+        "b11": [
+            "Generative multi-adversarial networks",
+            "",
+            "",
+            "",
+            "Durugkar",
+            "Gemp",
+            "Mahadevan"
+        ],
+        "b12": [
+            "Image style transfer using convolutional neural networks",
+            "",
+            "",
+            "",
+            "Gatys",
+            "Ecker",
+            "Bethge"
+        ],
+        "b13": [
+            "Deep joint demosaicking and denoising",
+            "",
+            "",
+            "",
+            "Gharbi",
+            "Chaurasia",
+            "Paris",
+            "Durand"
+        ],
+        "b14": [
+            "",
+            "",
+            "Multi-agent diverse generative adversarial networks",
+            ""
+        ],
+        "b15": [
+            "Generative adversarial networks",
+            "",
+            "",
+            "",
+            "Goodfellow",
+            "Pouget-Abadie",
+            "Mirza",
+            "Xu",
+            "Warde-Farley",
+            "Ozair",
+            "Courville",
+            "Bengio"
+        ],
+        "b16": [
+            "",
+            "",
+            "Synthetic medical images from dual generative adversarial networks",
+            ""
+        ],
+        "b17": [
+            "Deep residual learning for image recognition",
+            "",
+            "",
+            "",
+            "He",
+            "Zhang",
+            "Ren",
+            "Sun"
+        ],
+        "b18": [
+            "Stacked generative adversarial networks",
+            "",
+            "",
+            "",
+            "Huang",
+            "Li",
+            "Poursaeed",
+            "Hopcroft",
+            "Belongie"
+        ],
+        "b19": [
+            "Globally and locally consistent image completion",
+            "",
+            "",
+            "",
+            "Iizuka",
+            "Simo-Serra",
+            "Ishikawa"
+        ],
+        "b20": [
+            "Imageto-image translation with conditional adversarial networks",
+            "",
+            "",
+            "",
+            "Isola",
+            "Zhu",
+            "Zhou",
+            "Efros"
+        ],
+        "b21": [
+            "Perceptual losses for real-time style transfer and super-resolution",
+            "",
+            "",
+            "",
+            "Johnson",
+            "Alahi",
+            "Fei-Fei"
+        ],
+        "b22": [
+            "Semantic photo synthesis",
+            "",
+            "",
+            "",
+            "Johnson",
+            "Brostow",
+            "Shotton",
+            "Arandjelovic",
+            "Kwatra",
+            "Cipolla"
+        ],
+        "b23": [
+            "Generative attribute controller with conditional filtered generative adversarial networks",
+            "",
+            "",
+            "",
+            "Kaneko",
+            "Hiramatsu",
+            "Kashino"
+        ],
+        "b24": [
+            "",
+            "",
+            "Learning to generate images of outdoor scenes from attributes and semantic layouts",
+            ""
+        ],
+        "b25": [
+            "",
+            "",
+            "Progressive growing of gans for improved quality, stability, and variation",
+            ""
+        ],
+        "b26": [
+            "",
+            "",
+            "Adam: A method for stochastic optimization",
+            ""
+        ],
+        "b27": [
+            "Auto-encoding variational Bayes",
+            "",
+            "",
+            "",
+            "Kingma",
+            "Welling"
+        ],
+        "b28": [
+            "Photo clip art",
+            "",
+            "",
+            "",
+            "Lalonde",
+            "Hoiem",
+            "Efros",
+            "Rother",
+            "Winn",
+            "Criminisi"
+        ],
+        "b29": [
+            "Autoencoding beyond pixels using a learned similarity metric",
+            "",
+            "",
+            "",
+            "Larsen",
+            "S\u00f8nderby",
+            "Larochelle",
+            "Winther"
+        ],
+        "b30": [
+            "Interactive facial feature localization",
+            "",
+            "",
+            "",
+            "Le",
+            "Brandt",
+            "Lin",
+            "Bourdev",
+            "Huang"
+        ],
+        "b31": [
+            "Photo-realistic single image superresolution using a generative adversarial network",
+            "",
+            "",
+            "",
+            "Ledig",
+            "Theis",
+            "Husz\u00e1r",
+            "Caballero",
+            "Cunningham",
+            "Acosta",
+            "Aitken",
+            "Tejani",
+            "Totz",
+            "Wang"
+        ],
+        "b32": [
+            "Perceptual generative adversarial networks for small object detection",
+            "",
+            "",
+            "",
+            "Li",
+            "Liang",
+            "Wei",
+            "Xu",
+            "Feng",
+            "Yan"
+        ],
+        "b33": [
+            "Unsupervised image-to-image translation networks",
+            "",
+            "",
+            "",
+            "Liu",
+            "Breuel",
+            "Kautz"
+        ],
+        "b34": [
+            "Coupled generative adversarial networks",
+            "",
+            "",
+            "",
+            "Liu",
+            "Tuzel"
+        ],
+        "b35": [
+            "Fully convolutional networks for semantic segmentation",
+            "",
+            "",
+            "",
+            "Long",
+            "Shelhamer",
+            "Darrell"
+        ],
+        "b36": [
+            "Least squares generative adversarial networks",
+            "",
+            "",
+            "",
+            "Mao",
+            "Li",
+            "Xie",
+            "Lau",
+            "Wang",
+            "Smolley"
+        ],
+        "b37": [
+            "Deep multiscale video prediction beyond mean square error",
+            "",
+            "",
+            "",
+            "Mathieu",
+            "Couprie",
+            "Lecun"
+        ],
+        "b38": [
+            "",
+            "",
+            "Conditional generative adversarial nets",
+            ""
+        ],
+        "b39": [
+            "Indoor segmentation and support inference from RGBD images",
+            "",
+            "",
+            "",
+            "Nathan Silberman",
+            "Hoiem",
+            "Fergus"
+        ],
+        "b40": [
+            "Context encoders: Feature learning by inpainting",
+            "",
+            "",
+            "",
+            "Pathak",
+            "Krahenbuhl",
+            "Donahue",
+            "Darrell",
+            "Efros"
+        ],
+        "b41": [
+            "Unsupervised representation learning with deep convolutional generative adversarial networks",
+            "",
+            "",
+            "",
+            "Radford",
+            "Metz",
+            "Chintala"
+        ],
+        "b42": [
+            "U-net: Convolutional networks for biomedical image segmentation",
+            "",
+            "",
+            "",
+            "Ronneberger",
+            "Fischer",
+            "Brox"
+        ],
+        "b43": [
+            "Nonlinear total variation based noise removal algorithms",
+            "",
+            "",
+            "",
+            "Rudin",
+            "Osher",
+            "Fatemi"
+        ],
+        "b44": [
+            "Improved techniques for training GANs",
+            "",
+            "",
+            "",
+            "Salimans",
+            "Goodfellow",
+            "Zaremba",
+            "Cheung",
+            "Radford",
+            "Chen"
+        ],
+        "b45": [
+            "",
+            "",
+            "Scribbler: Controlling deep image synthesis with sketch and color",
+            ""
+        ],
+        "b46": [
+            "Learning from simulated and unsupervised images through adversarial training",
+            "",
+            "",
+            "",
+            "Shrivastava",
+            "Pfister",
+            "Tuzel",
+            "Susskind",
+            "Wang",
+            "Webb"
+        ],
+        "b47": [
+            "",
+            "",
+            "Very deep convolutional networks for large-scale image recognition",
+            ""
+        ],
+        "b48": [
+            "Exemplar-based face parsing",
+            "",
+            "",
+            "",
+            "Smith",
+            "Zhang",
+            "Brandt",
+            "Lin",
+            "Yang"
+        ],
+        "b49": [
+            "Unsupervised cross-domain image generation",
+            "",
+            "",
+            "",
+            "Taigman",
+            "Polyak",
+            "Wolf"
+        ],
+        "b50": [
+            "",
+            "",
+            "Mocogan: Decomposing motion and content for video generation",
+            ""
+        ],
+        "b51": [
+            "Adversarial inverse graphics networks: Learning 2D-to-3D lifting and image-to-image translation from unpaired supervision",
+            "",
+            "",
+            "",
+            "Tung",
+            "Harley",
+            "Seto",
+            "Fragkiadaki"
+        ],
+        "b52": [
+            "",
+            "",
+            "Instance normalization: The missing ingredient for fast stylization",
+            ""
+        ],
+        "b53": [
+            "Generating videos with scene dynamics",
+            "",
+            "",
+            "",
+            "Vondrick",
+            "Pirsiavash",
+            "Torralba"
+        ],
+        "b54": [
+            "Generative image modeling using style and structure adversarial networks",
+            "",
+            "",
+            "",
+            "Wang",
+            "Gupta"
+        ],
+        "b55": [
+            "Unsupervised dual learning for image-to-image translation",
+            "",
+            "",
+            "",
+            "Yi",
+            "Zhang",
+            "Gong"
+        ],
+        "b56": [
+            "Text to photo-realistic image synthesis with stacked generative adversarial networks",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Xu",
+            "Li",
+            "Zhang",
+            "Huang",
+            "Wang",
+            "Metaxas",
+            "Stackgan"
+        ],
+        "b57": [
+            "Colorful image colorization",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Isola",
+            "Efros"
+        ],
+        "b58": [
+            "Real-time user-guided image colorization with learned deep priors",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Zhu",
+            "Isola",
+            "Geng",
+            "Lin",
+            "Yu",
+            "Efros"
+        ],
+        "b59": [
+            "Age progression/regression by conditional adversarial autoencoder",
+            "",
+            "",
+            "",
+            "Zhang",
+            "Song",
+            "Qi"
+        ],
+        "b60": [
+            "Pyramid scene parsing network",
+            "",
+            "",
+            "",
+            "Zhao",
+            "Shi",
+            "Qi",
+            "Wang",
+            "Jia"
+        ],
+        "b61": [
+            "Energy-based generative adversarial network",
+            "",
+            "",
+            "",
+            "Zhao",
+            "Mathieu",
+            "Lecun"
+        ],
+        "b62": [
+            "Scene parsing through ADE20K dataset",
+            "",
+            "",
+            "",
+            "Zhou",
+            "Zhao",
+            "Puig",
+            "Fidler",
+            "Barriuso",
+            "Torralba"
+        ],
+        "b63": [
+            "Generative visual manipulation on the natural image manifold",
+            "",
+            "",
+            "",
+            "Zhu",
+            "Kr\u00e4henb\u00fchl",
+            "Shechtman",
+            "Efros"
+        ],
+        "b64": [
+            "Unpaired image-to-image translation using cycle-consistent adversarial networks",
+            "",
+            "",
+            "",
+            "Zhu",
+            "Park",
+            "Isola",
+            "Efros"
+        ],
+        "b65": [
+            "Toward multimodal image-to-image translation",
+            "",
+            "",
+            "",
+            "Zhu",
+            "Zhang",
+            "Pathak",
+            "Darrell",
+            "Efros",
+            "Wang",
+            "Shechtman"
+        ]
+    },
+    {
+        "tab_0": "Table 1 :1Semantic segmentation scores on results by different methods on the Cityscapes dataset[7]. Our result outperforms the other methods by a large margin and is very close to the accuracy on original images (i.e., the oracle).Oracle",
+        "tab_1": "Table 2 :2Pairwise comparison results on the Cityscapes dataset[7] (unlimited time). Each cell lists the percentage where our result is preferred over the other method. Chance is at 50%.",
+        "tab_2": "Table 3 :3Semantic segmentation scores on results using different generators on the Cityscapes dataset[7]. Our generator obtains the highest scores.Our generatorPixel acc (%)77.8678.9683.78Mean IoU0.39050.39940.6389U-Net [21, 43]CRN [5]Our generator80.0%76.6%",
+        "tab_3": "Table 4 :4Pairwise comparison results on the Cityscapes dataset[7]. Each cell lists the percentage where our result is preferred over the other method. Chance is at 50%.single D multi-scale DsPixel acc (%)82.8783.78Mean IoU0.57750.6389discriminators over the results trained with a single-scale discriminator (Chance is 50%).",
+        "tab_4": "Table 5 :5Semantic segmentation scores on results using either a single discriminator (single D) or multi-scale discriminators (multi-scale Ds) on the Cityscapes dataset[7]. Using multi-scale discriminators helps improve the segmentation scores."
+    }
+]
