@@ -12,6 +12,6 @@ Information Extraction: What Works, What Doesn’t, and Future Directions"
 
 # Team Members:
 
-- [Annaya](https://github.com/Ananyaiitbhilai)
+- [Ananya](https://github.com/Ananyaiitbhilai)
 - [Debarghya](https://github.com/deba-iitbh)
 - [Vaibhav](https://github.com/Vaibhav-Arora-2182)
